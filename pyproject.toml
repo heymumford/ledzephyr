@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ledzephyr"
+version = "0.1.0"
+description = "A utility to measure your migration to qTest cloud"
+authors = ["Eric C. Mumford <eric@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+typer = "^0.19.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.2"
+
+[tool.poetry.scripts]
+lz = "ledzephyr.cli:app"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
