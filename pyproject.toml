@@ -1,0 +1,70 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "ledzephyr"
+version = "0.1.0"
+description = "CLI tool to report Zephyr Scale → qTest migration metrics per Jira project/team"
+authors = ["Eric C. Mumford <eric@example.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/heymumford/ledzephyr"
+repository = "https://github.com/heymumford/ledzephyr"
+keywords = ["cli", "jira", "zephyr", "qtest", "migration", "metrics"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+packages = [{include = "ledzephyr"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+typer = {extras = ["all"], version = "^0.9.0"}
+httpx = "^0.27.0"
+pydantic = "^2.0"
+pydantic-settings = "^2.0"
+tenacity = "^8.0"
+python-dotenv = "^1.0"
+rich = "^13.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+respx = "^0.21.0"
+black = "^24.0"
+mypy = "^1.0"
+pytest-cov = "^4.0"
+pytest-asyncio = "^0.23.0"
+
+[tool.poetry.scripts]
+lz = "ledzephyr.cli:app"
+ledzephyr = "ledzephyr.cli:app"
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "--cov=ledzephyr --cov-report=term-missing --cov-report=html"
