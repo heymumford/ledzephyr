@@ -88,7 +88,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: benchmark-${{ matrix.module }}-${{ matrix.runner }}
           path: benchmark-${{ matrix.module }}-${{ matrix.runner }}.json
@@ -200,7 +200,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload load test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: load-test-${{ matrix.scenario }}
           path: load-test-${{ matrix.scenario }}.xml
@@ -291,7 +291,7 @@ jobs:
             -v -s
 
       - name: Upload memory profile results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: memory-profile-${{ matrix.component }}
           path: memory-profile-${{ matrix.component }}.xml
@@ -434,7 +434,7 @@ jobs:
           find ./performance-results -name "*.json" -o -name "*.xml" | sort >> $GITHUB_STEP_SUMMARY
 
       - name: Upload consolidated performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: consolidated-performance-results
           path: ./performance-results/

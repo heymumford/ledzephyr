@@ -42,7 +42,7 @@ jobs:
             -v --durations=10
 
       - name: Upload calculation coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail1-calculations-${{ matrix.calculation_module }}
           path: rail1-calc-${{ matrix.calculation_module }}.xml
@@ -74,7 +74,7 @@ jobs:
             -v --durations=10
 
       - name: Upload validation coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail1-validation-${{ matrix.data_module }}
           path: rail1-data-${{ matrix.data_module }}.xml
@@ -157,7 +157,7 @@ jobs:
             -v --hypothesis-show-statistics
 
       - name: Upload property test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail1-properties
           path: rail1-properties.xml
@@ -191,7 +191,7 @@ jobs:
             -v --durations=10
 
       - name: Upload business logic coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail1-business-logic
           path: rail1-business-logic.xml
@@ -240,7 +240,7 @@ jobs:
           echo "- **Execution speed**: ✅ Fast (pure computation)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Rail 1 consolidated results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail1-consolidated
           path: ./rail1-results/

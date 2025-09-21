@@ -43,7 +43,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload API client test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail3-api-${{ matrix.api_service }}
           path: rail3-api-${{ matrix.api_service }}.xml
@@ -79,7 +79,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload CLI test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail3-cli-${{ matrix.command_group }}
           path: rail3-cli-${{ matrix.command_group }}.xml
@@ -111,7 +111,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload exporter test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail3-export-${{ matrix.export_format }}
           path: rail3-export-${{ matrix.export_format }}.xml
@@ -144,7 +144,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload integration contract results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail3-integration-contracts
           path: rail3-integration-contracts.xml
@@ -186,7 +186,7 @@ jobs:
           pkill -f "python -m http.server" || true
 
       - name: Upload mock service test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail3-mock-services
           path: rail3-mock-services.xml
@@ -237,7 +237,7 @@ jobs:
           echo "- **Execution speed**: ⚠️ Slower (I/O simulation)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Rail 3 consolidated results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail3-consolidated
           path: ./rail3-results/

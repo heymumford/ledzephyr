@@ -292,7 +292,7 @@ jobs:
           EOF
 
       - name: Upload orchestrator summary
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: orchestrator-summary
           path: orchestrator_summary.json

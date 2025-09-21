@@ -238,7 +238,7 @@ jobs:
           EOF
 
       - name: Upload AI assessment
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ai-assessment
           path: ai_assessment.json
@@ -357,7 +357,7 @@ jobs:
           EOF
 
       - name: Upload ticket creation results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jira-tickets
           path: created_tickets.json
@@ -416,7 +416,7 @@ jobs:
           echo "- Next AI assessment: $(date -u -d '+1 hour' '+%Y-%m-%d %H:00 UTC')" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload comprehensive report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: assessment-report
           path: assessment-results/

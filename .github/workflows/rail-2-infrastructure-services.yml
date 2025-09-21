@@ -41,7 +41,7 @@ jobs:
             -v --durations=10
 
       - name: Upload cache test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail2-cache-${{ matrix.cache_backend }}
           path: rail2-cache-${{ matrix.cache_backend }}.xml
@@ -72,7 +72,7 @@ jobs:
             -v --durations=10
 
       - name: Upload resilience test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail2-resilience-${{ matrix.resilience_module }}
           path: rail2-resilience-${{ matrix.resilience_module }}.xml
@@ -103,7 +103,7 @@ jobs:
             -v --durations=10
 
       - name: Upload observability test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail2-observability-${{ matrix.observability_module }}
           path: rail2-obs-${{ matrix.observability_module }}.xml
@@ -137,7 +137,7 @@ jobs:
             -v --durations=10
 
       - name: Upload infrastructure integration results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail2-infrastructure-integration
           path: rail2-infrastructure-integration.xml
@@ -186,7 +186,7 @@ jobs:
           echo "- **Execution speed**: ✅ Medium (infrastructure simulation)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Rail 2 consolidated results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rail2-consolidated
           path: ./rail2-results/

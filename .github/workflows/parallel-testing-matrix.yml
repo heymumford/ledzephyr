@@ -93,14 +93,14 @@ jobs:
         continue-on-error: true
 
       - name: Upload module coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.module }}-${{ matrix.os }}
           path: coverage-${{ matrix.module }}-${{ matrix.os }}.xml
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.module }}-${{ matrix.os }}
           path: test-results/
@@ -216,7 +216,7 @@ jobs:
             -v
 
       - name: Upload Python version coverage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-python-${{ matrix.python-version }}
           path: coverage-py${{ matrix.python-version }}.xml
@@ -316,7 +316,7 @@ jobs:
           echo "- **Python version compatibility**: Tested on 3.9, 3.10, 3.11, 3.12" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload combined artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: all-test-results
           path: ./artifacts/
