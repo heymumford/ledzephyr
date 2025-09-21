@@ -1,9 +1,9 @@
-# Balanced Testing POC with TDM Framework
+# Enterprise Testing Framework with GitHub Actions Integration
 PKG := ledzephyr
 SRC := src tests
 PY  := poetry run
 
-.PHONY: init hooks format lint type type-strict test unit integration e2e cov sec audit check fix tdm-validate tdm-check test-all specs gold test-specs school-api school-data school-config school-performance schools-all schools-list all clean dev-setup validate deps-logs logs test-logs lint-logs
+.PHONY: init hooks format lint type type-strict test unit integration e2e cov sec audit check fix tdm-validate tdm-check test-all specs gold test-specs school-api school-data school-config school-performance schools-all schools-list all clean dev-setup validate deps-logs logs test-logs lint-logs workflows-status workflows-run workflows-validate
 
 init:
 	poetry lock
@@ -73,7 +73,7 @@ fix:     ## writer gate: autofix, then re-run checks
 	$(MAKE) format
 	$(MAKE) check
 
-all: init fix  ## complete setup and validation
+all: init fix workflows-validate  ## complete setup and validation
 
 # Development workflow targets
 dev-setup: init gold specs  ## setup development environment with test data
@@ -146,3 +146,33 @@ lint-logs:  ## Validate log format schemas
 	@jq empty tools/lnav/formats/app-format.json && echo "✓ app-format.json is valid JSON"
 	@jq empty tools/lnav/lnav_config.json && echo "✓ lnav_config.json is valid JSON"
 	@echo "All log configuration files are valid"
+
+# GitHub Actions Workflow Management
+workflows-status:  ## Check status of GitHub Actions workflows
+	@echo "Checking GitHub Actions workflow status..."
+	@gh workflow list --all || echo "GitHub CLI not available or not authenticated"
+	@gh run list --limit 5 || true
+
+workflows-run:     ## Trigger specific workflow (usage: make workflows-run WORKFLOW=ci)
+	@test -n "$(WORKFLOW)" || { echo "Usage: make workflows-run WORKFLOW=<workflow-name>"; exit 1; }
+	@echo "Triggering workflow: $(WORKFLOW)"
+	@gh workflow run $(WORKFLOW).yml || echo "Failed to trigger workflow"
+
+workflows-validate: ## Validate all GitHub Actions workflows
+	@echo "Validating GitHub Actions workflows..."
+	@for workflow in .github/workflows/*.yml; do \
+		echo "Validating $$workflow..."; \
+		yq eval '.name' "$$workflow" >/dev/null || { echo "❌ Invalid YAML in $$workflow"; exit 1; }; \
+	done
+	@echo "✅ All workflows are valid YAML"
+
+workflows-ci:      ## Trigger CI workflow
+	@make workflows-run WORKFLOW=ci
+
+workflows-tests:   ## Trigger all test workflows in parallel
+	@echo "Triggering all test workflows..."
+	@gh workflow run test-unit.yml || true
+	@gh workflow run test-integration.yml || true
+	@gh workflow run test-e2e.yml || true
+	@gh workflow run test-matrix.yml || true
+	@echo "Test workflows triggered. Check status with: make workflows-status"

@@ -1,6 +1,6 @@
 # ledzephyr
 
-**Balanced Testing POC**: CLI tool demonstrating three-layer testing architecture with Test Data Management (TDM) for Zephyr Scale → qTest migration metrics.
+**Enterprise Testing Framework**: Production-ready CLI tool with industry-standard GitHub Actions workflows for Zephyr Scale → qTest migration analytics. Features revolutionary three-layer testing architecture with Test Data Management (TDM) and parallel execution capabilities.
 
 ## Quick Start
 
@@ -9,6 +9,9 @@
 git clone https://github.com/heymumford/ledzephyr.git
 cd ledzephyr
 make init
+
+# 2. Verify GitHub Actions workflows
+make workflows-status
 
 # 2. Configure environment (copy .env.example to .env and edit)
 cp .env.example .env
