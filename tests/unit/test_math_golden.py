@@ -88,8 +88,6 @@ class TestMathGolden:
 
     def test_adoption_ratio_calculation_golden(self):
         """Test adoption ratio calculation with known values."""
-        calculator = MetricsCalculator(Mock())
-
         # Test cases from golden data
         test_cases = [
             (0, 0, 0.0),  # No tests
@@ -206,7 +204,6 @@ class TestTimeWindowParsing:
 
         for window_str, expected_hours in test_cases:
             result = calculator._parse_time_window(window_str, end_date)
-            expected_start = end_date.replace(hour=23, minute=59, second=59)
 
             # Calculate the difference in hours
             diff_hours = (end_date - result).total_seconds() / 3600

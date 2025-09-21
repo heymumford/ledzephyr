@@ -1,9 +1,9 @@
-# Minimal local quality gates
+# Balanced Testing POC with TDM Framework
 PKG := ledzephyr
 SRC := src tests
 PY  := poetry run
 
-.PHONY: init hooks format lint type type-strict test unit integration cov sec audit check fix all clean
+.PHONY: init hooks format lint type type-strict test unit integration e2e cov sec audit check fix tdm-validate tdm-check test-all all clean
 
 init:
 	poetry lock
@@ -30,16 +30,17 @@ type-strict:  ## stricter mode if you opt-in per module
 test:    ## run unit tests by default
 	$(PY) pytest -m "unit"
 
-unit:
-	$(PY) pytest -m "unit"
+unit:    ## fast unit tests (math, parsers, pure logic)
+	./scripts/test-runner.sh unit
 
-integration:
-	$(PY) pytest -m "integration"
+integration:  ## integration tests with test doubles
+	./scripts/test-runner.sh integration
 
-cov:     ## full suite with coverage artifacts
-	$(PY) pytest -q --cov=$(PKG) --cov-report=term-missing
-	$(PY) coverage xml -o reports/coverage.xml
-	$(PY) coverage html -d reports/coverage_html
+e2e:     ## end-to-end tests with manifest replay
+	./scripts/test-runner.sh e2e
+
+cov:     ## full test suite with coverage artifacts
+	./scripts/test-runner.sh all --coverage
 
 sec:     ## code security scan
 	$(PY) bandit -q -r src
@@ -47,13 +48,23 @@ sec:     ## code security scan
 audit:   ## dependency vulnerability scan (lockfile-based)
 	$(PY) pip-audit --desc
 
+tdm-validate:  ## validate TDM manifests
+	./scripts/tdm.sh validate-all
+
+tdm-check:     ## check TDM cassettes and manifests
+	./scripts/tdm.sh check-cassettes
+
+test-all:      ## run all test layers with timing
+	./scripts/test-runner.sh all --verbose
+
 check:   ## read-only CI-equivalent gate
 	$(MAKE) lint
 	$(MAKE) type
-	$(MAKE) test
-	$(MAKE) cov
+	$(MAKE) unit
+	$(MAKE) integration
+	$(MAKE) e2e
 	$(MAKE) sec
-	$(MAKE) audit
+	$(MAKE) tdm-validate
 
 fix:     ## writer gate: autofix, then re-run checks
 	$(MAKE) format
@@ -61,5 +72,7 @@ fix:     ## writer gate: autofix, then re-run checks
 
 all: init fix
 
-clean:
-	rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage reports/coverage* reports/coverage_html .cache
+clean:   ## clean build artifacts and caches
+	rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage .hypothesis
+	rm -rf reports/ htmlcov/ .ledzephyr_cache/
+	rm -rf src/**/__pycache__ tests/**/__pycache__ tdm/**/__pycache__
