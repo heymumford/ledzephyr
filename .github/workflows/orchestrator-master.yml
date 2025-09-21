@@ -1,0 +1,332 @@
+name: Orchestrator Master - Rail Coordination
+
+on:
+  push:
+    branches: [ main, develop, feat/* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      rail_selection:
+        description: 'Select rails to execute'
+        required: false
+        type: choice
+        options:
+          - 'all'
+          - 'rail-1-only'
+          - 'rail-2-only'
+          - 'rail-3-only'
+          - 'critical-path'
+      max_duration:
+        description: 'Maximum execution duration (minutes)'
+        required: false
+        default: '15'
+
+env:
+  MAX_DURATION: ${{ github.event.inputs.max_duration || '15' }}
+  RAIL_SELECTION: ${{ github.event.inputs.rail_selection || 'all' }}
+
+jobs:
+  # Master orchestration job - determines execution strategy
+  orchestrate:
+    name: Master Orchestrator
+    runs-on: ubuntu-latest
+    outputs:
+      execute_rail_1: ${{ steps.strategy.outputs.execute_rail_1 }}
+      execute_rail_2: ${{ steps.strategy.outputs.execute_rail_2 }}
+      execute_rail_3: ${{ steps.strategy.outputs.execute_rail_3 }}
+      critical_path: ${{ steps.strategy.outputs.critical_path }}
+      estimated_duration: ${{ steps.strategy.outputs.estimated_duration }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Determine execution strategy
+        id: strategy
+        run: |
+          python << 'EOF'
+          import os
+          import json
+
+          def determine_strategy():
+              """Determine optimal rail execution strategy."""
+              rail_selection = os.environ.get('RAIL_SELECTION', 'all')
+              max_duration = int(os.environ.get('MAX_DURATION', '15'))
+
+              # Base strategy
+              strategy = {
+                  'execute_rail_1': False,
+                  'execute_rail_2': False,
+                  'execute_rail_3': False,
+                  'critical_path': False,
+                  'estimated_duration': 0
+              }
+
+              if rail_selection == 'all':
+                  strategy.update({
+                      'execute_rail_1': True,
+                      'execute_rail_2': True,
+                      'execute_rail_3': True,
+                      'estimated_duration': 8  # All rails in parallel
+                  })
+              elif rail_selection == 'rail-1-only':
+                  strategy.update({
+                      'execute_rail_1': True,
+                      'estimated_duration': 3
+                  })
+              elif rail_selection == 'rail-2-only':
+                  strategy.update({
+                      'execute_rail_2': True,
+                      'estimated_duration': 4
+                  })
+              elif rail_selection == 'rail-3-only':
+                  strategy.update({
+                      'execute_rail_3': True,
+                      'estimated_duration': 6
+                  })
+              elif rail_selection == 'critical-path':
+                  strategy.update({
+                      'execute_rail_1': True,  # Core business logic
+                      'critical_path': True,
+                      'estimated_duration': 3
+                  })
+
+              # Adjust for time constraints
+              if strategy['estimated_duration'] > max_duration:
+                  print(f"Adjusting strategy for {max_duration} minute limit")
+                  if max_duration < 5:
+                      # Only critical path
+                      strategy = {
+                          'execute_rail_1': True,
+                          'execute_rail_2': False,
+                          'execute_rail_3': False,
+                          'critical_path': True,
+                          'estimated_duration': 3
+                      }
+
+              return strategy
+
+          strategy = determine_strategy()
+
+          # Output strategy decisions
+          for key, value in strategy.items():
+              print(f"::set-output name={key}::{value}")
+
+          # Create execution summary
+          summary = f"""
+          # 🎯 Master Orchestrator - Execution Strategy
+
+          ## 📋 Rail Execution Plan
+
+          | Rail | Execute | Focus | Est. Duration |
+          |------|---------|-------|---------------|
+          | Rail 1 (Core Logic) | {'✅' if strategy['execute_rail_1'] else '❌'} | Pure business logic | ~3 min |
+          | Rail 2 (Infrastructure) | {'✅' if strategy['execute_rail_2'] else '❌'} | Services & middleware | ~4 min |
+          | Rail 3 (Integrations) | {'✅' if strategy['execute_rail_3'] else '❌'} | External APIs & I/O | ~6 min |
+
+          ## ⚡ Execution Mode
+          - **Strategy**: {os.environ.get('RAIL_SELECTION', 'all')}
+          - **Critical Path**: {'Yes' if strategy['critical_path'] else 'No'}
+          - **Max Duration**: {os.environ.get('MAX_DURATION', '15')} minutes
+          - **Estimated Duration**: {strategy['estimated_duration']} minutes
+          - **Parallel Execution**: {'Yes' if sum([strategy['execute_rail_1'], strategy['execute_rail_2'], strategy['execute_rail_3']]) > 1 else 'No'}
+
+          ## 🚀 Orchestration Benefits
+          - **Orthogonal Concerns**: Each rail tests independent functionality
+          - **Maximum Throughput**: Parallel execution minimizes total duration
+          - **Intelligent Clustering**: Related tests grouped for efficiency
+          - **Failure Isolation**: Rail failures don't impact other rails
+          """
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'w') as f:
+              f.write(summary)
+          EOF
+
+  # Rail 1: Core Business Logic (Fast, no dependencies)
+  execute-rail-1:
+    name: Execute Rail 1
+    needs: orchestrate
+    if: needs.orchestrate.outputs.execute_rail_1 == 'true'
+    uses: ./.github/workflows/rail-1-core-business-logic.yml
+
+  # Rail 2: Infrastructure Services (Medium, controlled dependencies)
+  execute-rail-2:
+    name: Execute Rail 2
+    needs: orchestrate
+    if: needs.orchestrate.outputs.execute_rail_2 == 'true'
+    uses: ./.github/workflows/rail-2-infrastructure-services.yml
+
+  # Rail 3: External Integrations (Slower, heavy mocking)
+  execute-rail-3:
+    name: Execute Rail 3
+    needs: orchestrate
+    if: needs.orchestrate.outputs.execute_rail_3 == 'true'
+    uses: ./.github/workflows/rail-3-external-integrations.yml
+
+  # Aggregation and reporting
+  aggregate-results:
+    name: Aggregate Rail Results
+    runs-on: ubuntu-latest
+    needs:
+      - orchestrate
+      - execute-rail-1
+      - execute-rail-2
+      - execute-rail-3
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all rail artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ./orchestrator-results
+
+      - name: Aggregate test results and coverage
+        run: |
+          python << 'EOF'
+          import os
+          import json
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          def aggregate_results():
+              """Aggregate results from all executed rails."""
+              results_dir = Path('./orchestrator-results')
+
+              aggregated = {
+                  'total_tests': 0,
+                  'passed_tests': 0,
+                  'failed_tests': 0,
+                  'skipped_tests': 0,
+                  'total_duration': 0,
+                  'coverage_files': 0,
+                  'rails_executed': []
+              }
+
+              # Process each rail's results
+              for rail_dir in results_dir.iterdir():
+                  if rail_dir.is_dir() and rail_dir.name.startswith('rail'):
+                      rail_num = rail_dir.name.split('-')[0][-1]
+                      aggregated['rails_executed'].append(rail_num)
+
+                      # Process test results
+                      for result_file in rail_dir.glob('**/*.xml'):
+                          if 'junit' in result_file.name:
+                              try:
+                                  tree = ET.parse(result_file)
+                                  root = tree.getroot()
+
+                                  if root.tag == 'testsuite':
+                                      aggregated['total_tests'] += int(root.get('tests', 0))
+                                      aggregated['failed_tests'] += int(root.get('failures', 0))
+                                      aggregated['skipped_tests'] += int(root.get('skipped', 0))
+                                      aggregated['total_duration'] += float(root.get('time', 0))
+                              except:
+                                  pass
+                          elif 'coverage' in result_file.name:
+                              aggregated['coverage_files'] += 1
+
+              aggregated['passed_tests'] = (aggregated['total_tests'] -
+                                          aggregated['failed_tests'] -
+                                          aggregated['skipped_tests'])
+
+              return aggregated
+
+          results = aggregate_results()
+
+          # Calculate success metrics
+          success_rate = (results['passed_tests'] / results['total_tests'] * 100) if results['total_tests'] > 0 else 0
+          avg_duration = results['total_duration'] / len(results['rails_executed']) if results['rails_executed'] else 0
+
+          # Generate comprehensive report
+          summary = f"""
+          # 📊 Orchestrator Master - Execution Results
+
+          ## 🎯 Rail Execution Summary
+
+          | Metric | Value | Status |
+          |--------|-------|--------|
+          | **Rails Executed** | {len(results['rails_executed'])} | {'✅' if results['rails_executed'] else '❌'} |
+          | **Total Tests** | {results['total_tests']} | {'✅' if results['total_tests'] > 0 else '❌'} |
+          | **Success Rate** | {success_rate:.1f}% | {'✅' if success_rate >= 95 else '⚠️' if success_rate >= 85 else '❌'} |
+          | **Total Duration** | {results['total_duration']:.1f}s | {'✅' if results['total_duration'] < 600 else '⚠️'} |
+          | **Coverage Reports** | {results['coverage_files']} | {'✅' if results['coverage_files'] > 0 else '❌'} |
+
+          ## 📈 Test Results Breakdown
+
+          | Result Type | Count | Percentage |
+          |-------------|-------|------------|
+          | **Passed** | {results['passed_tests']} | {(results['passed_tests']/results['total_tests']*100) if results['total_tests'] > 0 else 0:.1f}% |
+          | **Failed** | {results['failed_tests']} | {(results['failed_tests']/results['total_tests']*100) if results['total_tests'] > 0 else 0:.1f}% |
+          | **Skipped** | {results['skipped_tests']} | {(results['skipped_tests']/results['total_tests']*100) if results['total_tests'] > 0 else 0:.1f}% |
+
+          ## 🚀 Parallel Execution Benefits Realized
+
+          - **Orthogonal Testing**: {len(results['rails_executed'])} independent test rails executed
+          - **Throughput Optimization**: Average rail duration ~{avg_duration:.1f}s
+          - **Failure Isolation**: Rail-specific failures don't impact other rails
+          - **Comprehensive Coverage**: {results['coverage_files']} coverage reports generated
+
+          ## 🎯 Quality Gates
+
+          {'✅ All quality gates passed' if success_rate >= 95 and results['failed_tests'] == 0 else '⚠️ Quality gates need attention'}
+
+          ## 📋 Rails Executed
+          {', '.join([f'Rail {r}' for r in results['rails_executed']]) if results['rails_executed'] else 'No rails executed'}
+
+          ---
+          *Generated by Orchestrator Master at {os.environ.get('GITHUB_SHA', 'unknown')[:8]}*
+          """
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'w') as f:
+              f.write(summary)
+
+          # Save aggregated results
+          with open('orchestrator_summary.json', 'w') as f:
+              json.dump(results, f, indent=2)
+
+          print("Orchestrator aggregation completed successfully")
+          EOF
+
+      - name: Upload orchestrator summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: orchestrator-summary
+          path: orchestrator_summary.json
+
+      - name: Set deployment gates
+        run: |
+          python << 'EOF'
+          import json
+          import os
+
+          # Load aggregated results
+          try:
+              with open('orchestrator_summary.json') as f:
+                  results = json.load(f)
+
+              # Determine deployment readiness
+              success_rate = (results['passed_tests'] / results['total_tests'] * 100) if results['total_tests'] > 0 else 0
+              deployment_ready = (
+                  success_rate >= 95 and
+                  results['failed_tests'] == 0 and
+                  len(results['rails_executed']) > 0
+              )
+
+              print(f"::set-output name=deployment_ready::{deployment_ready}")
+              print(f"::set-output name=success_rate::{success_rate:.1f}")
+
+              if deployment_ready:
+                  print("🚀 Deployment gates PASSED - Ready for deployment")
+              else:
+                  print("⚠️ Deployment gates FAILED - Not ready for deployment")
+                  print(f"   Success rate: {success_rate:.1f}% (required: 95%)")
+                  print(f"   Failed tests: {results['failed_tests']} (required: 0)")
+
+          except Exception as e:
+              print(f"Error setting deployment gates: {e}")
+              print("::set-output name=deployment_ready::false")
+          EOF
