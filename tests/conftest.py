@@ -88,6 +88,55 @@ def mock_api_client():
 
 
 @pytest.fixture
+def mock_config():
+    """Create mock configuration data for testing."""
+
+    def _create_config(**overrides):
+        base_config = {
+            "jira_url": "https://test.atlassian.net",
+            "jira_username": "test@example.com",
+            "jira_api_token": "test_token",
+            "zephyr_token": "zephyr_token",
+            "qtest_url": "https://test.qtestnet.com",
+            "qtest_token": "qtest_token",
+            "timeout": 30,
+            "max_retries": 3,
+        }
+        base_config.update(overrides)
+        return base_config
+
+    return _create_config
+
+
+@pytest.fixture
+def temp_env(monkeypatch):
+    """Create temporary environment variables for testing."""
+
+    def _set_env(**env_vars):
+        for key, value in env_vars.items():
+            monkeypatch.setenv(key, str(value))
+
+    return _set_env
+
+
+@pytest.fixture
+def test_config():
+    """Create test configuration instance."""
+    from ledzephyr.config import Config
+
+    return Config(
+        jira_url="https://test.atlassian.net",
+        jira_username="test@example.com",
+        jira_api_token="test_token",
+        zephyr_token="zephyr_token",
+        qtest_url="https://test.qtestnet.com",
+        qtest_token="qtest_token",
+        timeout=30,
+        max_retries=3,
+    )
+
+
+@pytest.fixture
 def sample_project_metrics():
     """Provide sample project metrics for testing."""
     from ledzephyr.models import ProjectMetrics, TeamMetrics, TeamSource
@@ -113,10 +162,11 @@ def sample_project_metrics():
                     qtest_tests=40,
                     adoption_ratio=0.5,
                     coverage_parity=0.9,
-                    defect_link_rate=0.1
+                    defect_link_rate=0.1,
                 )
-            ]
+            ],
         )
+
     return _create_metrics
 
 

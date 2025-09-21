@@ -66,7 +66,9 @@ lz metrics -p MYPROJECT -w 7d --format json
 
 ## Development & Testing
 
-### Three-Layer Testing Architecture
+### School-of-Fish Testing Architecture
+
+This project uses a revolutionary "school-of-fish" integration testing pattern where orthogonal test concerns swim independently in parallel for maximum efficiency:
 
 ```bash
 # Full development setup
@@ -76,6 +78,19 @@ make init                    # Install deps + pre-commit hooks
 make unit                    # Fast unit tests (<1s) - math, parsers
 make integration            # Integration tests (<10s) - API clients with doubles
 make e2e                     # E2E tests (<30s) - manifest-driven pipeline
+
+# School-of-Fish Integration Tests - NEW!
+make schools-all            # Run all schools in parallel (4 workers)
+make schools-list           # List all available schools and katas
+make school-api             # Run API school (external API patterns)
+make school-data            # Run Data school (data flow patterns)
+make school-config          # Run Config school (environment patterns)
+make school-performance     # Run Performance school (timing patterns)
+
+# API Specification Management
+make specs                  # Fetch and cache API specifications
+make gold                   # Generate gold master test datasets
+make test-specs             # Run all spec management tests
 
 # All layers with detailed reporting
 make test-all               # Run all layers with timing and statistics
@@ -95,6 +110,21 @@ make type                    # Type checking (mypy)
 make sec                     # Security scan (bandit)
 ```
 
+### School-of-Fish Pattern
+
+Each "school" represents orthogonal test concerns that can run in parallel:
+
+- **🏫 API School**: External API integration patterns (mocking, errors, timeouts)
+- **🏫 Data School**: Data flow and transformation (gold master, metrics, validation)
+- **🏫 Config School**: Configuration and environment patterns
+- **🏫 Performance School**: Timing, resource usage, and scalability
+
+**Benefits:**
+- ⚡ **Parallel Execution**: Schools swim independently for 2-4x speedup
+- 🎯 **Atomic Testing**: Each kata has 1 clear goal with built-in validation
+- 🔄 **Composable Design**: Schools can be combined or run individually
+- 📊 **Performance Tracking**: Detailed metrics for optimization
+
 ### Advanced Test Execution
 
 ```bash
@@ -104,6 +134,10 @@ make sec                     # Security scan (bandit)
 ./scripts/test-runner.sh e2e --fail-fast
 ./scripts/test-runner.sh all --coverage --verbose
 
+# School-of-fish direct execution
+poetry run python -m tests.integration.schools.cli --workers 8
+poetry run python -m tests.integration.schools.cli --school data --verbose
+
 # TDM operations
 ./scripts/tdm.sh validate testdata/manifests/demo_project_2025q2.yaml
 ./scripts/tdm.sh validate-all
@@ -111,13 +145,45 @@ make sec                     # Security scan (bandit)
 ./scripts/tdm.sh check-cassettes
 ```
 
-### Test Layer Overview
+### Test Architecture Overview
 
 - **Unit Tests** (`tests/unit/`): Pure math, formatters, business logic - <1s execution
 - **Integration Tests** (`tests/integration/`): API clients with test doubles - <10s execution
+- **School-of-Fish Tests** (`tests/integration/schools/`): Parallel orthogonal integration tests - <5s execution
 - **E2E Tests** (`tests/e2e/`): Full Pull→Math→Print pipeline with TDM manifests - <30s execution
+- **Spec Management** (`tests/specs/`): API specification fetching and gold master generation
 
 See `tests/README.md` for detailed testing architecture documentation.
+
+## Deployment
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for comprehensive deployment instructions including:
+- Docker and Kubernetes deployment
+- Monitoring and observability setup
+- Security considerations
+- Production checklist
+
+### Quick Start - Monitoring
+
+```bash
+# Start monitoring server
+lz monitor --port 8080
+
+# Access endpoints
+curl http://localhost:8080/health  # Health checks
+curl http://localhost:8080/metrics  # Prometheus metrics
+```
+
+## Observability
+
+Ledzephyr includes comprehensive observability features:
+
+- **Structured Logging** with correlation IDs
+- **Prometheus Metrics** for monitoring
+- **OpenTelemetry Tracing** for distributed tracing
+- **Health Checks** for service status
+- **Grafana Dashboards** for visualization
+- **Alerting Rules** for proactive monitoring
 
 ## License
 

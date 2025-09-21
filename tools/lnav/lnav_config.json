@@ -1,0 +1,31 @@
+{
+  "ui": {
+    "default-view": "log",
+    "clock-format": "%Y-%m-%d %H:%M:%S %Z",
+    "theme": "default"
+  },
+  "log": {
+    "watch-dirs": [
+      "./var/log"
+    ]
+  },
+  "global": {
+    "autosave": false,
+    "format-dirs": [
+      "tools/lnav/formats"
+    ]
+  },
+  "tuning": {
+    "archive-manager": {
+      "cache-ttl": "1d",
+      "min-free-space": 33554432
+    },
+    "file-vtab": {
+      "max-content-size": 33554432
+    }
+  },
+  "sql": {
+    "result-file": "/tmp/lnav_out.tsv",
+    "history-file": "~/.lnav/sql_history"
+  }
+}

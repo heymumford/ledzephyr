@@ -1,0 +1,36 @@
+{
+  "scenario": "edge_cases",
+  "statistics": {
+    "total_tests": 100,
+    "zephyr_tests": 50,
+    "qtest_tests": 50,
+    "adoption_ratio": 0.5,
+    "total_executions": 267,
+    "tests_executed": 92,
+    "tests_with_defects": 16,
+    "teams": 4,
+    "users": 10
+  },
+  "team_breakdown": [
+    {
+      "team": "Platform",
+      "adoption_rate": 0.6394267984578837,
+      "component": "Component-Platform"
+    },
+    {
+      "team": "Frontend",
+      "adoption_rate": 0.025010755222666936,
+      "component": "Component-Frontend"
+    },
+    {
+      "team": "Backend",
+      "adoption_rate": 0.27502931836911926,
+      "component": "Component-Backend"
+    },
+    {
+      "team": "Mobile",
+      "adoption_rate": 0.22321073814882275,
+      "component": "Component-Mobile"
+    }
+  ]
+}

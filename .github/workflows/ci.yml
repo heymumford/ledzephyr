@@ -1,375 +1,232 @@
-name: CI - Code Quality and Testing
+name: CI Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:
+    branches: [ main ]
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
 
 env:
-  POETRY_VERSION: "1.8.5"
-  PYTHON_VERSION: "3.12"
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.7.0'
+  # Disable telemetry for faster builds
+  POETRY_VIRTUALENVS_CREATE: true
+  POETRY_VIRTUALENVS_IN_PROJECT: true
+  POETRY_CACHE_DIR: ~/.cache/poetry
 
 jobs:
-  quality-gates:
-    name: Quality Gates
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Load cached Poetry installation
+        uses: actions/cache@v3
+        with:
+          path: ~/.local
+          key: poetry-${{ runner.os }}-${{ env.POETRY_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+
+      - name: Install project
+        run: poetry install --no-interaction
+
+      - name: Run linting
+        run: |
+          poetry run ruff check src tests
+          poetry run black --check src tests
+
+      - name: Run type checking
+        run: poetry run mypy -p ledzephyr
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run security scan with bandit
+        run: poetry run bandit -q -r src
+
+      - name: Run dependency audit
+        run: poetry run pip-audit --desc
+
+  test-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Run unit tests with coverage
+        run: |
+          poetry run pytest tests/unit \
+            --cov=ledzephyr \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junit-xml=test-results/junit-unit.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unit
+          name: unit-coverage
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: unit-test-results
+          path: test-results/
+
+  test-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Generate gold master data
+        run: poetry run python -c "from migrate_specs import gold; import pathlib; gold.build_gold_master(pathlib.Path('gold'))"
+
+      - name: Run integration tests
+        run: |
+          poetry run pytest tests/integration \
+            --cov=ledzephyr \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junit-xml=test-results/junit-integration.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: integration
+          name: integration-coverage
+
+  test-schools:
+    name: School-of-Fish Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-
+        school: [api, data, config, performance]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
 
-    - name: Load cached venv
-      id: cached-poetry-dependencies
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      - name: Generate gold master data
+        run: poetry run python -c "from migrate_specs import gold; import pathlib; gold.build_gold_master(pathlib.Path('gold'))"
 
-    - name: Install project
-      run: poetry install --no-interaction
+      - name: Run ${{ matrix.school }} school tests
+        run: |
+          poetry run python -m tests.integration.schools.cli \
+            --school ${{ matrix.school }}
 
-    - name: Run pre-commit hooks
-      run: |
-        poetry run pre-commit install
-        poetry run pre-commit run --all-files
-
-    - name: Run tests with coverage
-      run: |
-        poetry run pytest --cov=ledzephyr --cov-report=xml --cov-report=term-missing
-
-    - name: Upload coverage to Codecov
-      if: matrix.python-version == '3.12'
-      uses: codecov/codecov-action@v4
-      with:
-        file: ./coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-
-  architecture-compliance:
-    name: Architecture Compliance
+  build:
+    name: Build Distribution
     runs-on: ubuntu-latest
-    needs: quality-gates
-
+    needs: [lint, security, test-unit]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
 
-    - name: Install dependencies
-      run: poetry install --no-interaction
+      - name: Install dependencies
+        run: poetry install --no-interaction
 
-    - name: Check dependency boundaries
-      run: poetry run python scripts/check-dependencies.py
+      - name: Build distribution
+        run: poetry build
 
-    - name: Validate interfaces
-      run: poetry run python scripts/validate-interfaces.py
+      - name: Check distribution
+        run: |
+          pip install twine
+          twine check dist/*
 
-    - name: Check architecture compliance
-      run: poetry run python scripts/check-architecture.py
-
-    - name: Measure coupling metrics
-      run: poetry run python scripts/measure-coupling.py
-
-  security-scan:
-    name: Security Scanning
-    runs-on: ubuntu-latest
-    needs: quality-gates
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
-
-    - name: Run Bandit security scan
-      run: |
-        poetry run bandit -r ledzephyr/ -f json -o bandit-report.json || true
-        poetry run bandit -r ledzephyr/ -f txt
-
-    - name: Run Safety vulnerability check
-      run: poetry run safety check --json
-
-    - name: Upload security reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: security-reports
-        path: |
-          bandit-report.json
-          safety-report.json
-
-  property-testing:
-    name: Property-Based Testing
-    runs-on: ubuntu-latest
-    needs: quality-gates
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
-
-    - name: Run property-based tests
-      run: |
-        # Skip if test_properties.py doesn't exist
-        if [ -f "tests/test_properties.py" ]; then
-          poetry run pytest tests/test_properties.py -v \
-            --hypothesis-show-statistics \
-            --hypothesis-profile=default
-        else
-          echo "Property-based tests not yet implemented"
-        fi
-
-    - name: Run adversarial testing
-      run: |
-        # Skip if test_properties.py doesn't exist
-        if [ -f "tests/test_properties.py" ]; then
-          poetry run pytest tests/test_properties.py::TestAdversarialInputs -v \
-            --hypothesis-show-statistics \
-            --hypothesis-profile=default
-        else
-          echo "Adversarial tests not yet implemented"
-        fi
-
-  performance-testing:
-    name: Performance Testing
-    runs-on: ubuntu-latest
-    needs: quality-gates
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
-
-    - name: Run benchmark tests
-      run: |
-        # Skip if no benchmark tests exist
-        if poetry run pytest --collect-only -m benchmark > /dev/null 2>&1; then
-          poetry run pytest -m benchmark --benchmark-json=benchmark.json
-        else
-          echo "No benchmark tests found - creating placeholder file"
-          echo '{"benchmarks": []}' > benchmark.json
-        fi
-
-    - name: Store benchmark result
-      uses: benchmark-action/github-action-benchmark@v1
-      if: github.ref == 'refs/heads/main'
-      with:
-        tool: 'pytest'
-        output-file-path: benchmark.json
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        auto-push: true
-
-  mutation-testing:
-    name: Mutation Testing (Critical Paths)
-    runs-on: ubuntu-latest
-    needs: quality-gates
-    if: github.event_name == 'pull_request'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
-
-    - name: Run mutation testing on critical modules
-      run: |
-        # Check if mutmut is available and paths exist
-        if poetry run mutmut --help > /dev/null 2>&1 && [ -d "src/ledzephyr/" ]; then
-          poetry run mutmut run --paths-to-mutate=src/ledzephyr/ --runner="python -m pytest tests/unit/ledzephyr/test_cli.py" || true
-          poetry run mutmut results || true
-        else
-          echo "Mutation testing not available or paths not found"
-        fi
-
-  deploy-readiness:
-    name: Deployment Readiness
-    runs-on: ubuntu-latest
-    needs: [quality-gates, architecture-compliance, security-scan]
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
-
-    - name: Build package
-      run: poetry build
-
-    - name: Test package installation
-      run: |
-        python -m venv test-env
-        test-env/bin/pip install dist/*.whl
-        test-env/bin/lz --help
-
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: dist
-        path: dist/
-
-  governance-reporting:
-    name: Governance Reporting
-    runs-on: ubuntu-latest
-    needs: [architecture-compliance, security-scan, property-testing]
-    if: always()
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: ${{ env.POETRY_VERSION }}
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-
-    - name: Install dependencies
-      run: poetry install --no-interaction
-
-    - name: Generate governance report
-      run: |
-        echo "# LedZephyr Governance Report" > governance-report.md
-        echo "## Generated: $(date)" >> governance-report.md
-        echo "" >> governance-report.md
-
-        echo "## Architecture Compliance" >> governance-report.md
-        poetry run python scripts/check-dependencies.py >> governance-report.md || true
-        echo "" >> governance-report.md
-
-        echo "## Interface Validation" >> governance-report.md
-        poetry run python scripts/validate-interfaces.py >> governance-report.md || true
-        echo "" >> governance-report.md
-
-        echo "## Coupling Metrics" >> governance-report.md
-        poetry run python scripts/measure-coupling.py >> governance-report.md || true
-        echo "" >> governance-report.md
-
-        echo "## Test Coverage" >> governance-report.md
-        poetry run pytest --cov=ledzephyr --cov-report=term >> governance-report.md || true
-
-    - name: Upload governance report
-      uses: actions/upload-artifact@v4
-      with:
-        name: governance-report
-        path: governance-report.md
-
-    - name: Comment PR with governance report
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const fs = require('fs');
-          const report = fs.readFileSync('governance-report.md', 'utf8');
-
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `## 🏛️ Governance Report\n\n${report}`
-          });
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: distribution
+          path: dist/

@@ -16,7 +16,7 @@ class TestDoctorCommand:
     def test_doctor_all_connections_succeed_shows_success(self, requests_mock):
         """Test doctor command when all connections succeed shows success."""
         # Arrange
-        runner = CliRunner()
+        runner = CliRunner(mix_stderr=False)
 
         with (
             patch("ledzephyr.cli.load_config") as mock_config,
@@ -37,13 +37,15 @@ class TestDoctorCommand:
 
             # Assert
             assert result.exit_code == 0
-            assert "Jira API: Connected" in result.stdout
-            assert "Doctor check complete!" in result.stdout
+            # Check output (may be in stdout or output depending on Rich console)
+            output = result.stdout or str(result.output)
+            assert "Jira API: Connected" in output
+            assert "Doctor check complete!" in output
 
     def test_doctor_connection_fails_shows_failure(self, requests_mock):
         """Test doctor command when connection fails shows failure."""
         # Arrange
-        runner = CliRunner()
+        runner = CliRunner(mix_stderr=False)
 
         with (
             patch("ledzephyr.cli.load_config") as mock_config,
@@ -64,7 +66,8 @@ class TestDoctorCommand:
 
             # Assert
             assert result.exit_code == 0
-            assert "Jira API: Connection failed" in result.stdout
+            output = result.stdout or str(result.output)
+            assert "Jira API: Connection failed" in output
 
 
 @pytest.mark.unit

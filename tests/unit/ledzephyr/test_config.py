@@ -20,8 +20,8 @@ class TestConfig:
         config = Config(**config_data)
 
         # Assert
-        assert config.jira_url == "https://example.atlassian.net"
-        assert config.jira_username == "demo@example.com"
+        assert config.jira_url == "https://test.atlassian.net"
+        assert config.jira_username == "test@example.com"
         assert config.timeout == 30
 
     def test_jira_url_validation_valid_url_accepts_value(self, mock_config):

@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2025-09-21T16:16:37.029144",
+  "scenarios": {
+    "fresh": {
+      "jira": "tests/tdm/gold_master/gold_jira_fresh.json",
+      "zephyr": "tests/tdm/gold_master/gold_zephyr_fresh.json",
+      "qtest": "tests/tdm/gold_master/gold_qtest_fresh.json",
+      "summary": "tests/tdm/gold_master/gold_summary_fresh.json"
+    },
+    "in_progress": {
+      "jira": "tests/tdm/gold_master/gold_jira_in_progress.json",
+      "zephyr": "tests/tdm/gold_master/gold_zephyr_in_progress.json",
+      "qtest": "tests/tdm/gold_master/gold_qtest_in_progress.json",
+      "summary": "tests/tdm/gold_master/gold_summary_in_progress.json"
+    },
+    "complete": {
+      "jira": "tests/tdm/gold_master/gold_jira_complete.json",
+      "zephyr": "tests/tdm/gold_master/gold_zephyr_complete.json",
+      "qtest": "tests/tdm/gold_master/gold_qtest_complete.json",
+      "summary": "tests/tdm/gold_master/gold_summary_complete.json"
+    },
+    "team_based": {
+      "jira": "tests/tdm/gold_master/gold_jira_team_based.json",
+      "zephyr": "tests/tdm/gold_master/gold_zephyr_team_based.json",
+      "qtest": "tests/tdm/gold_master/gold_qtest_team_based.json",
+      "summary": "tests/tdm/gold_master/gold_summary_team_based.json"
+    },
+    "edge_cases": {
+      "jira": "tests/tdm/gold_master/gold_jira_edge_cases.json",
+      "zephyr": "tests/tdm/gold_master/gold_zephyr_edge_cases.json",
+      "qtest": "tests/tdm/gold_master/gold_qtest_edge_cases.json",
+      "summary": "tests/tdm/gold_master/gold_summary_edge_cases.json"
+    }
+  }
+}

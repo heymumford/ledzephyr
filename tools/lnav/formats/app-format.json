@@ -1,0 +1,102 @@
+{
+  "app_log": {
+    "title": "Application JSON Log Format",
+    "description": "Structured JSON logs with OpenTelemetry semantic conventions",
+    "json": true,
+    "timestamp-field": "ts",
+    "timestamp-format": [
+      "%Y-%m-%dT%H:%M:%S.%fZ",
+      "%Y-%m-%dT%H:%M:%SZ"
+    ],
+    "level-field": "level",
+    "level": {
+      "debug": "DEBUG",
+      "info": "INFO",
+      "notice": "NOTICE",
+      "warning": "WARNING",
+      "err": "ERROR",
+      "crit": "CRITICAL",
+      "alert": "ALERT",
+      "emerg": "EMERGENCY"
+    },
+    "body-field": "msg",
+    "value": {
+      "ts": {
+        "kind": "string",
+        "identifier": false
+      },
+      "level": {
+        "kind": "string",
+        "identifier": false
+      },
+      "msg": {
+        "kind": "string",
+        "identifier": false
+      },
+      "svc": {
+        "kind": "string",
+        "identifier": true,
+        "description": "Service name (service.name)"
+      },
+      "pid": {
+        "kind": "integer",
+        "identifier": true,
+        "description": "Process ID"
+      },
+      "tid": {
+        "kind": "string",
+        "identifier": true,
+        "description": "Thread ID (thread.id)"
+      },
+      "trace_id": {
+        "kind": "string",
+        "identifier": true,
+        "description": "OpenTelemetry trace ID"
+      },
+      "span_id": {
+        "kind": "string",
+        "identifier": true,
+        "description": "OpenTelemetry span ID"
+      },
+      "elapsed_ms": {
+        "kind": "float",
+        "identifier": false,
+        "description": "Elapsed time in milliseconds"
+      }
+    },
+    "highlights": {
+      "error_pattern": {
+        "pattern": "(?i)(error|fail|exception|fatal)",
+        "color": "Red"
+      },
+      "warning_pattern": {
+        "pattern": "(?i)(warn|warning|retry|timeout)",
+        "color": "Yellow"
+      },
+      "success_pattern": {
+        "pattern": "(?i)(success|complete|connected|started)",
+        "color": "Green"
+      },
+      "trace_pattern": {
+        "pattern": "[0-9a-f]{32}",
+        "color": "Cyan"
+      }
+    },
+    "tags": {
+      "service-tag": {
+        "pattern": "svc"
+      },
+      "trace-tag": {
+        "pattern": "trace_id"
+      }
+    },
+    "sample": [
+      {
+        "line": "{\"ts\":\"2025-09-21T10:30:45.123456Z\",\"level\":\"info\",\"msg\":\"Worker started\",\"svc\":\"workerA\",\"pid\":1234,\"tid\":\"thread-1\"}"
+      },
+      {
+        "line": "{\"ts\":\"2025-09-21T10:30:46.234567Z\",\"level\":\"debug\",\"msg\":\"Processing item\",\"svc\":\"workerA\",\"pid\":1234,\"tid\":\"thread-1\",\"trace_id\":\"abcdef0123456789abcdef0123456789\",\"span_id\":\"0123456789abcdef\"}"
+      }
+    ]
+  }
+}

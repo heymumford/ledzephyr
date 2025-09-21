@@ -3,7 +3,7 @@ PKG := ledzephyr
 SRC := src tests
 PY  := poetry run
 
-.PHONY: init hooks format lint type type-strict test unit integration e2e cov sec audit check fix tdm-validate tdm-check test-all all clean
+.PHONY: init hooks format lint type type-strict test unit integration e2e cov sec audit check fix tdm-validate tdm-check test-all specs gold test-specs school-api school-data school-config school-performance schools-all schools-list all clean dev-setup validate deps-logs logs test-logs lint-logs
 
 init:
 	poetry lock
@@ -60,19 +60,89 @@ test-all:      ## run all test layers with timing
 check:   ## read-only CI-equivalent gate
 	$(MAKE) lint
 	$(MAKE) type
+	$(MAKE) sec
+	$(MAKE) audit
 	$(MAKE) unit
 	$(MAKE) integration
+	$(MAKE) schools-all
 	$(MAKE) e2e
-	$(MAKE) sec
+	$(MAKE) test-specs
 	$(MAKE) tdm-validate
 
 fix:     ## writer gate: autofix, then re-run checks
 	$(MAKE) format
 	$(MAKE) check
 
-all: init fix
+all: init fix  ## complete setup and validation
+
+# Development workflow targets
+dev-setup: init gold specs  ## setup development environment with test data
+
+validate: check   ## alias for check - comprehensive validation
+
+specs:   ## fetch and cache API specifications
+	$(PY) python -c "from migrate_specs import fetch, config; [fetch.fetch_spec(s) for s in config.ALL]"
+	$(PY) python -c "from migrate_specs import fetch, parse, config; import json, pathlib; files = {s.name: fetch.fetch_spec(s) for s in config.ALL}; pathlib.Path('specs/summary.json').write_text(__import__('json').dumps(parse.extract_shapes(files), indent=2))"
+
+gold:    ## generate gold master test datasets
+	$(PY) python -c "from migrate_specs import gold; import pathlib; gold.build_gold_master(pathlib.Path('gold'))"
+
+test-specs:  ## run all spec management tests
+	$(PY) pytest tests/specs -q --no-cov
+
+# School of Fish Integration Tests
+school-api:       ## run API school tests (external API patterns)
+	$(PY) python -m tests.integration.schools.cli --school api
+
+school-data:      ## run Data school tests (data flow patterns)
+	$(PY) python -m tests.integration.schools.cli --school data
+
+school-config:    ## run Config school tests (environment patterns)
+	$(PY) python -m tests.integration.schools.cli --school config
+
+school-performance: ## run Performance school tests (timing patterns)
+	$(PY) python -m tests.integration.schools.cli --school performance
+
+schools-all:      ## run all schools in parallel for maximum efficiency
+	$(PY) python -m tests.integration.schools.cli --workers 4
+
+schools-list:     ## list all available schools and their katas
+	$(PY) python -m tests.integration.schools.cli --list
 
 clean:   ## clean build artifacts and caches
 	rm -rf .mypy_cache .ruff_cache .pytest_cache .coverage .hypothesis
 	rm -rf reports/ htmlcov/ .ledzephyr_cache/
-	rm -rf src/**/__pycache__ tests/**/__pycache__ tdm/**/__pycache__
+	rm -rf src/**/__pycache__ tests/**/__pycache__ tdm/**/__pycache__ migrate_specs/**/__pycache__
+	rm -rf specs/ gold/ test_reports/
+
+# Log viewing targets
+deps-logs:  ## Install lnav for log viewing
+	@command -v lnav >/dev/null 2>&1 || { \
+		echo "Installing lnav..."; \
+		if [[ "$$(uname)" == "Darwin" ]]; then \
+			command -v brew >/dev/null 2>&1 && brew install lnav || echo "Please install Homebrew first"; \
+		else \
+			echo "Please install lnav: https://lnav.org/downloads"; \
+		fi; \
+	}
+	@echo "lnav is installed"
+
+logs:  ## View application logs with lnav
+	@chmod +x scripts/dev-logs.sh 2>/dev/null || true
+	@chmod +x tools/lnav/prepare.sh 2>/dev/null || true
+	@scripts/dev-logs.sh --all
+
+test-logs:  ## Test log viewing functionality
+	@chmod +x tests/shell/*.sh 2>/dev/null || true
+	@chmod +x scripts/dev-logs.sh 2>/dev/null || true
+	@chmod +x tools/lnav/prepare.sh 2>/dev/null || true
+	@bash tests/shell/test_dev_logs.sh
+	@bash tests/shell/test_log_format.sh
+	@bash tests/shell/test_determinism.sh
+
+lint-logs:  ## Validate log format schemas
+	@echo "Validating log schemas..."
+	@jq empty tools/lnav/formats/app.schema.json && echo "✓ app.schema.json is valid JSON"
+	@jq empty tools/lnav/formats/app-format.json && echo "✓ app-format.json is valid JSON"
+	@jq empty tools/lnav/lnav_config.json && echo "✓ lnav_config.json is valid JSON"
+	@echo "All log configuration files are valid"

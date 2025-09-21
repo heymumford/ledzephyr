@@ -1,0 +1,197 @@
+name: CD Pipeline
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.7.0'
+
+jobs:
+  publish-pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Build distribution
+        run: poetry build
+
+      - name: Publish to Test PyPI
+        env:
+          POETRY_PYPI_TOKEN_TEST_PYPI: ${{ secrets.TEST_PYPI_TOKEN }}
+        run: |
+          poetry config repositories.test-pypi https://test.pypi.org/legacy/
+          poetry publish -r test-pypi
+
+      - name: Test installation from Test PyPI
+        run: |
+          pip install --index-url https://test.pypi.org/simple/ ledzephyr
+          lz --version
+
+      - name: Publish to PyPI
+        if: github.event_name == 'release'
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        run: poetry publish
+
+  publish-docker:
+    name: Publish Docker Image
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ledzephyr/ledzephyr
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-docs:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ env.POETRY_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+          poetry add mkdocs mkdocs-material mkdocstrings
+
+      - name: Build documentation
+        run: poetry run mkdocs build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+
+  create-release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v2
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --latest --unreleased --tag ${{ github.ref_name }}
+
+      - name: Update release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          body: ${{ steps.git-cliff.outputs.content }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [publish-pypi, publish-docker]
+    if: always()
+    steps:
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Release ${{ github.ref_name }} deployment ${{ job.status }}
+            PyPI: ${{ needs.publish-pypi.result }}
+            Docker: ${{ needs.publish-docker.result }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
+
+      - name: Send email notification
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Release ${{ github.ref_name }} - Deployment ${{ job.status }}
+          to: team@ledzephyr.com
+          from: GitHub Actions
+          body: |
+            Release ${{ github.ref_name }} has been deployed.
+
+            Results:
+            - PyPI: ${{ needs.publish-pypi.result }}
+            - Docker: ${{ needs.publish-docker.result }}
+
+            View the release: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
+        if: always()

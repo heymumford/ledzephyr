@@ -1,0 +1,1378 @@
+{
+  "testcases": [
+    {
+      "id": 100000,
+      "name": "Golden qTest Case 1",
+      "description": "Deterministic test case 1 for qTest",
+      "test_case_version_id": 200000,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-01T00:00:00Z",
+      "last_modified_date": "2024-01-02T00:00:00Z"
+    },
+    {
+      "id": 100001,
+      "name": "Golden qTest Case 2",
+      "description": "Deterministic test case 2 for qTest",
+      "test_case_version_id": 200001,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-02T00:00:00Z",
+      "last_modified_date": "2024-01-03T00:00:00Z"
+    },
+    {
+      "id": 100002,
+      "name": "Golden qTest Case 3",
+      "description": "Deterministic test case 3 for qTest",
+      "test_case_version_id": 200002,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Smoke"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-03T00:00:00Z",
+      "last_modified_date": "2024-01-04T00:00:00Z"
+    },
+    {
+      "id": 100003,
+      "name": "Golden qTest Case 4",
+      "description": "Deterministic test case 4 for qTest",
+      "test_case_version_id": 200003,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Integration"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        },
+        {
+          "order": 5,
+          "description": "Golden step 5",
+          "expected_result": "Golden expected 5",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-04T00:00:00Z",
+      "last_modified_date": "2024-01-05T00:00:00Z"
+    },
+    {
+      "id": 100004,
+      "name": "Golden qTest Case 5",
+      "description": "Deterministic test case 5 for qTest",
+      "test_case_version_id": 200004,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-05T00:00:00Z",
+      "last_modified_date": "2024-01-06T00:00:00Z"
+    },
+    {
+      "id": 100005,
+      "name": "Golden qTest Case 6",
+      "description": "Deterministic test case 6 for qTest",
+      "test_case_version_id": 200005,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-06T00:00:00Z",
+      "last_modified_date": "2024-01-07T00:00:00Z"
+    },
+    {
+      "id": 100006,
+      "name": "Golden qTest Case 7",
+      "description": "Deterministic test case 7 for qTest",
+      "test_case_version_id": 200006,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Smoke"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-07T00:00:00Z",
+      "last_modified_date": "2024-01-08T00:00:00Z"
+    },
+    {
+      "id": 100007,
+      "name": "Golden qTest Case 8",
+      "description": "Deterministic test case 8 for qTest",
+      "test_case_version_id": 200007,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Integration"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        },
+        {
+          "order": 5,
+          "description": "Golden step 5",
+          "expected_result": "Golden expected 5",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-08T00:00:00Z",
+      "last_modified_date": "2024-01-09T00:00:00Z"
+    },
+    {
+      "id": 100008,
+      "name": "Golden qTest Case 9",
+      "description": "Deterministic test case 9 for qTest",
+      "test_case_version_id": 200008,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-09T00:00:00Z",
+      "last_modified_date": "2024-01-10T00:00:00Z"
+    },
+    {
+      "id": 100009,
+      "name": "Golden qTest Case 10",
+      "description": "Deterministic test case 10 for qTest",
+      "test_case_version_id": 200009,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-10T00:00:00Z",
+      "last_modified_date": "2024-01-11T00:00:00Z"
+    },
+    {
+      "id": 100010,
+      "name": "Golden qTest Case 11",
+      "description": "Deterministic test case 11 for qTest",
+      "test_case_version_id": 200010,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Smoke"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-11T00:00:00Z",
+      "last_modified_date": "2024-01-12T00:00:00Z"
+    },
+    {
+      "id": 100011,
+      "name": "Golden qTest Case 12",
+      "description": "Deterministic test case 12 for qTest",
+      "test_case_version_id": 200011,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Integration"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        },
+        {
+          "order": 5,
+          "description": "Golden step 5",
+          "expected_result": "Golden expected 5",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-12T00:00:00Z",
+      "last_modified_date": "2024-01-13T00:00:00Z"
+    },
+    {
+      "id": 100012,
+      "name": "Golden qTest Case 13",
+      "description": "Deterministic test case 13 for qTest",
+      "test_case_version_id": 200012,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-13T00:00:00Z",
+      "last_modified_date": "2024-01-14T00:00:00Z"
+    },
+    {
+      "id": 100013,
+      "name": "Golden qTest Case 14",
+      "description": "Deterministic test case 14 for qTest",
+      "test_case_version_id": 200013,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-14T00:00:00Z",
+      "last_modified_date": "2024-01-15T00:00:00Z"
+    },
+    {
+      "id": 100014,
+      "name": "Golden qTest Case 15",
+      "description": "Deterministic test case 15 for qTest",
+      "test_case_version_id": 200014,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Smoke"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-15T00:00:00Z",
+      "last_modified_date": "2024-01-16T00:00:00Z"
+    },
+    {
+      "id": 100015,
+      "name": "Golden qTest Case 16",
+      "description": "Deterministic test case 16 for qTest",
+      "test_case_version_id": 200015,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Integration"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        },
+        {
+          "order": 5,
+          "description": "Golden step 5",
+          "expected_result": "Golden expected 5",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-16T00:00:00Z",
+      "last_modified_date": "2024-01-17T00:00:00Z"
+    },
+    {
+      "id": 100016,
+      "name": "Golden qTest Case 17",
+      "description": "Deterministic test case 17 for qTest",
+      "test_case_version_id": 200016,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-17T00:00:00Z",
+      "last_modified_date": "2024-01-18T00:00:00Z"
+    },
+    {
+      "id": 100017,
+      "name": "Golden qTest Case 18",
+      "description": "Deterministic test case 18 for qTest",
+      "test_case_version_id": 200017,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-18T00:00:00Z",
+      "last_modified_date": "2024-01-19T00:00:00Z"
+    },
+    {
+      "id": 100018,
+      "name": "Golden qTest Case 19",
+      "description": "Deterministic test case 19 for qTest",
+      "test_case_version_id": 200018,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Smoke"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-19T00:00:00Z",
+      "last_modified_date": "2024-01-20T00:00:00Z"
+    },
+    {
+      "id": 100019,
+      "name": "Golden qTest Case 20",
+      "description": "Deterministic test case 20 for qTest",
+      "test_case_version_id": 200019,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Integration"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        },
+        {
+          "order": 5,
+          "description": "Golden step 5",
+          "expected_result": "Golden expected 5",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-20T00:00:00Z",
+      "last_modified_date": "2024-01-21T00:00:00Z"
+    },
+    {
+      "id": 100020,
+      "name": "Golden qTest Case 21",
+      "description": "Deterministic test case 21 for qTest",
+      "test_case_version_id": 200020,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-21T00:00:00Z",
+      "last_modified_date": "2024-01-22T00:00:00Z"
+    },
+    {
+      "id": 100021,
+      "name": "Golden qTest Case 22",
+      "description": "Deterministic test case 22 for qTest",
+      "test_case_version_id": 200021,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-22T00:00:00Z",
+      "last_modified_date": "2024-01-23T00:00:00Z"
+    },
+    {
+      "id": 100022,
+      "name": "Golden qTest Case 23",
+      "description": "Deterministic test case 23 for qTest",
+      "test_case_version_id": 200022,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Smoke"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-23T00:00:00Z",
+      "last_modified_date": "2024-01-24T00:00:00Z"
+    },
+    {
+      "id": 100023,
+      "name": "Golden qTest Case 24",
+      "description": "Deterministic test case 24 for qTest",
+      "test_case_version_id": 200023,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Integration"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        },
+        {
+          "order": 5,
+          "description": "Golden step 5",
+          "expected_result": "Golden expected 5",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-24T00:00:00Z",
+      "last_modified_date": "2024-01-25T00:00:00Z"
+    },
+    {
+      "id": 100024,
+      "name": "Golden qTest Case 25",
+      "description": "Deterministic test case 25 for qTest",
+      "test_case_version_id": 200024,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-25T00:00:00Z",
+      "last_modified_date": "2024-01-26T00:00:00Z"
+    },
+    {
+      "id": 100025,
+      "name": "Golden qTest Case 26",
+      "description": "Deterministic test case 26 for qTest",
+      "test_case_version_id": 200025,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-26T00:00:00Z",
+      "last_modified_date": "2024-01-27T00:00:00Z"
+    },
+    {
+      "id": 100026,
+      "name": "Golden qTest Case 27",
+      "description": "Deterministic test case 27 for qTest",
+      "test_case_version_id": 200026,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Smoke"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-27T00:00:00Z",
+      "last_modified_date": "2024-01-28T00:00:00Z"
+    },
+    {
+      "id": 100027,
+      "name": "Golden qTest Case 28",
+      "description": "Deterministic test case 28 for qTest",
+      "test_case_version_id": 200027,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Integration"
+        },
+        {
+          "field_id": 3,
+          "field_value": "High"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        },
+        {
+          "order": 4,
+          "description": "Golden step 4",
+          "expected_result": "Golden expected 4",
+          "actual_result": null
+        },
+        {
+          "order": 5,
+          "description": "Golden step 5",
+          "expected_result": "Golden expected 5",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-28T00:00:00Z",
+      "last_modified_date": "2024-01-29T00:00:00Z"
+    },
+    {
+      "id": 100028,
+      "name": "Golden qTest Case 29",
+      "description": "Deterministic test case 29 for qTest",
+      "test_case_version_id": 200028,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Manual"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Functional"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-01T00:00:00Z",
+      "last_modified_date": "2024-01-02T00:00:00Z"
+    },
+    {
+      "id": 100029,
+      "name": "Golden qTest Case 30",
+      "description": "Deterministic test case 30 for qTest",
+      "test_case_version_id": 200029,
+      "project_id": 12345,
+      "properties": [
+        {
+          "field_id": 1,
+          "field_value": "Semi-Automated"
+        },
+        {
+          "field_id": 2,
+          "field_value": "Regression"
+        },
+        {
+          "field_id": 3,
+          "field_value": "Medium"
+        }
+      ],
+      "test_steps": [
+        {
+          "order": 1,
+          "description": "Golden step 1",
+          "expected_result": "Golden expected 1",
+          "actual_result": null
+        },
+        {
+          "order": 2,
+          "description": "Golden step 2",
+          "expected_result": "Golden expected 2",
+          "actual_result": null
+        },
+        {
+          "order": 3,
+          "description": "Golden step 3",
+          "expected_result": "Golden expected 3",
+          "actual_result": null
+        }
+      ],
+      "created_date": "2024-01-02T00:00:00Z",
+      "last_modified_date": "2024-01-03T00:00:00Z"
+    }
+  ],
+  "metadata": {
+    "type": "golden",
+    "vendor": "qtest",
+    "generated_at": "2025-09-21T16:10:05.787396",
+    "record_count": 30
+  }
+}

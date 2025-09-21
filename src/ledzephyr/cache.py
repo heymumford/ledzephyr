@@ -41,8 +41,12 @@ class SimpleAPICache:
         self.clear_cache()
 
 
+_cache_instance: SimpleAPICache | None = None
+
+
 def get_api_cache() -> SimpleAPICache:
     """Get the global API cache instance."""
-    if not hasattr(get_api_cache, "_instance"):
-        get_api_cache._instance = SimpleAPICache()
-    return get_api_cache._instance
+    global _cache_instance
+    if _cache_instance is None:
+        _cache_instance = SimpleAPICache()
+    return _cache_instance

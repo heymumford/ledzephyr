@@ -1,6 +1,7 @@
 """HTTP API client with retries and backoff."""
 
 import logging
+import time
 from datetime import datetime
 from typing import Any
 
@@ -9,9 +10,26 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from ledzephyr.cache import get_api_cache
 from ledzephyr.config import Config
+from ledzephyr.error_handler import (
+    RateLimitError,
+    get_error_handler,
+)
 from ledzephyr.models import JiraProject, TestCaseModel
+from ledzephyr.rate_limiter import (
+    MultiTenantRateLimiter,
+    RateLimitConfig,
+    RateLimitStrategy,
+)
 
 logger = logging.getLogger(__name__)
+
+# Try to import observability, but don't fail if not available
+try:
+    from ledzephyr.observability import MetricType, get_observability
+
+    HAS_OBSERVABILITY = True
+except ImportError:
+    HAS_OBSERVABILITY = False
 
 
 class APIError(Exception):
@@ -35,6 +53,27 @@ class APIClient:
             timeout=config.timeout, headers={"User-Agent": "ledzephyr/0.1.0"}
         )
         self._cache = get_api_cache()
+        self._obs = get_observability() if HAS_OBSERVABILITY else None
+        self._error_handler = get_error_handler()
+
+        # Initialize rate limiters for different endpoints
+        rate_config = RateLimitConfig(
+            requests_per_second=10.0,
+            burst_size=20,
+            strategy=RateLimitStrategy.ADAPTIVE,
+        )
+        self._rate_limiter = MultiTenantRateLimiter(rate_config)
+
+        # Register circuit breakers for different services
+        self._error_handler.register_circuit_breaker(
+            "jira_api", failure_threshold=5, recovery_timeout=60
+        )
+        self._error_handler.register_circuit_breaker(
+            "zephyr_api", failure_threshold=5, recovery_timeout=60
+        )
+        self._error_handler.register_circuit_breaker(
+            "qtest_api", failure_threshold=5, recovery_timeout=60
+        )
 
     def __enter__(self) -> "APIClient":
         return self
@@ -55,29 +94,102 @@ class APIClient:
         headers: dict[str, str] | None = None,
         **kwargs: Any,
     ) -> httpx.Response:
-        """Make HTTP request with retries."""
+        """Make HTTP request with retries, rate limiting, and circuit breaking."""
         request_headers = {"Accept": "application/json"}
         if headers:
             request_headers.update(headers)
 
         logger.debug(f"Making {method} request to {url}")
+        start_time = time.time()
+
+        # Extract endpoint and service from URL
+        endpoint = url.split("/")[-1] if "/" in url else "unknown"
+        service = self._determine_service(url)
+
+        # Check circuit breaker
+        breaker = self._error_handler.circuit_breakers.get(f"{service}_api")
+        if breaker and breaker.state == "open":
+            raise APIError(f"Circuit breaker for {service} is open")
+
+        # Apply rate limiting
+        rate_limit_key = f"{service}_{endpoint}"
+        if not self._rate_limiter.acquire(rate_limit_key, timeout=2.0):
+            raise RateLimitError(f"Rate limit exceeded for {service} {endpoint}", retry_after=2)
 
         try:
+            # Record active connection
+            if self._obs:
+                self._obs.record_metric("active_connections", 1, MetricType.GAUGE, {"type": "api"})
+
             response = self._http_client.request(
                 method=method, url=url, auth=auth, headers=request_headers, **kwargs
             )
 
+            # Record metrics
+            duration = time.time() - start_time
+            if self._obs:
+                self._obs.record_metric(
+                    "api_request_duration_seconds",
+                    duration,
+                    MetricType.HISTOGRAM,
+                    {"method": method, "endpoint": endpoint},
+                )
+                self._obs.record_metric(
+                    "api_requests_total",
+                    1,
+                    MetricType.COUNTER,
+                    {"method": method, "endpoint": endpoint, "status": str(response.status_code)},
+                )
+
             if response.status_code == 401:
                 raise AuthenticationError("Authentication failed")
+            elif response.status_code == 429:
+                # Rate limited by server
+                retry_after = response.headers.get("Retry-After", "60")
+                self._rate_limiter.record_response(rate_limit_key, False, duration)
+                raise RateLimitError(f"Rate limited by {service}", retry_after=int(retry_after))
             elif response.status_code >= 400:
                 logger.error(f"HTTP {response.status_code}: {response.text}")
+                # Record failure for circuit breaker
+                if breaker:
+                    breaker._on_failure()
                 raise APIError(f"HTTP {response.status_code}: {response.reason_phrase}")
+
+            # Record success for rate limiter and circuit breaker
+            self._rate_limiter.record_response(rate_limit_key, True, duration)
+            if breaker:
+                breaker._on_success()
 
             return response
 
         except httpx.RequestError as e:
             logger.error(f"Request error: {e}")
+            # Record failure for circuit breaker
+            if breaker:
+                breaker._on_failure()
+            self._rate_limiter.record_response(rate_limit_key, False, time.time() - start_time)
+
+            if self._obs:
+                self._obs.record_metric(
+                    "error_rate",
+                    1,
+                    MetricType.SUMMARY,
+                    {"operation": "api_request", "error_type": type(e).__name__},
+                )
             raise
+        finally:
+            # Decrement active connection
+            if self._obs:
+                self._obs.record_metric("active_connections", -1, MetricType.GAUGE, {"type": "api"})
+
+    def _determine_service(self, url: str) -> str:
+        """Determine which service the URL belongs to."""
+        if "zephyr" in url.lower() or "scale" in url.lower():
+            return "zephyr"
+        elif "qtest" in url.lower():
+            return "qtest"
+        else:
+            return "jira"
 
     def _cached_get(self, url: str, headers: dict[str, str] | None = None) -> dict[str, Any] | None:
         """Make a cached GET request to avoid repeated vendor API calls."""
@@ -85,7 +197,20 @@ class APIClient:
         if headers:
             request_headers.update(headers)
 
-        return self._cache.get_cached_response(url, request_headers)
+        result = self._cache.get_cached_response(url, request_headers)
+
+        # Record cache hit/miss metrics
+        if self._obs:
+            if result is not None and "_from_cache" in result:
+                self._obs.record_metric(
+                    "cache_hits_total", 1, MetricType.COUNTER, {"cache_type": "api"}
+                )
+            else:
+                self._obs.record_metric(
+                    "cache_misses_total", 1, MetricType.COUNTER, {"cache_type": "api"}
+                )
+
+        return result
 
     def test_jira_connection(self) -> bool:
         """Test Jira API connectivity."""

@@ -1,0 +1,154 @@
+groups:
+  - name: ledzephyr_alerts
+    interval: 30s
+    rules:
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: |
+          rate(ledzephyr_error_rate_sum[5m]) / rate(ledzephyr_error_rate_count[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "High error rate detected ({{ $labels.operation }})"
+          description: "Error rate for {{ $labels.operation }} is {{ $value | humanizePercentage }} (threshold: 1%)"
+
+      # Critical error rate alert
+      - alert: CriticalErrorRate
+        expr: |
+          rate(ledzephyr_error_rate_sum[5m]) / rate(ledzephyr_error_rate_count[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: ledzephyr
+        annotations:
+          summary: "Critical error rate detected ({{ $labels.operation }})"
+          description: "Error rate for {{ $labels.operation }} is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # API latency alert
+      - alert: HighAPILatency
+        expr: |
+          histogram_quantile(0.95, rate(ledzephyr_api_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "High API latency detected"
+          description: "P95 API latency is {{ $value }}s (threshold: 2s) for {{ $labels.method }} {{ $labels.endpoint }}"
+
+      # Cache hit rate alert
+      - alert: LowCacheHitRate
+        expr: |
+          100 * (sum(rate(ledzephyr_cache_hits_total[5m])) /
+          (sum(rate(ledzephyr_cache_hits_total[5m])) + sum(rate(ledzephyr_cache_misses_total[5m])))) < 50
+        for: 10m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanize }}% (threshold: 50%)"
+
+      # Service down alert
+      - alert: ServiceDown
+        expr: up{job="ledzephyr"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: ledzephyr
+        annotations:
+          summary: "Ledzephyr service is down"
+          description: "Instance {{ $labels.instance }} has been down for more than 2 minutes"
+
+      # Metrics calculation slow
+      - alert: SlowMetricsCalculation
+        expr: |
+          histogram_quantile(0.95, rate(ledzephyr_metrics_calculation_duration_seconds_bucket[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "Metrics calculation is slow"
+          description: "P95 metrics calculation time is {{ $value }}s (threshold: 10s) for project {{ $labels.project }}"
+
+      # Too many active connections
+      - alert: HighActiveConnections
+        expr: |
+          ledzephyr_active_connections > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "High number of active connections"
+          description: "{{ $value }} active connections (threshold: 100) for type {{ $labels.type }}"
+
+      # Pod restart alert
+      - alert: PodRestartingTooOften
+        expr: |
+          rate(kube_pod_container_status_restarts_total{namespace="default", pod=~"ledzephyr-.*"}[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "Pod restarting too often"
+          description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last 15 minutes"
+
+      # Memory usage alert
+      - alert: HighMemoryUsage
+        expr: |
+          container_memory_usage_bytes{pod=~"ledzephyr-.*"} /
+          container_spec_memory_limit_bytes{pod=~"ledzephyr-.*"} > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "High memory usage"
+          description: "Pod {{ $labels.pod }} memory usage is {{ $value | humanizePercentage }} of limit"
+
+      # CPU throttling alert
+      - alert: CPUThrottling
+        expr: |
+          rate(container_cpu_cfs_throttled_seconds_total{pod=~"ledzephyr-.*"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: ledzephyr
+        annotations:
+          summary: "CPU throttling detected"
+          description: "Pod {{ $labels.pod }} is experiencing CPU throttling ({{ $value }}s throttled per second)"
+
+  - name: ledzephyr_slo_alerts
+    interval: 30s
+    rules:
+      # SLO: 99.9% availability
+      - alert: SLOViolationAvailability
+        expr: |
+          (1 - (sum(rate(ledzephyr_api_requests_total{status=~"5.."}[30m])) /
+          sum(rate(ledzephyr_api_requests_total[30m])))) < 0.999
+        for: 5m
+        labels:
+          severity: critical
+          service: ledzephyr
+          slo: availability
+        annotations:
+          summary: "SLO violation: Availability below 99.9%"
+          description: "Service availability is {{ $value | humanizePercentage }} (SLO: 99.9%)"
+
+      # SLO: P99 latency < 5s
+      - alert: SLOViolationLatency
+        expr: |
+          histogram_quantile(0.99, rate(ledzephyr_api_request_duration_seconds_bucket[30m])) > 5
+        for: 5m
+        labels:
+          severity: critical
+          service: ledzephyr
+          slo: latency
+        annotations:
+          summary: "SLO violation: P99 latency above 5s"
+          description: "P99 latency is {{ $value }}s (SLO: < 5s)"

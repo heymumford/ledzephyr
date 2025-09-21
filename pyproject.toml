@@ -2,21 +2,20 @@
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry]
+[project]
 name = "ledzephyr"
 version = "0.1.0"
-description = "CLI tool to report Zephyr Scale → qTest migration metrics per Jira project/team"
-authors = ["Eric C. Mumford <eric@example.com>"]
+description = "CLI tool with school-of-fish testing architecture for Zephyr Scale → qTest migration metrics"
+authors = [
+    {name = "Eric C. Mumford", email = "eric@example.com"}
+]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/heymumford/ledzephyr"
-repository = "https://github.com/heymumford/ledzephyr"
-keywords = ["cli", "jira", "zephyr", "qtest", "migration", "metrics"]
+keywords = ["cli", "jira", "zephyr", "qtest", "migration", "metrics", "testing", "school-of-fish", "parallel", "architecture"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -25,12 +24,24 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/heymumford/ledzephyr"
+Repository = "https://github.com/heymumford/ledzephyr"
+
+[project.scripts]
+lz = "ledzephyr.cli:app"
+ledzephyr = "ledzephyr.cli:app"
+
+[tool.poetry]
 packages = [{include = "ledzephyr", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "~3.11"
 typer = {extras = ["all"], version = "^0.9.0"}
-httpx = "^0.27.0"
+httpx = {extras = ["http2"], version = "^0.27.0"}
 pydantic = "^2.8"
 pydantic-settings = "^2.0"
 tenacity = "^8.0"
@@ -43,6 +54,29 @@ pandas = "^2.2"
 matplotlib = "^3.9"
 requests = "^2.32"
 scipy = "^1.11"
+# API spec management dependencies
+openapi-spec-validator = "^0.7.0"
+prance = "^23.6.21.0"
+faker = "^26.0.0"
+allpairspy = "^2.5.1"
+pyarrow = "^17.0.0"
+psutil = "^6.0.0"
+# Observability dependencies
+structlog = "^24.0.0"
+prometheus-client = "^0.20.0"
+opentelemetry-api = "^1.24.0"
+opentelemetry-sdk = "^1.24.0"
+opentelemetry-exporter-otlp = "^1.24.0"
+opentelemetry-instrumentation-httpx = "^0.45b0"
+opentelemetry-instrumentation-requests = "^0.45b0"
+fastapi = "^0.110.0"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
+# Export dependencies
+openpyxl = "^3.1.0"
+xlsxwriter = "^3.2.0"
+reportlab = "^4.0.0"
+jinja2 = "^3.1.0"
+seaborn = "^0.13.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
@@ -79,10 +113,8 @@ jsonschema = "^4.0"
 pre-commit = "^3.0"
 # Dependency safety checking
 pip-audit = "^2.0"
-# Structured logging
-structlog = "^23.0"
-# Metrics collection (optional)
-prometheus-client = "^0.19"
+# Metrics collection (optional - removed duplicate)
+# prometheus-client = "^0.19"  # Using newer version above
 pytest-socket = "^0.7.0"
 freezegun = "^1.5.5"
 requests-mock = "^1.11"
@@ -90,9 +122,6 @@ requests-mock = "^1.11"
 pandas-stubs = "^2.0"
 types-requests = "^2.0"
 
-[tool.poetry.scripts]
-lz = "ledzephyr.cli:app"
-ledzephyr = "ledzephyr.cli:app"
 
 [tool.black]
 line-length = 100

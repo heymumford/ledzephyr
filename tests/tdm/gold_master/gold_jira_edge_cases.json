@@ -1,0 +1,61 @@
+{
+  "project": {
+    "key": "PROJ-E",
+    "name": "Test Project PROJ-E",
+    "description": "Gold master test project for edge_cases scenario",
+    "lead": "user0@example.com",
+    "components": [
+      {
+        "id": "0",
+        "name": "Component-Platform"
+      },
+      {
+        "id": "1",
+        "name": "Component-Frontend"
+      },
+      {
+        "id": "2",
+        "name": "Component-Backend"
+      },
+      {
+        "id": "3",
+        "name": "Component-Mobile"
+      }
+    ],
+    "issueTypes": [
+      {
+        "id": "1",
+        "name": "Bug"
+      },
+      {
+        "id": "2",
+        "name": "Story"
+      },
+      {
+        "id": "3",
+        "name": "Task"
+      },
+      {
+        "id": "4",
+        "name": "Test"
+      }
+    ]
+  },
+  "metadata": {
+    "vendor": "jira",
+    "scenario": "edge_cases",
+    "generated_at": "2025-09-21T16:16:36.993405",
+    "config": {
+      "scenario": "edge_cases",
+      "project_key": "PROJ-E",
+      "num_teams": 4,
+      "total_tests": 100,
+      "time_range_days": 90,
+      "defect_link_rate": 0.2,
+      "execution_rate": 0.85,
+      "pass_rate": 0.7,
+      "seed": 42
+    },
+    "version": "1.0.0"
+  }
+}

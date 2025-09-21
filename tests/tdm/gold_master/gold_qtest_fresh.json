@@ -1,0 +1,21 @@
+{
+  "testCases": [],
+  "testRuns": [],
+  "metadata": {
+    "vendor": "qtest",
+    "scenario": "fresh",
+    "generated_at": "2025-09-21T16:16:36.474035",
+    "config": {
+      "scenario": "fresh",
+      "project_key": "PROJ-A",
+      "num_teams": 4,
+      "total_tests": 300,
+      "time_range_days": 90,
+      "defect_link_rate": 0.2,
+      "execution_rate": 0.85,
+      "pass_rate": 0.7,
+      "seed": 42
+    },
+    "version": "1.0.0"
+  }
+}

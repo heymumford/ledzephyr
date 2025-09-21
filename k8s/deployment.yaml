@@ -1,0 +1,157 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ledzephyr
+  labels:
+    app: ledzephyr
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ledzephyr
+  template:
+    metadata:
+      labels:
+        app: ledzephyr
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: ledzephyr
+        image: ledzephyr/ledzephyr:latest
+        ports:
+        - containerPort: 8080
+          name: monitoring
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: LEDZEPHYR_JIRA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ledzephyr-config
+              key: jira_url
+        - name: LEDZEPHYR_JIRA_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: ledzephyr-secrets
+              key: jira_username
+        - name: LEDZEPHYR_JIRA_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ledzephyr-secrets
+              key: jira_api_token
+        - name: LEDZEPHYR_ZEPHYR_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ledzephyr-secrets
+              key: zephyr_token
+              optional: true
+        - name: LEDZEPHYR_QTEST_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ledzephyr-config
+              key: qtest_url
+              optional: true
+        - name: LEDZEPHYR_QTEST_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ledzephyr-secrets
+              key: qtest_token
+              optional: true
+        - name: OTLP_ENDPOINT
+          value: "otel-collector.observability:4317"
+        - name: LEDZEPHYR_CACHE_DIR
+          value: "/var/cache/ledzephyr"
+        - name: LEDZEPHYR_LOG_LEVEL
+          value: "INFO"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: monitoring
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: monitoring
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+        - name: cache
+          mountPath: /var/cache/ledzephyr
+      volumes:
+      - name: cache
+        emptyDir:
+          sizeLimit: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ledzephyr
+  labels:
+    app: ledzephyr
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: monitoring
+    protocol: TCP
+    name: monitoring
+  selector:
+    app: ledzephyr
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ledzephyr-config
+data:
+  jira_url: "https://your-company.atlassian.net"
+  qtest_url: "https://your-company.qtestnet.com"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ledzephyr-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ledzephyr
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ledzephyr-pdb
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: ledzephyr

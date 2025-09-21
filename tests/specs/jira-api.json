@@ -1,0 +1,198 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Jira API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.jira.example.com"
+    }
+  ],
+  "paths": {
+    "/rest/api/3/project/{projectIdOrKey}": {
+      "get": {
+        "summary": "GET /rest/api/3/project/{projectIdOrKey}",
+        "operationId": "get__rest_api_3_project_projectIdOrKey",
+        "parameters": [
+          {
+            "name": "projectIdOrKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rest/api/3/search": {
+      "get": {
+        "summary": "GET /rest/api/3/search",
+        "operationId": "get__rest_api_3_search",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "POST /rest/api/3/search",
+        "operationId": "post__rest_api_3_search",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rest/api/3/issue/{issueIdOrKey}": {
+      "get": {
+        "summary": "GET /rest/api/3/issue/{issueIdOrKey}",
+        "operationId": "get__rest_api_3_issue_issueIdOrKey",
+        "parameters": [
+          {
+            "name": "issueIdOrKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rest/api/3/myself": {
+      "get": {
+        "summary": "GET /rest/api/3/myself",
+        "operationId": "get__rest_api_3_myself",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Issue": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "object",
+            "properties": {
+              "summary": {
+                "type": "string"
+              },
+              "status": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "assignee": {
+                "type": "object",
+                "properties": {
+                  "emailAddress": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}
