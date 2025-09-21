@@ -1,15 +1,13 @@
 """Unit tests for configuration module following AAA pattern."""
 
-import os
-import tempfile
-from pathlib import Path
-
 import pytest
+from pydantic import ValidationError
 
 from ledzephyr.config import Config, load_config
 
 
 @pytest.mark.unit
+@pytest.mark.auth
 class TestConfig:
     """Test Config domain model."""
 
@@ -61,6 +59,8 @@ class TestConfig:
 
 
 @pytest.mark.unit
+@pytest.mark.auth
+@pytest.mark.io
 class TestLoadConfig:
     """Test load_config function."""
 
@@ -74,7 +74,7 @@ class TestLoadConfig:
             LEDZEPHYR_ZEPHYR_URL="https://zephyr.example.com",
             LEDZEPHYR_ZEPHYR_TOKEN="zephyr_token",
             LEDZEPHYR_QTEST_URL="https://qtest.example.com",
-            LEDZEPHYR_QTEST_TOKEN="qtest_token"
+            LEDZEPHYR_QTEST_TOKEN="qtest_token",
         )
 
         # Act
@@ -116,7 +116,9 @@ class TestLoadConfig:
             monkeypatch.delenv(key, raising=False)
 
         # Act & Assert
-        with pytest.raises(Exception):  # Should raise validation error for missing required fields
+        with pytest.raises(
+            ValidationError
+        ):  # Should raise validation error for missing required fields
             load_config(nonexistent_file)
 
     def test_load_config_env_overrides_dotenv_env_wins(self, temp_env, tmp_path):
@@ -137,7 +139,7 @@ class TestLoadConfig:
         temp_env(
             LEDZEPHYR_JIRA_URL="https://env.atlassian.net",
             LEDZEPHYR_JIRA_USERNAME="env@example.com",
-            LEDZEPHYR_JIRA_API_TOKEN="env_token"
+            LEDZEPHYR_JIRA_API_TOKEN="env_token",
         )
 
         # Act
@@ -158,7 +160,7 @@ class TestLoadConfig:
             LEDZEPHYR_ZEPHYR_URL="https://zephyr.example.com",
             LEDZEPHYR_ZEPHYR_TOKEN="zephyr_token",
             LEDZEPHYR_QTEST_URL="https://qtest.example.com",
-            LEDZEPHYR_QTEST_TOKEN="qtest_token"
+            LEDZEPHYR_QTEST_TOKEN="qtest_token",
         )
 
         # Act

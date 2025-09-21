@@ -1,20 +1,17 @@
 """Property-based tests for domain models following testing standards."""
 
 import pytest
-from hypothesis import given, assume, strategies as st, settings
+from hypothesis import assume, given, settings
+from hypothesis import strategies as st
 
-from ledzephyr.models import ProjectMetrics, TrendData, TeamMetrics, TeamSource
+from ledzephyr.models import ProjectMetrics
 
 
 # Hypothesis strategies
 @st.composite
 def project_keys(draw):
     """Generate valid project keys following Jira conventions."""
-    return draw(st.text(
-        alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        min_size=2,
-        max_size=10
-    ))
+    return draw(st.text(alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ", min_size=2, max_size=10))
 
 
 @st.composite
@@ -27,12 +24,14 @@ def time_windows(draw):
 @st.composite
 def count_strategy(draw):
     """Generate realistic execution counts."""
-    return draw(st.one_of(
-        st.integers(min_value=0, max_value=50),      # Small projects
-        st.integers(min_value=51, max_value=500),    # Medium projects
-        st.integers(min_value=501, max_value=10000), # Large projects
-        st.just(0),                                  # Empty projects
-    ))
+    return draw(
+        st.one_of(
+            st.integers(min_value=0, max_value=50),  # Small projects
+            st.integers(min_value=51, max_value=500),  # Medium projects
+            st.integers(min_value=501, max_value=10000),  # Large projects
+            st.just(0),  # Empty projects
+        )
+    )
 
 
 @st.composite
@@ -73,7 +72,9 @@ def project_metrics_data(draw):
     }
 
 
+@pytest.mark.unit
 @pytest.mark.property
+@pytest.mark.metrics
 class TestProjectMetricsProperties:
     """Property-based tests for ProjectMetrics domain model."""
 
@@ -95,10 +96,7 @@ class TestProjectMetricsProperties:
         if data["total_tests"] == 0:
             assert metrics.adoption_ratio == 0.0
 
-    @given(
-        total=st.integers(min_value=0, max_value=10000),
-        qtest=st.integers(min_value=0)
-    )
+    @given(total=st.integers(min_value=0, max_value=10000), qtest=st.integers(min_value=0))
     def test_count_constraints_valid_counts_satisfy_invariants(self, total, qtest):
         """Verify count constraints with valid counts satisfy invariants."""
         # Arrange
@@ -125,10 +123,7 @@ class TestProjectMetricsProperties:
         assert metrics.zephyr_tests <= metrics.total_tests
         assert metrics.qtest_tests + metrics.zephyr_tests == metrics.total_tests
 
-    @given(
-        project_key=project_keys(),
-        metrics_data=project_metrics_data()
-    )
+    @given(project_key=project_keys(), metrics_data=project_metrics_data())
     def test_project_key_consistency_any_key_preserves_value(self, project_key, metrics_data):
         """Test project key consistency with any key preserves value."""
         # Arrange & Act
@@ -161,13 +156,15 @@ class TestProjectMetricsProperties:
         assert 0.0 <= metrics.defect_link_rate <= 1.0
 
 
+@pytest.mark.unit
 @pytest.mark.property
+@pytest.mark.metrics
 class TestBusinessInvariants:
     """Test business rule invariants across all inputs."""
 
     @given(
         total=st.integers(min_value=1, max_value=10000),
-        qtest_ratio=st.floats(min_value=0.0, max_value=1.0)
+        qtest_ratio=st.floats(min_value=0.0, max_value=1.0),
     )
     def test_migration_progress_monotonicity_increasing_executions_non_decreasing_ratio(
         self, total, qtest_ratio
@@ -207,10 +204,7 @@ class TestBusinessInvariants:
         # Assert
         assert metrics_after.adoption_ratio >= metrics_before.adoption_ratio
 
-    @given(
-        base_metrics=project_metrics_data(),
-        multiplier=st.integers(min_value=2, max_value=10)
-    )
+    @given(base_metrics=project_metrics_data(), multiplier=st.integers(min_value=2, max_value=10))
     def test_scaling_invariants_proportional_scaling_preserves_ratios(
         self, base_metrics, multiplier
     ):
@@ -243,8 +237,10 @@ class TestBusinessInvariants:
             assert abs(scaled.adoption_ratio - original.adoption_ratio) < 0.01
 
 
+@pytest.mark.unit
 @pytest.mark.property
 @pytest.mark.slow
+@pytest.mark.metrics
 class TestAdversarialInputs:
     """Test system behavior with edge case inputs."""
 
@@ -276,7 +272,9 @@ class TestAdversarialInputs:
                     time_window="7d",
                     total_tests=bad_count,
                     qtest_tests=min(bad_count, bad_count // 2) if bad_count > 0 else 0,
-                    zephyr_tests=max(0, bad_count - min(bad_count, bad_count // 2)) if bad_count > 0 else 0,
+                    zephyr_tests=(
+                        max(0, bad_count - min(bad_count, bad_count // 2)) if bad_count > 0 else 0
+                    ),
                     adoption_ratio=0.5 if bad_count > 0 else 0.0,
                     active_users=5,
                     coverage_parity=0.8,

@@ -2,13 +2,12 @@
 
 import os
 import random
-from datetime import datetime
-from typing import Dict, Any
+from typing import Any
 
 import pytest
 from freezegun import freeze_time
 
-from ledzephyr.models import ProjectMetrics, TrendData, TeamMetrics
+from ledzephyr.models import ProjectMetrics, TeamMetrics, TrendData
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -38,6 +37,7 @@ def frozen_time():
 @pytest.fixture
 def sample_project_metrics():
     """Factory for creating sample ProjectMetrics."""
+
     def make(**kwargs) -> ProjectMetrics:
         defaults = {
             "project_key": "DEMO",
@@ -51,12 +51,14 @@ def sample_project_metrics():
             "defect_link_rate": 0.12,
         }
         return ProjectMetrics(**{**defaults, **kwargs})
+
     return make
 
 
 @pytest.fixture
 def sample_trend_data():
     """Factory for creating sample TrendData."""
+
     def make(**kwargs) -> TrendData:
         defaults = {
             "week_1": {"adoption_ratio": 0.45, "coverage_parity": 0.85, "active_users": 8},
@@ -68,12 +70,14 @@ def sample_trend_data():
             "activity_trend": 3.0,
         }
         return TrendData(**{**defaults, **kwargs})
+
     return make
 
 
 @pytest.fixture
 def sample_team_metrics():
     """Factory for creating sample TeamMetrics."""
+
     def make(**kwargs) -> TeamMetrics:
         defaults = {
             "team_name": "Team Alpha",
@@ -87,13 +91,15 @@ def sample_team_metrics():
             "defect_link_rate": 0.1,
         }
         return TeamMetrics(**{**defaults, **kwargs})
+
     return make
 
 
 @pytest.fixture
 def mock_config():
     """Factory for creating mock configuration data."""
-    def make(**kwargs) -> Dict[str, Any]:
+
+    def make(**kwargs) -> dict[str, Any]:
         defaults = {
             "jira_url": "https://example.atlassian.net",
             "jira_username": "demo@example.com",
@@ -107,15 +113,18 @@ def mock_config():
             "log_level": "INFO",
         }
         return {**defaults, **kwargs}
+
     return make
 
 
 @pytest.fixture
 def temp_env(monkeypatch):
     """Provide temporary environment variable manipulation."""
+
     def set_env(**kwargs):
         for key, value in kwargs.items():
             monkeypatch.setenv(key, str(value))
+
     return set_env
 
 
@@ -125,14 +134,18 @@ def mock_responses():
     # This would integrate with responses library when needed
     responses = {}
 
-    def add_response(url: str, json_data: Dict[str, Any], status: int = 200):
+    def add_response(url: str, json_data: dict[str, Any], status: int = 200):
         responses[url] = {"json": json_data, "status": status}
 
     def get_response(url: str):
         return responses.get(url, {"json": {}, "status": 404})
 
-    return type("MockResponses", (), {
-        "add": add_response,
-        "get": get_response,
-        "responses": responses,
-    })()
+    return type(
+        "MockResponses",
+        (),
+        {
+            "add": add_response,
+            "get": get_response,
+            "responses": responses,
+        },
+    )()

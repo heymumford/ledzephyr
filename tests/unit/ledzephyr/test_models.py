@@ -1,10 +1,12 @@
 """Unit tests for domain models following AAA pattern."""
 
 import pytest
-from ledzephyr.models import ProjectMetrics, TrendData, TeamMetrics, TeamSource
+
+from ledzephyr.models import TeamSource
 
 
 @pytest.mark.unit
+@pytest.mark.metrics
 class TestProjectMetrics:
     """Test ProjectMetrics domain model."""
 
@@ -23,10 +25,7 @@ class TestProjectMetrics:
         """Test adoption ratio calculation with zero total tests returns zero."""
         # Arrange & Act
         metrics = sample_project_metrics(
-            total_tests=0,
-            qtest_tests=0,
-            zephyr_tests=0,
-            adoption_ratio=0.0
+            total_tests=0, qtest_tests=0, zephyr_tests=0, adoption_ratio=0.0
         )
 
         # Assert
@@ -51,11 +50,7 @@ class TestProjectMetrics:
     def test_test_counts_negative_values_accepts_values(self, sample_project_metrics):
         """Test test counts accept negative values (no validation)."""
         # Arrange & Act
-        metrics = sample_project_metrics(
-            total_tests=-5,
-            qtest_tests=-2,
-            zephyr_tests=-3
-        )
+        metrics = sample_project_metrics(total_tests=-5, qtest_tests=-2, zephyr_tests=-3)
 
         # Assert
         assert metrics.total_tests == -5
@@ -64,6 +59,7 @@ class TestProjectMetrics:
 
 
 @pytest.mark.unit
+@pytest.mark.metrics
 class TestTrendData:
     """Test TrendData domain model."""
 
@@ -80,12 +76,7 @@ class TestTrendData:
     def test_empty_week_data_empty_dict_creates_instance(self, sample_trend_data):
         """Test creating TrendData with empty week data creates instance."""
         # Arrange & Act
-        trend = sample_trend_data(
-            week_1={},
-            week_2={},
-            week_3={},
-            week_4={}
-        )
+        trend = sample_trend_data(week_1={}, week_2={}, week_3={}, week_4={})
 
         # Assert
         assert trend.week_1 == {}
@@ -93,6 +84,7 @@ class TestTrendData:
 
 
 @pytest.mark.unit
+@pytest.mark.metrics
 class TestTeamMetrics:
     """Test TeamMetrics domain model."""
 
@@ -117,17 +109,14 @@ class TestTeamMetrics:
     def test_adoption_ratio_calculation_zero_total_accepts_value(self, sample_team_metrics):
         """Test adoption ratio calculation with zero total accepts value."""
         # Arrange & Act
-        team = sample_team_metrics(
-            total_tests=0,
-            qtest_tests=0,
-            adoption_ratio=0.0
-        )
+        team = sample_team_metrics(total_tests=0, qtest_tests=0, adoption_ratio=0.0)
 
         # Assert
         assert team.adoption_ratio == 0.0
 
 
 @pytest.mark.unit
+@pytest.mark.metrics
 class TestTeamSource:
     """Test TeamSource enum."""
 

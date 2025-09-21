@@ -2,22 +2,18 @@
 
 import csv
 import json
-import sys
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Annotated, Optional
 
-import httpx
 import typer
 from rich.console import Console
 from rich.table import Table
-from typing_extensions import Annotated
 
 from ledzephyr import __version__
-from ledzephyr.config import Config, load_config
 from ledzephyr.client import APIClient
-from ledzephyr.models import ProjectMetrics, TeamSource
+from ledzephyr.config import load_config
 from ledzephyr.metrics import MetricsCalculator
+from ledzephyr.models import ProjectMetrics, TeamSource
 
 app = typer.Typer(
     name="ledzephyr",
@@ -37,9 +33,9 @@ def version_callback(value: bool) -> None:
 @app.callback()
 def main(
     version: Annotated[
-        Optional[bool],
-        typer.Option("--version", callback=version_callback, help="Show version and exit")
-    ] = None,
+        bool,
+        typer.Option("--version", callback=version_callback, help="Show version and exit"),
+    ] = False,
 ) -> None:
     """ledzephyr (lz) - CLI tool to report Zephyr Scale → qTest migration metrics."""
     pass
@@ -88,30 +84,27 @@ def doctor() -> None:
 
     except Exception as e:
         console.print(f"❌ Error during doctor check: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
 def metrics(
     project: Annotated[str, typer.Option("-p", "--project", help="Jira project key")],
     windows: Annotated[
-        List[str],
-        typer.Option("-w", "--window", help="Time windows (e.g., 24h, 7d, 30d)")
-    ] = ["7d", "30d"],
+        Optional[list[str]],  # noqa: UP007
+        typer.Option("-w", "--window", help="Time windows (e.g., 24h, 7d, 30d)"),
+    ] = None,
     teams_source: Annotated[
-        TeamSource,
-        typer.Option("--teams-source", help="Source for team identification")
+        TeamSource, typer.Option("--teams-source", help="Source for team identification")
     ] = TeamSource.COMPONENT,
-    format: Annotated[
-        str,
-        typer.Option("--format", help="Output format")
-    ] = "table",
+    output_format: Annotated[str, typer.Option("--format", help="Output format")] = "table",
     output: Annotated[
-        Optional[Path],
-        typer.Option("-o", "--out", help="Output file path")
+        Optional[Path], typer.Option("-o", "--out", help="Output file path")  # noqa: UP007
     ] = None,
 ) -> None:
     """Generate migration metrics for a Jira project."""
+    if windows is None:
+        windows = ["7d", "30d"]
     console.print(f"📊 [bold blue]Generating metrics for project: {project}[/bold blue]")
 
     try:
@@ -124,32 +117,30 @@ def metrics(
         for window in windows:
             console.print(f"Calculating metrics for {window} window...")
             metrics = calculator.calculate_metrics(
-                project_key=project,
-                time_window=window,
-                teams_source=teams_source
+                project_key=project, time_window=window, teams_source=teams_source
             )
             all_metrics[window] = metrics
 
         # Format and display results
-        if format == "table":
+        if output_format == "table":
             display_table(all_metrics)
-        elif format == "json":
+        elif output_format == "json":
             display_json(all_metrics, output)
         else:
-            console.print(f"❌ Unsupported format: {format}")
+            console.print(f"❌ Unsupported format: {output_format}")
             raise typer.Exit(1)
 
         # Save to CSV if output file specified
-        if output and format != "json":
+        if output and output_format != "json":
             save_csv(all_metrics, output)
             console.print(f"📄 Results saved to: {output}")
 
     except Exception as e:
         console.print(f"❌ Error generating metrics: {e}")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
-def display_table(metrics_data: Dict[str, ProjectMetrics]) -> None:
+def display_table(metrics_data: dict[str, ProjectMetrics]) -> None:
     """Display metrics in a rich table format."""
     table = Table(title="Migration Metrics")
 
@@ -177,39 +168,46 @@ def display_table(metrics_data: Dict[str, ProjectMetrics]) -> None:
     console.print(table)
 
 
-def display_json(metrics_data: Dict[str, ProjectMetrics], output: Optional[Path]) -> None:
+def display_json(
+    metrics_data: dict[str, ProjectMetrics],
+    output: Optional[Path],  # noqa: UP007
+) -> None:
     """Display metrics in JSON format."""
-    json_data = {
-        window: metrics.model_dump() for window, metrics in metrics_data.items()
-    }
+    json_data = {window: metrics.model_dump() for window, metrics in metrics_data.items()}
 
     if output:
-        with open(output, 'w') as f:
+        with open(output, "w") as f:
             json.dump(json_data, f, indent=2, default=str)
     else:
         console.print(json.dumps(json_data, indent=2, default=str))
 
 
-def save_csv(metrics_data: Dict[str, ProjectMetrics], output: Path) -> None:
+def save_csv(metrics_data: dict[str, ProjectMetrics], output: Path) -> None:
     """Save metrics to CSV file."""
-    with open(output, 'w', newline='') as csvfile:
+    with open(output, "w", newline="") as csvfile:
         fieldnames = [
-            'window', 'total_tests', 'zephyr_tests', 'qtest_tests',
-            'adoption_ratio', 'active_users', 'coverage_parity', 'defect_link_rate'
+            "window",
+            "total_tests",
+            "zephyr_tests",
+            "qtest_tests",
+            "adoption_ratio",
+            "active_users",
+            "coverage_parity",
+            "defect_link_rate",
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
         for window, metrics in metrics_data.items():
             row = {
-                'window': window,
-                'total_tests': metrics.total_tests,
-                'zephyr_tests': metrics.zephyr_tests,
-                'qtest_tests': metrics.qtest_tests,
-                'adoption_ratio': metrics.adoption_ratio,
-                'active_users': metrics.active_users,
-                'coverage_parity': metrics.coverage_parity,
-                'defect_link_rate': metrics.defect_link_rate
+                "window": window,
+                "total_tests": metrics.total_tests,
+                "zephyr_tests": metrics.zephyr_tests,
+                "qtest_tests": metrics.qtest_tests,
+                "adoption_ratio": metrics.adoption_ratio,
+                "active_users": metrics.active_users,
+                "coverage_parity": metrics.coverage_parity,
+                "defect_link_rate": metrics.defect_link_rate,
             }
             writer.writerow(row)
 

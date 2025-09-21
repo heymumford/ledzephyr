@@ -1,7 +1,6 @@
 """Unit tests for CLI module following AAA pattern."""
 
 import json
-from io import StringIO
 from unittest.mock import Mock, patch
 
 import pytest
@@ -19,14 +18,12 @@ class TestDoctorCommand:
         # Arrange
         runner = CliRunner()
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as mock_config,
+            patch("ledzephyr.cli.APIClient") as mock_client_class,
+        ):
             # Mock config
-            mock_config.return_value = Mock(
-                zephyr_token="test_token",
-                qtest_token="test_token"
-            )
+            mock_config.return_value = Mock(zephyr_token="test_token", qtest_token="test_token")
 
             # Mock client methods
             mock_client = Mock()
@@ -48,14 +45,12 @@ class TestDoctorCommand:
         # Arrange
         runner = CliRunner()
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as mock_config,
+            patch("ledzephyr.cli.APIClient") as mock_client_class,
+        ):
             # Mock config
-            mock_config.return_value = Mock(
-                zephyr_token="test_token",
-                qtest_token="test_token"
-            )
+            mock_config.return_value = Mock(zephyr_token="test_token", qtest_token="test_token")
 
             # Mock client methods - Jira fails, others succeed
             mock_client = Mock()
@@ -82,17 +77,18 @@ class TestMetricsCommand:
         runner = CliRunner()
         metrics = sample_project_metrics()
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client, \
-             patch('ledzephyr.cli.MetricsCalculator') as mock_calc_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as _mock_config,
+            patch("ledzephyr.cli.APIClient") as _mock_client,
+            patch("ledzephyr.cli.MetricsCalculator") as mock_calc_class,
+        ):
             # Mock calculator
             mock_calculator = Mock()
             mock_calculator.calculate_metrics.return_value = metrics
             mock_calc_class.return_value = mock_calculator
 
             # Act
-            result = runner.invoke(app, ["metrics", "-p", "DEMO"])
+            result = runner.invoke(app, ["metrics", "-p", "DEMO", "-w", "7d", "-w", "30d"])
 
             # Assert
             assert result.exit_code == 0
@@ -105,47 +101,52 @@ class TestMetricsCommand:
         runner = CliRunner()
         metrics = sample_project_metrics()
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client, \
-             patch('ledzephyr.cli.MetricsCalculator') as mock_calc_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as _mock_config,
+            patch("ledzephyr.cli.APIClient") as _mock_client,
+            patch("ledzephyr.cli.MetricsCalculator") as mock_calc_class,
+        ):
             # Mock calculator
             mock_calculator = Mock()
             mock_calculator.calculate_metrics.return_value = metrics
             mock_calc_class.return_value = mock_calculator
 
             # Act
-            result = runner.invoke(app, ["metrics", "-p", "DEMO", "--format", "json"])
+            result = runner.invoke(
+                app, ["metrics", "-p", "DEMO", "--format", "json", "-w", "7d", "-w", "30d"]
+            )
 
             # Assert
             assert result.exit_code == 0
             # Extract JSON from output (skip progress messages)
-            json_start = result.stdout.find('{')
+            json_start = result.stdout.find("{")
             json_output = result.stdout[json_start:]
             output_data = json.loads(json_output)
             assert "7d" in output_data
             assert output_data["7d"]["project_key"] == "DEMO"
 
-    def test_metrics_custom_time_windows_multiple_windows_returns_data(self, sample_project_metrics):
+    def test_metrics_custom_time_windows_multiple_windows_returns_data(
+        self, sample_project_metrics
+    ):
         """Test metrics command with custom time windows returns data for all windows."""
         # Arrange
         runner = CliRunner()
         metrics = sample_project_metrics()
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client, \
-             patch('ledzephyr.cli.MetricsCalculator') as mock_calc_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as _mock_config,
+            patch("ledzephyr.cli.APIClient") as _mock_client,
+            patch("ledzephyr.cli.MetricsCalculator") as mock_calc_class,
+        ):
             # Mock calculator
             mock_calculator = Mock()
             mock_calculator.calculate_metrics.return_value = metrics
             mock_calc_class.return_value = mock_calculator
 
             # Act
-            result = runner.invoke(app, [
-                "metrics", "-p", "DEMO",
-                "-w", "24h", "-w", "7d", "-w", "30d"
-            ])
+            result = runner.invoke(
+                app, ["metrics", "-p", "DEMO", "-w", "24h", "-w", "7d", "-w", "30d"]
+            )
 
             # Assert
             assert result.exit_code == 0
@@ -160,20 +161,33 @@ class TestMetricsCommand:
         metrics = sample_project_metrics()
         csv_file = tmp_path / "sample_output.csv"
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client, \
-             patch('ledzephyr.cli.MetricsCalculator') as mock_calc_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as _mock_config,
+            patch("ledzephyr.cli.APIClient") as _mock_client,
+            patch("ledzephyr.cli.MetricsCalculator") as mock_calc_class,
+        ):
             # Mock calculator
             mock_calculator = Mock()
             mock_calculator.calculate_metrics.return_value = metrics
             mock_calc_class.return_value = mock_calculator
 
             # Act
-            result = runner.invoke(app, [
-                "metrics", "-p", "DEMO",
-                "--format", "table", "--out", str(csv_file)
-            ])
+            result = runner.invoke(
+                app,
+                [
+                    "metrics",
+                    "-p",
+                    "DEMO",
+                    "--format",
+                    "table",
+                    "--out",
+                    str(csv_file),
+                    "-w",
+                    "7d",
+                    "-w",
+                    "30d",
+                ],
+            )
 
             # Assert
             assert result.exit_code == 0
@@ -188,20 +202,21 @@ class TestMetricsCommand:
         runner = CliRunner()
         metrics = sample_project_metrics()
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client, \
-             patch('ledzephyr.cli.MetricsCalculator') as mock_calc_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as _mock_config,
+            patch("ledzephyr.cli.APIClient") as _mock_client,
+            patch("ledzephyr.cli.MetricsCalculator") as mock_calc_class,
+        ):
             # Mock calculator
             mock_calculator = Mock()
             mock_calculator.calculate_metrics.return_value = metrics
             mock_calc_class.return_value = mock_calculator
 
             # Act
-            result = runner.invoke(app, [
-                "metrics", "-p", "DEMO",
-                "--teams-source", "component"
-            ])
+            result = runner.invoke(
+                app,
+                ["metrics", "-p", "DEMO", "--teams-source", "component", "-w", "7d", "-w", "30d"],
+            )
 
             # Assert
             assert result.exit_code == 0
@@ -224,17 +239,18 @@ class TestMetricsCommand:
         # Arrange
         runner = CliRunner()
 
-        with patch('ledzephyr.cli.load_config') as mock_config, \
-             patch('ledzephyr.cli.APIClient') as mock_client, \
-             patch('ledzephyr.cli.MetricsCalculator') as mock_calc_class:
-
+        with (
+            patch("ledzephyr.cli.load_config") as _mock_config,
+            patch("ledzephyr.cli.APIClient") as _mock_client,
+            patch("ledzephyr.cli.MetricsCalculator") as mock_calc_class,
+        ):
             # Mock calculator to raise exception
             mock_calculator = Mock()
             mock_calculator.calculate_metrics.side_effect = Exception("API service unavailable")
             mock_calc_class.return_value = mock_calculator
 
             # Act
-            result = runner.invoke(app, ["metrics", "-p", "DEMO"])
+            result = runner.invoke(app, ["metrics", "-p", "DEMO", "-w", "7d", "-w", "30d"])
 
             # Assert
             assert result.exit_code != 0
@@ -250,9 +266,10 @@ class TestHelperFunctions:
         # Arrange
         metrics_data = {"7d": sample_project_metrics()}
 
-        with patch('ledzephyr.cli.console') as mock_console:
+        with patch("ledzephyr.cli.console") as mock_console:
             # Act
             from ledzephyr.cli import display_table
+
             display_table(metrics_data)
 
             # Assert
@@ -267,6 +284,7 @@ class TestHelperFunctions:
 
         # Act
         from ledzephyr.cli import save_csv
+
         save_csv(metrics_data, csv_file)
 
         # Assert
