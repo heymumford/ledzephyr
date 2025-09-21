@@ -1,24 +1,31 @@
-name: Rail 1 - Core Business Logic
+name: Unit Tests
 
 on:
   push:
-    branches: [ main, develop, feat/* ]
+    branches: [main, develop, feat/*]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
-# Rail 1: Pure business logic with no external dependencies
-# Orthogonal concerns: metrics, calculations, data processing, validation
-# No network, no file I/O, no external services - fastest execution
+concurrency:
+  group: unit-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+# Unit Tests: Pure business logic with no external dependencies
+# Fast execution, isolated testing, no network/IO operations
 
 env:
   PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.7.0'
+  CACHE_VERSION: '1'
 
 jobs:
-  # Cluster 1A: Mathematical & Calculation Logic
-  core-calculations:
-    name: Core Calculations
+  unit-calculations:
+    name: Unit - Calculations
     runs-on: ubuntu-latest
     strategy:
       matrix:

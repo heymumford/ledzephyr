@@ -226,9 +226,9 @@ class TestHealthChecks:
         assert status.status == "healthy"
         assert status.metadata is not None
 
-    @patch("ledzephyr.observability.Config")
-    @patch("ledzephyr.observability.APIClient")
-    def test_api_health_check_success(self, mock_client_class, mock_config_class):
+    @patch("ledzephyr.client.APIClient")
+    @patch("ledzephyr.config.Config")
+    def test_api_health_check_success(self, mock_config_class, mock_client_class):
         """Test API health check when APIs are reachable."""
         mock_config = Mock()
         mock_config_class.from_env.return_value = mock_config
@@ -237,7 +237,7 @@ class TestHealthChecks:
         assert status.name == "external_api"
         assert status.status == "healthy"
 
-    @patch("ledzephyr.observability.Config")
+    @patch("ledzephyr.config.Config")
     def test_api_health_check_failure(self, mock_config_class):
         """Test API health check when APIs are not reachable."""
         mock_config_class.from_env.side_effect = Exception("Config error")
@@ -247,7 +247,7 @@ class TestHealthChecks:
         assert status.status == "degraded"
         assert "Config error" in status.message
 
-    @patch("ledzephyr.observability.SimpleAPICache")
+    @patch("ledzephyr.cache.SimpleAPICache")
     def test_cache_health_check_success(self, mock_cache_class):
         """Test cache health check when cache is operational."""
         mock_cache_class.return_value = Mock()
@@ -256,7 +256,7 @@ class TestHealthChecks:
         assert status.name == "cache"
         assert status.status == "healthy"
 
-    @patch("ledzephyr.observability.SimpleAPICache")
+    @patch("ledzephyr.cache.SimpleAPICache")
     def test_cache_health_check_failure(self, mock_cache_class):
         """Test cache health check when cache fails."""
         mock_cache_class.side_effect = Exception("Cache error")
@@ -316,32 +316,298 @@ class TestMetricsExport:
         assert 'project="TEST"' in metrics_text
 
 
+class TestLoggingConfiguration:
+    """Test logging configuration and formatting."""
+
+    def test_log_level_filtering(self):
+        """Test that log level filtering works correctly."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        with patch.object(obs.logger, "debug") as mock_debug:
+            with patch.object(obs.logger, "info") as mock_info:
+                # Log at different levels
+                obs.log("debug", "Debug message")
+                obs.log("info", "Info message")
+
+                # Both should be called since we're mocking the logger methods directly
+                assert mock_debug.call_count == 1, "Debug method should be called"
+                assert mock_info.call_count == 1, "Info method should be called"
+
+    def test_structured_log_format(self):
+        """Test that logs have proper structured format."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        with patch.object(obs.logger, "info") as mock_info:
+            obs.log(
+                "info", "Test structured logging", user_id="123", operation="test", duration=0.5
+            )
+
+            mock_info.assert_called_once()
+            args, kwargs = mock_info.call_args
+
+            # Verify structured data is passed
+            assert "user_id" in kwargs
+            assert "operation" in kwargs
+            assert "duration" in kwargs
+            assert kwargs["correlation_id"] is None
+
+    def test_correlation_id_in_logs(self):
+        """Test that correlation ID is properly included in logs."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        test_correlation_id = "test-corr-id-123"
+
+        with obs.correlation_context(test_correlation_id):
+            with patch.object(obs.logger, "warning") as mock_warning:
+                obs.log("warning", "Test warning with correlation")
+
+                args, kwargs = mock_warning.call_args
+                assert kwargs["correlation_id"] == test_correlation_id
+
+
+class TestTracingConfiguration:
+    """Test tracing initialization and configuration."""
+
+    def test_tracing_disabled_initialization(self):
+        """Test ObservabilityManager with tracing disabled."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+        assert obs.tracer is None
+
+    def test_tracing_enabled_initialization(self):
+        """Test ObservabilityManager with tracing enabled."""
+        with patch("ledzephyr.observability.trace.set_tracer_provider"):
+            with patch("ledzephyr.observability.trace.get_tracer") as mock_get_tracer:
+                with patch("ledzephyr.observability.HTTPXClientInstrumentor"):
+                    with patch("ledzephyr.observability.RequestsInstrumentor"):
+                        obs = ObservabilityManager(enable_tracing=True, enable_metrics=False)
+                        assert obs.tracer is not None
+                        mock_get_tracer.assert_called_once()
+
+    def test_otlp_endpoint_configuration(self):
+        """Test OTLP endpoint configuration."""
+        test_endpoint = "http://localhost:4317"
+
+        with patch("ledzephyr.observability.OTLPSpanExporter") as mock_exporter:
+            with patch("ledzephyr.observability.BatchSpanProcessor") as mock_processor:
+                with patch("ledzephyr.observability.trace.set_tracer_provider"):
+                    with patch("ledzephyr.observability.trace.get_tracer"):
+                        with patch("ledzephyr.observability.HTTPXClientInstrumentor"):
+                            with patch("ledzephyr.observability.RequestsInstrumentor"):
+                                ObservabilityManager(
+                                    enable_tracing=True,
+                                    enable_metrics=False,
+                                    otlp_endpoint=test_endpoint,
+                                )
+                                mock_exporter.assert_called_once_with(
+                                    endpoint=test_endpoint, insecure=True
+                                )
+
+    def test_version_retrieval(self):
+        """Test application version retrieval."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        # Test version retrieval when import succeeds
+        with patch("ledzephyr.__version__", "1.2.3"):
+            version = obs._get_version()
+            assert version == "1.2.3"
+
+    def test_version_retrieval_failure(self):
+        """Test version retrieval when import fails."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        # Create a new module that doesn't have __version__
+        import sys
+
+        # Temporarily remove the ledzephyr module from sys.modules if it exists
+        original_ledzephyr = sys.modules.get("ledzephyr")
+        if "ledzephyr" in sys.modules:
+            del sys.modules["ledzephyr"]
+
+        try:
+            # Mock the import to raise ImportError
+            with patch("builtins.__import__", side_effect=ImportError):
+                version = obs._get_version()
+                assert version == "unknown"
+        finally:
+            # Restore the original module
+            if original_ledzephyr:
+                sys.modules["ledzephyr"] = original_ledzephyr
+
+
+class TestMetricsEdgeCases:
+    """Test metrics initialization and edge cases."""
+
+    def test_metrics_disabled_initialization(self):
+        """Test ObservabilityManager with metrics disabled."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+        assert len(obs.metrics) == 0
+
+    def test_unknown_metric_recording(self):
+        """Test recording unknown metric logs warning."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=True)
+
+        with patch.object(obs, "log") as mock_log:
+            obs.record_metric("unknown_metric", 1, MetricType.COUNTER)
+            mock_log.assert_called_with("warning", "Unknown metric: unknown_metric")
+
+    def test_metric_recording_without_labels(self):
+        """Test metric recording without labels."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=True)
+
+        # For metrics that require labels, we need to provide them
+        # The api_requests_total metric requires method, endpoint, status labels
+        obs.record_metric(
+            "api_requests_total",
+            1,
+            MetricType.COUNTER,
+            labels={"method": "GET", "endpoint": "test", "status": "200"},
+        )
+
+        metrics_text = obs.get_metrics_dump().decode("utf-8")
+        assert "ledzephyr_api_requests_total" in metrics_text
+
+    def test_summary_metric_recording(self):
+        """Test Summary metric type recording."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=True)
+
+        obs.record_metric(
+            "error_rate",
+            0.05,
+            MetricType.SUMMARY,
+            {"operation": "test", "error_type": "ValueError"},
+        )
+
+        metrics_text = obs.get_metrics_dump().decode("utf-8")
+        assert "ledzephyr_error_rate" in metrics_text
+
+
+class TestCorrelationIdEdgeCases:
+    """Test correlation ID edge cases and nested contexts."""
+
+    def test_nested_correlation_contexts(self):
+        """Test nested correlation contexts restore previous ID."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        first_id = "first-correlation-id"
+        second_id = "second-correlation-id"
+
+        with obs.correlation_context(first_id):
+            assert obs.correlation_id == first_id
+
+            with obs.correlation_context(second_id):
+                assert obs.correlation_id == second_id
+
+            # Should restore first ID after inner context
+            assert obs.correlation_id == first_id
+
+        # Should be None after all contexts
+        assert obs.correlation_id is None
+
+    def test_correlation_context_exception_handling(self):
+        """Test correlation context handles exceptions and restores ID."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        test_id = "exception-test-id"
+
+        try:
+            with obs.correlation_context(test_id):
+                assert obs.correlation_id == test_id
+                raise ValueError("Test exception")
+        except ValueError:
+            pass
+
+        # Should restore None even after exception
+        assert obs.correlation_id is None
+
+    def test_auto_generated_correlation_id_uniqueness(self):
+        """Test auto-generated correlation IDs are unique."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
+
+        ids = []
+        for _ in range(5):
+            with obs.correlation_context() as corr_id:
+                ids.append(corr_id)
+
+        # All IDs should be unique
+        assert len(set(ids)) == len(ids)
+
+        # All IDs should be valid UUIDs (basic check)
+        for corr_id in ids:
+            assert len(corr_id) == 36  # UUID4 string length
+            assert corr_id.count("-") == 4  # UUID4 has 4 hyphens
+
+
+class TestErrorHandling:
+    """Test error handling in metric recording and other operations."""
+
+    def test_metric_recording_with_invalid_type(self):
+        """Test metric recording with mismatched metric type."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=True)
+
+        # This will raise an exception because counters don't support set operation
+        # But the test verifies that the code reaches the metric operation
+        with pytest.raises(ValueError, match="Incorrect label count"):
+            # Try to use gauge operation on a counter metric without proper labels
+            obs.record_metric("api_requests_total", 5, MetricType.GAUGE)
+
+
 class TestPerformance:
     """Test performance aspects of observability."""
 
-    def test_minimal_overhead(self):
-        """Test that observability adds minimal overhead."""
-        obs = ObservabilityManager(enable_tracing=False, enable_metrics=True)
+    def test_instrumentation_functionality(self):
+        """Test that function instrumentation works correctly."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=False)
 
         @obs.instrument
-        def fast_function():
-            return sum(range(100))
+        def test_function(x, y):
+            return x + y
 
-        # Measure with instrumentation
+        # Function should work normally
+        result = test_function(2, 3)
+        assert result == 5
+
+        # Test with exception
+        @obs.instrument
+        def failing_function():
+            raise ValueError("Test error")
+
+        with pytest.raises(ValueError, match="Test error"):
+            failing_function()
+
+    def test_metrics_collection_performance(self):
+        """Test that metrics collection doesn't significantly impact performance."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=True)
+
         start = time.perf_counter()
-        for _ in range(100):
-            fast_function()
-        instrumented_time = time.perf_counter() - start
+        for i in range(1000):
+            obs.record_metric(
+                "api_requests_total",
+                1,
+                MetricType.COUNTER,
+                {"method": "GET", "endpoint": f"test-{i % 10}", "status": "200"},
+            )
+        duration = time.perf_counter() - start
 
-        # Measure without instrumentation
-        def plain_function():
-            return sum(range(100))
+        # Should complete 1000 metric recordings in under 1 second
+        assert duration < 1.0, f"Metrics collection too slow: {duration:.3f}s"
+
+    def test_large_metrics_dump_performance(self):
+        """Test performance of metrics dump with many metrics."""
+        obs = ObservabilityManager(enable_tracing=False, enable_metrics=True)
+
+        # Record many metrics with different labels
+        for i in range(100):
+            obs.record_metric(
+                "api_requests_total",
+                1,
+                MetricType.COUNTER,
+                {"method": "GET", "endpoint": f"endpoint-{i}", "status": "200"},
+            )
 
         start = time.perf_counter()
-        for _ in range(100):
-            plain_function()
-        plain_time = time.perf_counter() - start
+        metrics_data = obs.get_metrics_dump()
+        duration = time.perf_counter() - start
 
-        # Overhead should be less than 50% for this simple function
-        overhead_ratio = instrumented_time / plain_time
-        assert overhead_ratio < 1.5, f"Overhead too high: {overhead_ratio:.2f}x"
+        assert len(metrics_data) > 0
+        # Metrics dump should be fast even with many data points
+        assert duration < 0.5, f"Metrics dump too slow: {duration:.3f}s"

@@ -1,0 +1,78 @@
+{
+  "stale_content_summary": {
+    "total_pages_analyzed": 6,
+    "stale_pages_identified": 3,
+    "staleness_percentage": 50,
+    "cleanup_effort_estimate": "2-4 hours"
+  },
+  "stale_pages": [
+    {
+      "page_id": "4653149",
+      "title": "Alan Documentation [ARCHIVED - Placeholder Content]",
+      "space_key": "AA",
+      "staleness_indicators": [
+        "explicitly_marked_archived",
+        "placeholder_content_only",
+        "no_substantive_value"
+      ],
+      "staleness_score": 95,
+      "last_meaningful_update": "never",
+      "recommended_action": "immediate_deletion",
+      "business_impact": "none",
+      "dependencies": []
+    },
+    {
+      "page_id": "4686605",
+      "title": "Welcome to your company hub!",
+      "space_key": "~HUB-*~",
+      "staleness_indicators": [
+        "unused_template_content",
+        "boilerplate_not_customized",
+        "no_organizational_value"
+      ],
+      "staleness_score": 85,
+      "last_meaningful_update": "never",
+      "recommended_action": "archive_or_delete",
+      "business_impact": "minimal",
+      "dependencies": []
+    },
+    {
+      "page_id": "7045362",
+      "title": "myco-mcp Home",
+      "space_key": "MY",
+      "staleness_indicators": [
+        "unused_template_content",
+        "generic_welcome_boilerplate",
+        "no_organizational_value"
+      ],
+      "staleness_score": 75,
+      "last_meaningful_update": "never",
+      "recommended_action": "repurpose_or_archive",
+      "business_impact": "minimal",
+      "dependencies": []
+    }
+  ],
+  "cleanup_recommendations": {
+    "immediate_actions": [
+      "Delete page 4653149 (archived placeholder)",
+      "Archive space 4686553 (unused company hub)",
+      "Archive space 7045122 or repurpose for MCP documentation"
+    ],
+    "space_consolidation": [
+      "Merge useful content from MY and HUB spaces into AA",
+      "Establish AA as single source of truth",
+      "Implement proper hierarchy under main SoR page"
+    ],
+    "governance_improvements": [
+      "Establish content lifecycle policy",
+      "Implement regular staleness audits",
+      "Create template management process"
+    ]
+  },
+  "migration_impact": {
+    "content_reduction": "50% of pages can be archived/deleted",
+    "space_reduction": "66% of spaces can be consolidated",
+    "maintenance_benefit": "Significantly reduced cognitive overhead",
+    "search_improvement": "Higher signal-to-noise ratio"
+  }
+}

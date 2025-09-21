@@ -1,0 +1,389 @@
+{
+  "target_structure_metadata": {
+    "created": "2025-09-21T00:00:00Z",
+    "based_on": "information_architecture_plan.json",
+    "implementation_target": "AA Space (Alan Alpha Project)",
+    "methodology": "MECE + Evidence Trinity + Wu Wei Principles"
+  },
+  "space_configuration": {
+    "space_key": "AA",
+    "space_name": "Alan Alpha Project",
+    "space_description": "Single Source of Truth for Alan consciousness system documentation, architecture, and operational knowledge",
+    "homepage_id": "4194410",
+    "homepage_title": "🏛️ Alan Alpha Project - System of Record"
+  },
+  "hierarchical_structure": {
+    "level_0_homepage": {
+      "page_id": "4194410",
+      "title": "🏛️ Alan Alpha Project - System of Record",
+      "role": "navigation_hub",
+      "content_type": "enhanced_index"
+    },
+    "level_1_domains": [
+      {
+        "id": "new_page_01",
+        "title": "🏛️ 01-SYSTEM-ARCHITECTURE",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_01_1",
+            "title": "01.1-Core-Consciousness-Framework",
+            "parent_id": "new_page_01",
+            "children": [
+              {"title": "RC+ξ (Recursive Convergence under Epistemic Tension)"},
+              {"title": "Semantic Identity Preservation"},
+              {"title": "Wu Wei Principles & Philosophy"}
+            ]
+          },
+          {
+            "id": "new_page_01_2",
+            "title": "01.2-Technical-Architecture",
+            "parent_id": "new_page_01",
+            "children": [
+              {"title": "Tube-Based RK-Flow Methodology"},
+              {"title": "Service Architecture Diagrams"},
+              {"title": "Integration Patterns (MCP, Event Bus)"}
+            ]
+          },
+          {
+            "id": "new_page_01_3",
+            "title": "01.3-Architecture-Decision-Records",
+            "parent_id": "new_page_01",
+            "children": [
+              {"title": "ADR Index (references to Jira AA project)"},
+              {"title": "Decision Impact Analysis"},
+              {"title": "Technical Debt Documentation"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "new_page_02",
+        "title": "🔧 02-DEVELOPMENT",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_02_1",
+            "title": "02.1-Development-Standards",
+            "parent_id": "new_page_02",
+            "children": [
+              {"title": "Coding Conventions (.NET, F#, TypeScript)"},
+              {"title": "Five-Persona Development Model"},
+              {"title": "TDD Framework & Patterns"}
+            ]
+          },
+          {
+            "id": "new_page_02_2",
+            "title": "02.2-Environment-Setup",
+            "parent_id": "new_page_02",
+            "children": [
+              {"title": "Development Environment Configuration"},
+              {"title": "Toolchain Requirements"},
+              {"title": "Local Development Workflows"}
+            ]
+          },
+          {
+            "id": "new_page_02_3",
+            "title": "02.3-Build-And-Deployment",
+            "parent_id": "new_page_02",
+            "children": [
+              {"title": "Make Targets & Build Processes"},
+              {"title": "CI/CD Pipeline Documentation", "migrate_from": "4784434"},
+              {"title": "Docker & Containerization"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "new_page_03",
+        "title": "🧪 03-TESTING-AND-QUALITY",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_03_1",
+            "title": "03.1-Testing-Strategy",
+            "parent_id": "new_page_03",
+            "children": [
+              {"title": "AI-Era Testing Ontology"},
+              {"title": "SDLC-Driven Test Strategy"},
+              {"title": "Property-Based Testing with FsCheck"}
+            ]
+          },
+          {
+            "id": "new_page_03_2",
+            "title": "03.2-Quality-Gates",
+            "parent_id": "new_page_03",
+            "children": [
+              {"title": "Service Level Objectives (SLOs)"},
+              {"title": "Performance Testing & Benchmarks"},
+              {"title": "Security Testing & Compliance"}
+            ]
+          },
+          {
+            "id": "new_page_03_3",
+            "title": "03.3-Test-Evidence",
+            "parent_id": "new_page_03",
+            "children": [
+              {"title": "Test Execution Reports"},
+              {"title": "Coverage Analysis"},
+              {"title": "Verification Matrices"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "new_page_04",
+        "title": "🚀 04-OPERATIONS",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_04_1",
+            "title": "04.1-System-Operations",
+            "parent_id": "new_page_04",
+            "children": [
+              {"title": "Health Monitoring & Dashboards"},
+              {"title": "Observability (OpenTelemetry, Grafana)"},
+              {"title": "Incident Response Procedures", "migrate_from": "4784531"}
+            ]
+          },
+          {
+            "id": "new_page_04_2",
+            "title": "04.2-Infrastructure",
+            "parent_id": "new_page_04",
+            "children": [
+              {"title": "Terraform IaC with Terratest"},
+              {"title": "Kubernetes/Docker Orchestration"},
+              {"title": "Environment Management"}
+            ]
+          },
+          {
+            "id": "new_page_04_3",
+            "title": "04.3-Security-Operations",
+            "parent_id": "new_page_04",
+            "children": [
+              {"title": "Security Controls & Policies"},
+              {"title": "Audit Trails & Compliance"},
+              {"title": "Threat Model & Risk Assessment"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "new_page_05",
+        "title": "💼 05-BUSINESS-DOMAIN",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_05_1",
+            "title": "05.1-AlphaSphere-Micro-Fund",
+            "parent_id": "new_page_05",
+            "children": [
+              {"title": "Investment Strategy & Goals"},
+              {"title": "Performance Metrics & KPIs"},
+              {"title": "Risk Management Framework"}
+            ]
+          },
+          {
+            "id": "new_page_05_2",
+            "title": "05.2-Alan-Consciousness-System",
+            "parent_id": "new_page_05",
+            "children": [
+              {"title": "Autonomous Decision Making"},
+              {"title": "Self-Healing Capabilities"},
+              {"title": "Learning & Adaptation Mechanisms"}
+            ]
+          },
+          {
+            "id": "new_page_05_3",
+            "title": "05.3-Integration-Ecosystem",
+            "parent_id": "new_page_05",
+            "children": [
+              {"title": "External Dependencies"},
+              {"title": "API Contracts & SLOs"},
+              {"title": "Partner Integration Points"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "new_page_06",
+        "title": "🔄 06-PROCESSES-AND-WORKFLOWS",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_06_1",
+            "title": "06.1-Agent-Operating-Model",
+            "parent_id": "new_page_06",
+            "children": [
+              {"title": "Five-Persona Team Model"},
+              {"title": "Ensō Micro-Kata Protocol"},
+              {"title": "Agent Coordination Patterns"}
+            ]
+          },
+          {
+            "id": "new_page_06_2",
+            "title": "06.2-Evidence-Trinity",
+            "parent_id": "new_page_06",
+            "role": "evidence_trinity_hub",
+            "children": [
+              {"title": "Jira⇄qTest⇄Confluence Integration"},
+              {"title": "Cross-System Linking Requirements"},
+              {"title": "Documentation Standards"}
+            ]
+          },
+          {
+            "id": "new_page_06_3",
+            "title": "06.3-Release-Management",
+            "parent_id": "new_page_06",
+            "children": [
+              {"title": "Versioning Strategy"},
+              {"title": "Change Management"},
+              {"title": "Rollback Procedures"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "new_page_07",
+        "title": "📚 07-KNOWLEDGE-BASE",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_07_1",
+            "title": "07.1-API-Documentation",
+            "parent_id": "new_page_07",
+            "children": [
+              {"title": "REST API Reference"},
+              {"title": "Tube Contracts & Interfaces"},
+              {"title": "Integration Examples"}
+            ]
+          },
+          {
+            "id": "new_page_07_2",
+            "title": "07.2-Troubleshooting",
+            "parent_id": "new_page_07",
+            "children": [
+              {"title": "Common Issues & Solutions"},
+              {"title": "Diagnostic Procedures"},
+              {"title": "Performance Optimization"}
+            ]
+          },
+          {
+            "id": "new_page_07_3",
+            "title": "07.3-Training-Materials",
+            "parent_id": "new_page_07",
+            "children": [
+              {"title": "Onboarding Guides"},
+              {"title": "Best Practices"},
+              {"title": "Reference Materials"}
+            ]
+          }
+        ]
+      },
+      {
+        "id": "new_page_08",
+        "title": "🔗 08-INTEGRATION-REFERENCES",
+        "parent_id": "4194410",
+        "role": "domain_index",
+        "children": [
+          {
+            "id": "new_page_08_1",
+            "title": "08.1-Cross-System-Links",
+            "parent_id": "new_page_08",
+            "role": "evidence_trinity_hub",
+            "children": [
+              {"title": "Jira Project References"},
+              {"title": "qTest Case Mappings"},
+              {"title": "GitHub Repository Links"}
+            ]
+          },
+          {
+            "id": "new_page_08_2",
+            "title": "08.2-External-Dependencies",
+            "parent_id": "new_page_08",
+            "children": [
+              {"title": "Vendor API Documentation"},
+              {"title": "Third-Party Service Integration"},
+              {"title": "MCP Integration Documentation", "migrate_from": "7045362_potential"},
+              {"title": "Compliance Requirements"}
+            ]
+          },
+          {
+            "id": "new_page_08_3",
+            "title": "08.3-Evidence-Archive",
+            "parent_id": "new_page_08",
+            "children": [
+              {"title": "Historical Evidence Summaries"},
+              {"title": "Institutional Memory"},
+              {"title": "Legacy System Documentation"}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "migration_actions": {
+    "immediate_deletions": [
+      {
+        "page_id": "4653149",
+        "title": "Alan Documentation [ARCHIVED - Placeholder Content]",
+        "reason": "explicitly_archived_placeholder"
+      }
+    ],
+    "space_archival": [
+      {
+        "space_id": "4686553",
+        "space_key": "~HUB-*~",
+        "name": "AlphaSphere Company hub",
+        "reason": "unused_template_boilerplate"
+      }
+    ],
+    "content_migrations": [
+      {
+        "source_page_id": "4784434",
+        "source_title": "CI/CD",
+        "target_location": "02.3-Build-And-Deployment/CI-CD-Pipeline-Documentation",
+        "migration_type": "move_and_enhance"
+      },
+      {
+        "source_page_id": "4784531",
+        "source_title": "Engineering Incidents",
+        "target_location": "04.1-System-Operations/Incident-Response-Procedures",
+        "migration_type": "move_and_enhance"
+      }
+    ],
+    "homepage_transformation": {
+      "source_page_id": "4194410",
+      "current_content": "comprehensive_outline",
+      "target_content": "interactive_navigation_hub",
+      "enhancement_type": "restructure_as_navigable_index"
+    }
+  },
+  "labeling_strategy": {
+    "domain_page_labels": ["architecture", "development", "quality", "operations", "business", "processes", "knowledge", "integration"],
+    "category_page_labels": ["index", "category"],
+    "content_page_labels": ["sop", "reference", "guide", "evidence"],
+    "evidence_trinity_labels": ["jira-linked", "qtest-linked", "cross-system"],
+    "priority_labels": ["critical", "important", "routine"]
+  },
+  "navigation_enhancements": {
+    "breadcrumb_automation": "AA > Domain > Category > Page",
+    "cross_reference_macros": "Automatic Evidence Trinity linking",
+    "search_optimization": "Enhanced metadata and tagging",
+    "mobile_responsiveness": "Optimized for all device types"
+  },
+  "validation_checkpoints": {
+    "hierarchy_compliance": "Maximum 5 levels depth maintained",
+    "mece_validation": "No content overlap, complete coverage verified",
+    "evidence_trinity": "All pages have appropriate cross-system links",
+    "navigation_efficiency": "Any page reachable within 3 clicks from homepage",
+    "content_findability": "Search success rate >90%"
+  }
+}

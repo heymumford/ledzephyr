@@ -232,6 +232,8 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "golden: Tests with golden file comparisons")
     config.addinivalue_line("markers", "property: Property-based tests with Hypothesis")
     config.addinivalue_line("markers", "snapshot: Tests using snapshot comparisons")
+    config.addinivalue_line("markers", "exporters: Tests for export functionality")
+    config.addinivalue_line("markers", "metrics: Tests for metrics functionality")
 
 
 def pytest_collection_modifyitems(config, items):

@@ -301,7 +301,7 @@ class ObservabilityManager:
                         f"Health check {name}: {status.status}",
                         check_name=name,
                         status=status.status,
-                        message=status.message,
+                        health_message=status.message,
                     )
             except Exception as e:
                 results[name] = HealthStatus(

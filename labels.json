@@ -1,0 +1,50 @@
+{
+  "existing_labels": [
+    "archived",
+    "refactor",
+    "ci-cd",
+    "development",
+    "incidents",
+    "engineering",
+    "template",
+    "hub",
+    "welcome"
+  ],
+  "proposed_taxonomy": {
+    "domain_labels": [
+      "architecture",
+      "development",
+      "quality",
+      "operations",
+      "business",
+      "knowledge"
+    ],
+    "content_type_labels": [
+      "sop",
+      "reference",
+      "index",
+      "guide",
+      "template",
+      "archived"
+    ],
+    "priority_labels": [
+      "critical",
+      "important",
+      "routine",
+      "deprecated"
+    ],
+    "audience_labels": [
+      "developers",
+      "architects",
+      "testers",
+      "operations",
+      "business",
+      "external"
+    ]
+  },
+  "migration_plan": {
+    "cleanup_obsolete": ["template", "hub", "welcome"],
+    "standardize_naming": ["ci-cd -> development", "incidents -> operations"],
+    "add_missing": ["architecture", "quality", "business", "knowledge"]
+  }
+}

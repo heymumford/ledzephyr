@@ -1,10 +1,11 @@
-name: Orchestrator Master - Rail Coordination
+name: Orchestrator
 
 on:
   push:
-    branches: [ main, develop, feat/* ]
+    branches: [main, develop, feat/*]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
   workflow_dispatch:
     inputs:
       rail_selection:

@@ -1,10 +1,13 @@
-name: Parallel Performance Testing
+name: Performance Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM UTC
   schedule:
     # Run performance tests nightly at 3 AM UTC
     - cron: '0 3 * * *'

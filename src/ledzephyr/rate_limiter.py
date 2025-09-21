@@ -85,7 +85,10 @@ class TokenBucket:
             else:
                 # Calculate wait time
                 required_tokens = tokens - self.tokens
-                wait_time = required_tokens / self.rate
+                if self.rate == 0:
+                    wait_time = float("inf")  # Infinite wait time with zero rate
+                else:
+                    wait_time = required_tokens / self.rate
                 return False, wait_time
 
     def get_available_tokens(self) -> int:
@@ -125,8 +128,12 @@ class SlidingWindow:
                 return True, 0.0
             else:
                 # Calculate wait time until oldest request expires
-                oldest = self.requests[0]
-                wait_time = oldest + self.window_size - now
+                if self.requests:
+                    oldest = self.requests[0]
+                    wait_time = oldest + self.window_size - now
+                else:
+                    # No previous requests, but limit is 0 - reject with window size wait
+                    wait_time = self.window_size
                 return False, wait_time
 
     def get_current_count(self) -> int:
@@ -268,7 +275,15 @@ class RateLimiter:
         elif self.strategy == RateLimitStrategy.ADAPTIVE:
             # Update token bucket with adaptive rate
             self.token_bucket.rate = self.adaptive.get_current_rate()
-            return self.acquire(timeout)  # Recursive call with updated rate
+            allowed, wait_time = self.token_bucket.consume()
+            if not allowed:
+                if timeout and wait_time <= timeout:
+                    time.sleep(wait_time)
+                    allowed, _ = self.token_bucket.consume()
+                else:
+                    self.rejected_requests += 1
+                    return False
+            return allowed
 
         return True
 

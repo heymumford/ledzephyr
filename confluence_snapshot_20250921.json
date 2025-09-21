@@ -1,0 +1,247 @@
+{
+  "audit_metadata": {
+    "timestamp": "2025-09-21T00:00:00Z",
+    "cloud_id": "f1ecf30e-e4d0-48d9-bc3a-e738126b7afd",
+    "base_url": "https://balabushka.atlassian.net/wiki",
+    "audit_scope": "global_site_comprehensive",
+    "version": "1.0"
+  },
+  "spaces": [
+    {
+      "id": "4194307",
+      "key": "AA",
+      "name": "Alan Alpha Project",
+      "type": "global",
+      "status": "current",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-14T02:54:36.679Z",
+      "homepage_id": "4194410",
+      "description": null,
+      "icon": null,
+      "page_count_estimate": 4,
+      "content_classification": "primary_documentation",
+      "last_activity": "2025-09-14T16:10:20.409Z"
+    },
+    {
+      "id": "4686553",
+      "key": "~HUB-f1ecf30e-e4d0-48d9-bc3a-e738126b7afd-dcb3e719-e032-4663-8478-1e919658cd53~",
+      "name": "AlphaSphere Company hub",
+      "type": "system",
+      "status": "current",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-14T14:27:50.181Z",
+      "homepage_id": "4686605",
+      "description": null,
+      "icon": null,
+      "page_count_estimate": 1,
+      "content_classification": "template_boilerplate",
+      "last_activity": "2025-09-14T14:27:50.267Z"
+    },
+    {
+      "id": "7045122",
+      "key": "MY",
+      "name": "myco-mcp",
+      "type": "global",
+      "status": "current",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-19T21:50:22.366Z",
+      "homepage_id": "7045362",
+      "description": null,
+      "icon": null,
+      "page_count_estimate": 1,
+      "content_classification": "template_boilerplate",
+      "last_activity": "2025-09-19T21:50:22.789Z"
+    }
+  ],
+  "pages": [
+    {
+      "id": "4194410",
+      "title": "Alan Docs SoR",
+      "space_id": "4194307",
+      "space_key": "AA",
+      "parent_id": null,
+      "status": "current",
+      "author_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-14T02:54:36.896Z",
+      "last_modified": "2025-09-14T02:54:36.896Z",
+      "content_type": "structured_documentation",
+      "depth_level": 0,
+      "word_count_estimate": 650,
+      "content_classification": "system_of_record",
+      "labels": [],
+      "restrictions": "none"
+    },
+    {
+      "id": "4653149",
+      "title": "Alan Documentation [ARCHIVED - Placeholder Content]",
+      "space_id": "4194307",
+      "space_key": "AA",
+      "parent_id": null,
+      "status": "current",
+      "author_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-14T13:43:53.720Z",
+      "last_modified": "2025-09-14T13:43:53.720Z",
+      "content_type": "archived_placeholder",
+      "depth_level": 0,
+      "word_count_estimate": 50,
+      "content_classification": "stale_archived",
+      "labels": ["archived", "refactor"],
+      "restrictions": "none"
+    },
+    {
+      "id": "4784434",
+      "title": "CI/CD",
+      "space_id": "4194307",
+      "space_key": "AA",
+      "parent_id": null,
+      "status": "current",
+      "author_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-14T14:41:20.063Z",
+      "last_modified": "2025-09-14T14:41:20.063Z",
+      "content_type": "index_page",
+      "depth_level": 0,
+      "word_count_estimate": 20,
+      "content_classification": "index_minimal",
+      "labels": ["ci-cd", "development"],
+      "restrictions": "none"
+    },
+    {
+      "id": "4784531",
+      "title": "Engineering Incidents",
+      "space_id": "4194307",
+      "space_key": "AA",
+      "parent_id": null,
+      "status": "current",
+      "author_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-14T16:10:20.409Z",
+      "last_modified": "2025-09-14T16:10:20.409Z",
+      "content_type": "index_page",
+      "depth_level": 0,
+      "word_count_estimate": 20,
+      "content_classification": "index_minimal",
+      "labels": ["incidents", "engineering"],
+      "restrictions": "none"
+    },
+    {
+      "id": "4686605",
+      "title": "Welcome to your company hub!",
+      "space_id": "4686553",
+      "space_key": "~HUB-f1ecf30e-e4d0-48d9-bc3a-e738126b7afd-dcb3e719-e032-4663-8478-1e919658cd53~",
+      "parent_id": null,
+      "status": "current",
+      "author_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-14T14:27:50.267Z",
+      "last_modified": "2025-09-14T14:27:50.267Z",
+      "content_type": "template_boilerplate",
+      "depth_level": 0,
+      "word_count_estimate": 500,
+      "content_classification": "template_unused",
+      "labels": ["template", "hub"],
+      "restrictions": "none"
+    },
+    {
+      "id": "7045362",
+      "title": "myco-mcp Home",
+      "space_id": "7045122",
+      "space_key": "MY",
+      "parent_id": null,
+      "status": "current",
+      "author_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "owner_id": "557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1",
+      "created_at": "2025-09-19T21:50:22.789Z",
+      "last_modified": "2025-09-19T21:50:22.789Z",
+      "content_type": "template_boilerplate",
+      "depth_level": 0,
+      "word_count_estimate": 150,
+      "content_classification": "template_unused",
+      "labels": ["template", "welcome"],
+      "restrictions": "none"
+    }
+  ],
+  "labels_inventory": [
+    "archived",
+    "refactor",
+    "ci-cd",
+    "development",
+    "incidents",
+    "engineering",
+    "template",
+    "hub",
+    "welcome"
+  ],
+  "content_analysis": {
+    "total_spaces": 3,
+    "total_pages": 6,
+    "content_distribution": {
+      "system_of_record": 1,
+      "index_minimal": 2,
+      "template_unused": 2,
+      "stale_archived": 1
+    },
+    "depth_analysis": {
+      "max_depth": 0,
+      "avg_depth": 0,
+      "deep_hierarchies": []
+    },
+    "activity_analysis": {
+      "recently_created": 3,
+      "stale_content": 3,
+      "orphaned_pages": 0
+    }
+  },
+  "stale_content_index": [
+    {
+      "page_id": "4653149",
+      "title": "Alan Documentation [ARCHIVED - Placeholder Content]",
+      "reason": "explicitly_marked_archived",
+      "staleness_score": 95,
+      "recommended_action": "delete"
+    },
+    {
+      "page_id": "4686605",
+      "title": "Welcome to your company hub!",
+      "reason": "unused_template_boilerplate",
+      "staleness_score": 85,
+      "recommended_action": "archive_or_repurpose"
+    },
+    {
+      "page_id": "7045362",
+      "title": "myco-mcp Home",
+      "reason": "unused_template_boilerplate",
+      "staleness_score": 75,
+      "recommended_action": "archive_or_repurpose"
+    }
+  ],
+  "architecture_assessment": {
+    "information_architecture_score": 3,
+    "navigation_clarity": 2,
+    "content_organization": 4,
+    "depth_management": 5,
+    "semantic_coherence": 2,
+    "recommendations": [
+      "Consolidate template spaces into single knowledge base",
+      "Implement hierarchical structure under main SoR page",
+      "Create clear semantic boundaries between content types",
+      "Remove or repurpose stale template content",
+      "Establish labeling taxonomy and governance"
+    ]
+  },
+  "migration_readiness": {
+    "content_volume": "low",
+    "complexity_score": 2,
+    "migration_effort_estimate": "1-2 days",
+    "priority_content": [
+      "4194410"
+    ],
+    "consolidation_opportunities": [
+      "Merge MY and HUB spaces",
+      "Archive placeholder content",
+      "Restructure AA space with proper hierarchy"
+    ]
+  }
+}

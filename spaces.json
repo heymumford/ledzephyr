@@ -1,0 +1,32 @@
+[
+  {
+    "id": "4194307",
+    "key": "AA",
+    "name": "Alan Alpha Project",
+    "type": "global",
+    "status": "current",
+    "classification": "primary_documentation",
+    "content_value": "high",
+    "migration_priority": 1
+  },
+  {
+    "id": "4686553",
+    "key": "~HUB-f1ecf30e-e4d0-48d9-bc3a-e738126b7afd-dcb3e719-e032-4663-8478-1e919658cd53~",
+    "name": "AlphaSphere Company hub",
+    "type": "system",
+    "status": "current",
+    "classification": "template_boilerplate",
+    "content_value": "low",
+    "migration_priority": 3
+  },
+  {
+    "id": "7045122",
+    "key": "MY",
+    "name": "myco-mcp",
+    "type": "global",
+    "status": "current",
+    "classification": "template_boilerplate",
+    "content_value": "low",
+    "migration_priority": 3
+  }
+]

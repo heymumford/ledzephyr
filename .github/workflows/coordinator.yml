@@ -1,9 +1,9 @@
-name: Coordinator Agent - Work Prioritization
+name: Coordinator
 
 on:
   schedule:
-    # Run every 4 minutes to pick up next most important work
-    - cron: '*/4 * * * *'
+    - cron: '*/4 * * * *'  # Every 4 minutes for work prioritization
+  workflow_dispatch:
   workflow_dispatch:
     inputs:
       force_priority:

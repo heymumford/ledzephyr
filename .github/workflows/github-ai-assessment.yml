@@ -1,9 +1,19 @@
-name: GitHub AI Assessment & Backlog Management
+name: AI Assessment
 
 on:
   schedule:
-    # Run hourly AI assessment
-    - cron: '0 * * * *'
+    - cron: '0 * * * *'  # Hourly AI assessment
+  workflow_dispatch:
+    inputs:
+      assessment_type:
+        description: 'Type of assessment to run'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - quick
+          - backlog-only
   workflow_dispatch:
     inputs:
       assessment_focus:

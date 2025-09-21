@@ -1,4 +1,4 @@
-name: CD Pipeline
+name: CD
 
 on:
   release:
@@ -13,73 +13,65 @@ on:
         options:
           - staging
           - production
+      version:
+        description: 'Version to deploy (leave empty for latest)'
+        required: false
+        type: string
+
+concurrency:
+  group: cd-${{ github.workflow }}-${{ inputs.environment || 'release' }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
 
 env:
   PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.7.0'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  publish-pypi:
-    name: Publish to PyPI
+  build:
+    name: Build & Package
     runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
+    timeout-minutes: 20
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      image: ${{ steps.image.outputs.image }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python & Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Build distribution
-        run: poetry build
-
-      - name: Publish to Test PyPI
-        env:
-          POETRY_PYPI_TOKEN_TEST_PYPI: ${{ secrets.TEST_PYPI_TOKEN }}
+      - name: Extract version
+        id: version
         run: |
-          poetry config repositories.test-pypi https://test.pypi.org/legacy/
-          poetry publish -r test-pypi
+          VERSION=${{ inputs.version }}
+          if [ -z "$VERSION" ]; then
+            VERSION=$(poetry version -s)
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
 
-      - name: Test installation from Test PyPI
+      - name: Build package
         run: |
-          pip install --index-url https://test.pypi.org/simple/ ledzephyr
-          lz --version
+          poetry build
+          ls -la dist/
 
-      - name: Publish to PyPI
-        if: github.event_name == 'release'
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-        run: poetry publish
-
-  publish-docker:
-    name: Publish Docker Image
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
+      - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
@@ -87,9 +79,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: |
-            ledzephyr/ledzephyr
-            ghcr.io/${{ github.repository }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -97,101 +87,93 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push Docker image
+        id: image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
-  deploy-docs:
-    name: Deploy Documentation
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            Dockerfile
+          retention-days: 30
+
+  test-deployment:
+    name: Test Deployment
     runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 15
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          name: build-artifacts
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies
+      - name: Test package installation
         run: |
-          poetry install --no-interaction
-          poetry add mkdocs mkdocs-material mkdocstrings
+          pip install dist/*.whl
+          ledzephyr --version
 
-      - name: Build documentation
-        run: poetry run mkdocs build
+      - name: Smoke tests
+        run: |
+          # Add smoke tests here
+          echo "Running deployment smoke tests..."
+          ledzephyr doctor --help
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-
-  create-release-notes:
-    name: Generate Release Notes
+  deploy-staging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    needs: [build, test-deployment]
+    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'staging'
+    environment: staging
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Deploy to staging
+        run: |
+          echo "Deploying ${{ needs.build.outputs.version }} to staging"
+          # Add staging deployment logic here
 
-      - name: Generate changelog
-        uses: orhun/git-cliff-action@v2
-        id: git-cliff
-        with:
-          config: cliff.toml
-          args: --latest --unreleased --tag ${{ github.ref_name }}
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, test-deployment]
+    if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
+    environment: production
+    timeout-minutes: 15
 
-      - name: Update release
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          body: ${{ steps.git-cliff.outputs.content }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "Deploying ${{ needs.build.outputs.version }} to production"
+          # Add production deployment logic here
+
+      - name: Post-deployment verification
+        run: |
+          echo "Running post-deployment verification..."
+          # Add verification steps here
 
   notify:
-    name: Send Notifications
+    name: Notify
     runs-on: ubuntu-latest
-    needs: [publish-pypi, publish-docker]
-    if: always()
+    needs: [deploy-staging, deploy-production]
+    if: always() && (needs.deploy-staging.result != 'skipped' || needs.deploy-production.result != 'skipped')
+
     steps:
-      - name: Send Slack notification
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: |
-            Release ${{ github.ref_name }} deployment ${{ job.status }}
-            PyPI: ${{ needs.publish-pypi.result }}
-            Docker: ${{ needs.publish-docker.result }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        if: always()
-
-      - name: Send email notification
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: Release ${{ github.ref_name }} - Deployment ${{ job.status }}
-          to: team@ledzephyr.com
-          from: GitHub Actions
-          body: |
-            Release ${{ github.ref_name }} has been deployed.
-
-            Results:
-            - PyPI: ${{ needs.publish-pypi.result }}
-            - Docker: ${{ needs.publish-docker.result }}
-
-            View the release: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
-        if: always()
+      - name: Deployment notification
+        run: |
+          if [[ "${{ needs.deploy-production.result }}" == "success" ]]; then
+            echo "✅ Production deployment successful"
+          elif [[ "${{ needs.deploy-staging.result }}" == "success" ]]; then
+            echo "✅ Staging deployment successful"
+          else
+            echo "❌ Deployment failed"
+            exit 1
+          fi

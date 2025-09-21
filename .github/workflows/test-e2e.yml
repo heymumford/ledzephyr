@@ -1,19 +1,27 @@
-name: Rail 3 - External Integrations
+name: E2E Tests
 
 on:
   push:
-    branches: [ main, develop, feat/* ]
+    branches: [main, develop, feat/*]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
-# Rail 3: External API integrations and I/O operations
-# Orthogonal concerns: API clients, CLI commands, exporters, external data
-# Heavy mocking, simulated network operations
+concurrency:
+  group: e2e-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+# E2E Tests: External API integrations and I/O operations
+# End-to-end workflows with heavy mocking and simulated network operations
 
 env:
   PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.7.0'
+  CACHE_VERSION: '1'
 
 jobs:
   # Cluster 3A: API Client Testing

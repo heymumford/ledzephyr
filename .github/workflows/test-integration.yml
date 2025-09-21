@@ -1,19 +1,27 @@
-name: Rail 2 - Infrastructure & Services
+name: Integration Tests
 
 on:
   push:
-    branches: [ main, develop, feat/* ]
+    branches: [main, develop, feat/*]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
-# Rail 2: Infrastructure services with controlled external dependencies
-# Orthogonal concerns: caching, rate limiting, error handling, observability
-# Moderate I/O, controlled network simulation
+concurrency:
+  group: integration-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+# Integration Tests: Infrastructure services with controlled dependencies
+# Moderate execution time, controlled I/O and network simulation
 
 env:
   PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.7.0'
+  CACHE_VERSION: '1'
 
 jobs:
   # Cluster 2A: Caching & Performance Infrastructure

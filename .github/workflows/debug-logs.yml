@@ -1,8 +1,18 @@
-name: Test Log Viewing
+name: Debug Logs
 
 on:
-  push:
-    branches: [ main, develop, feat/mcp-connections ]
+  workflow_dispatch:
+    inputs:
+      log_level:
+        description: 'Log level to capture'
+        required: false
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - info
+          - warning
+          - error
     paths:
       - 'scripts/dev-logs.sh'
       - 'tools/lnav/**'

@@ -83,6 +83,10 @@ class TimeWindowValidator(BaseModel):
         value = int(value)
         unit = unit.lower()
 
+        # Validate that value is not zero
+        if value == 0:
+            raise ValueError("Time window value cannot be zero")
+
         # Validate reasonable ranges
         if unit == "h" and value > 744:  # 31 days in hours
             raise ValueError("Hour window cannot exceed 744 hours (31 days)")
@@ -126,6 +130,10 @@ class EmailValidator(BaseModel):
     def validate_email_domain(cls, v):
         """Additional email validation."""
         domain = v.split("@")[1]
+
+        # Check for consecutive dots in domain
+        if ".." in domain:
+            raise ValueError("Email domain cannot contain consecutive dots")
 
         # Check for common typos
         typo_domains = {
@@ -351,6 +359,10 @@ class DataSanitizer:
         # Prevent directory traversal
         if filename.startswith("."):
             filename = "_" + filename[1:]
+
+        # Remove any ".." patterns that could be used for directory traversal
+        while ".." in filename:
+            filename = filename.replace("..", "_")
 
         return filename
 

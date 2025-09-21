@@ -1,5 +1,7 @@
 """Unit tests for configuration module following AAA pattern."""
 
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -107,13 +109,19 @@ class TestLoadConfig:
         assert config.jira_username == "dotenv@example.com"
         assert config.jira_api_token == "dotenv_token"
 
-    def test_load_config_nonexistent_file_missing_required_raises_error(self, monkeypatch):
+    def test_load_config_nonexistent_file_missing_required_raises_error(
+        self, monkeypatch, tmp_path
+    ):
         """Test load_config with nonexistent file and missing required vars raises error."""
         # Arrange
         nonexistent_file = "/path/that/does/not/exist/.env"
         # Clear required environment variables completely
         for key in ["LEDZEPHYR_JIRA_URL", "LEDZEPHYR_JIRA_USERNAME", "LEDZEPHYR_JIRA_API_TOKEN"]:
             monkeypatch.delenv(key, raising=False)
+
+        # Change to a temp directory to avoid finding local .env files
+        original_cwd = Path.cwd()
+        monkeypatch.chdir(tmp_path)
 
         # Act & Assert
         with pytest.raises(

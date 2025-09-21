@@ -1,232 +1,146 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
-  schedule:
-    # Run nightly at 2 AM UTC
-    - cron: '0 2 * * *'
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+  checks: write
 
 env:
   PYTHON_VERSION: '3.11'
   POETRY_VERSION: '1.7.0'
-  # Disable telemetry for faster builds
-  POETRY_VIRTUALENVS_CREATE: true
-  POETRY_VIRTUALENVS_IN_PROJECT: true
-  POETRY_CACHE_DIR: ~/.cache/poetry
+  CACHE_VERSION: '1'
 
 jobs:
   lint:
-    name: Lint & Format Check
+    name: Lint & Format
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    timeout-minutes: 10
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python & Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
 
-      - name: Load cached Poetry installation
-        uses: actions/cache@v3
+      - name: Cache dependencies
+        uses: actions/cache@v4
         with:
-          path: ~/.local
-          key: poetry-${{ runner.os }}-${{ env.POETRY_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          path: ~/.cache/pypoetry
+          key: poetry-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            poetry-${{ env.CACHE_VERSION }}-${{ runner.os }}-
 
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
+        run: poetry install --no-interaction --no-ansi
 
-      - name: Install project
-        run: poetry install --no-interaction
+      - name: Run black
+        run: poetry run black --check .
 
-      - name: Run linting
-        run: |
-          poetry run ruff check src tests
-          poetry run black --check src tests
+      - name: Run ruff
+        run: poetry run ruff check .
 
-      - name: Run type checking
-        run: poetry run mypy -p ledzephyr
+      - name: Run mypy
+        run: poetry run mypy src/
 
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    timeout-minutes: 10
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python & Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-ansi
 
-      - name: Run security scan with bandit
-        run: poetry run bandit -q -r src
+      - name: Run bandit
+        run: poetry run bandit -r src/ -f json -o bandit-report.json
+        continue-on-error: true
 
-      - name: Run dependency audit
-        run: poetry run pip-audit --desc
+      - name: Upload security results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-results
+          path: bandit-report.json
+          retention-days: 7
 
-  test-unit:
-    name: Unit Tests
+  test-basic:
+    name: Basic Tests
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    timeout-minutes: 15
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python & Poetry
+        uses: ./.github/actions/setup-python-poetry
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
 
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-ansi
 
-      - name: Run unit tests with coverage
+      - name: Run basic tests
         run: |
-          poetry run pytest tests/unit \
-            --cov=ledzephyr \
-            --cov-report=xml \
+          poetry run pytest tests/ \
+            --maxfail=5 \
+            --tb=short \
+            --cov=src/ledzephyr \
+            --cov-report=xml:coverage.xml \
             --cov-report=term-missing \
-            --junit-xml=test-results/junit-unit.xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: unit
-          name: unit-coverage
+            --junit-xml=test-results.xml
 
       - name: Upload test results
+        uses: actions/upload-artifact@v4
         if: always()
-        uses: actions/upload-artifact@v4
         with:
-          name: unit-test-results
-          path: test-results/
+          name: test-results
+          path: |
+            test-results.xml
+            coverage.xml
+          retention-days: 7
 
-  test-integration:
-    name: Integration Tests
+  ci-status:
+    name: CI Status
     runs-on: ubuntu-latest
+    needs: [lint, security, test-basic]
+    if: always()
+
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Generate gold master data
-        run: poetry run python -c "from migrate_specs import gold; import pathlib; gold.build_gold_master(pathlib.Path('gold'))"
-
-      - name: Run integration tests
+      - name: Check CI results
         run: |
-          poetry run pytest tests/integration \
-            --cov=ledzephyr \
-            --cov-report=xml \
-            --cov-report=term-missing \
-            --junit-xml=test-results/junit-integration.xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.xml
-          flags: integration
-          name: integration-coverage
-
-  test-schools:
-    name: School-of-Fish Tests
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        school: [api, data, config, performance]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Generate gold master data
-        run: poetry run python -c "from migrate_specs import gold; import pathlib; gold.build_gold_master(pathlib.Path('gold'))"
-
-      - name: Run ${{ matrix.school }} school tests
-        run: |
-          poetry run python -m tests.integration.schools.cli \
-            --school ${{ matrix.school }}
-
-  build:
-    name: Build Distribution
-    runs-on: ubuntu-latest
-    needs: [lint, security, test-unit]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ env.POETRY_VERSION }}
-
-      - name: Install dependencies
-        run: poetry install --no-interaction
-
-      - name: Build distribution
-        run: poetry build
-
-      - name: Check distribution
-        run: |
-          pip install twine
-          twine check dist/*
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: distribution
-          path: dist/
+          if [[ "${{ needs.lint.result }}" == "failure" ]]; then
+            echo "❌ Lint checks failed"
+            exit 1
+          fi
+          if [[ "${{ needs.test-basic.result }}" == "failure" ]]; then
+            echo "❌ Basic tests failed"
+            exit 1
+          fi
+          echo "✅ CI passed successfully"

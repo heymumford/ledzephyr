@@ -1,0 +1,260 @@
+{
+  "plan_metadata": {
+    "created": "2025-09-21T00:00:00Z",
+    "version": "1.0",
+    "scope": "confluence_reorganization",
+    "target_completion": "2025-09-23",
+    "methodology": "evidence_trinity_integration"
+  },
+  "current_state_analysis": {
+    "problems_identified": [
+      "Flat hierarchy with no semantic organization",
+      "50% stale content diluting signal-to-noise ratio",
+      "Multiple spaces with duplicated/template content",
+      "Inconsistent labeling and no taxonomy governance",
+      "No cross-system integration (Jira⇄qTest⇄Confluence)",
+      "Missing navigation structure and content findability"
+    ],
+    "content_value_assessment": {
+      "high_value": ["Alan Docs SoR - comprehensive architecture"],
+      "medium_value": ["CI/CD index", "Engineering Incidents index"],
+      "low_value": ["Template boilerplate content"],
+      "negative_value": ["Archived placeholder content"]
+    }
+  },
+  "target_architecture": {
+    "design_principles": [
+      "MECE compliance (Mutually Exclusive, Collectively Exhaustive)",
+      "Maximum 5-level depth hierarchy",
+      "Evidence Trinity integration points",
+      "Machine-readable navigation structure",
+      "Role-based content organization",
+      "Semantic coherence and Wu Wei principles"
+    ],
+    "space_strategy": {
+      "primary_space": {
+        "name": "Alan Alpha Project (AA)",
+        "role": "Single Source of Truth",
+        "scope": "All organizational knowledge",
+        "governance": "Centralized with domain ownership"
+      },
+      "deprecated_spaces": [
+        "AlphaSphere Company hub - Archive/Delete",
+        "myco-mcp - Repurpose for MCP documentation or Archive"
+      ]
+    },
+    "information_hierarchy": {
+      "level_1_domains": [
+        "01-SYSTEM-ARCHITECTURE",
+        "02-DEVELOPMENT",
+        "03-TESTING-AND-QUALITY",
+        "04-OPERATIONS",
+        "05-BUSINESS-DOMAIN",
+        "06-PROCESSES-AND-WORKFLOWS",
+        "07-KNOWLEDGE-BASE",
+        "08-INTEGRATION-REFERENCES"
+      ],
+      "level_2_categories": {
+        "01-SYSTEM-ARCHITECTURE": [
+          "01.1-Core-Consciousness-Framework",
+          "01.2-Technical-Architecture",
+          "01.3-Architecture-Decision-Records"
+        ],
+        "02-DEVELOPMENT": [
+          "02.1-Development-Standards",
+          "02.2-Environment-Setup",
+          "02.3-Build-And-Deployment"
+        ],
+        "03-TESTING-AND-QUALITY": [
+          "03.1-Testing-Strategy",
+          "03.2-Quality-Gates",
+          "03.3-Test-Evidence"
+        ],
+        "04-OPERATIONS": [
+          "04.1-System-Operations",
+          "04.2-Infrastructure",
+          "04.3-Security-Operations"
+        ],
+        "05-BUSINESS-DOMAIN": [
+          "05.1-AlphaSphere-Micro-Fund",
+          "05.2-Alan-Consciousness-System",
+          "05.3-Integration-Ecosystem"
+        ],
+        "06-PROCESSES-AND-WORKFLOWS": [
+          "06.1-Agent-Operating-Model",
+          "06.2-Evidence-Trinity",
+          "06.3-Release-Management"
+        ],
+        "07-KNOWLEDGE-BASE": [
+          "07.1-API-Documentation",
+          "07.2-Troubleshooting",
+          "07.3-Training-Materials"
+        ],
+        "08-INTEGRATION-REFERENCES": [
+          "08.1-Cross-System-Links",
+          "08.2-External-Dependencies",
+          "08.3-Evidence-Archive"
+        ]
+      }
+    }
+  },
+  "migration_mapping": {
+    "existing_to_target": {
+      "4194410": {
+        "current": "Alan Docs SoR (root)",
+        "target": "AA Space Homepage with enhanced navigation",
+        "action": "restructure_as_index",
+        "priority": 1
+      },
+      "4784434": {
+        "current": "CI/CD (root)",
+        "target": "02.3-Build-And-Deployment/CI-CD-Strategy",
+        "action": "move_and_enhance",
+        "priority": 2
+      },
+      "4784531": {
+        "current": "Engineering Incidents (root)",
+        "target": "04.1-System-Operations/Incident-Response",
+        "action": "move_and_enhance",
+        "priority": 2
+      },
+      "4653149": {
+        "current": "Archived placeholder",
+        "target": "DELETE",
+        "action": "permanent_removal",
+        "priority": 4
+      },
+      "4686605": {
+        "current": "Company hub template",
+        "target": "ARCHIVE",
+        "action": "space_archival",
+        "priority": 4
+      },
+      "7045362": {
+        "current": "myco-mcp template",
+        "target": "08.2-External-Dependencies/MCP-Integration OR ARCHIVE",
+        "action": "evaluate_repurpose",
+        "priority": 3
+      }
+    }
+  },
+  "navigation_design": {
+    "homepage_structure": {
+      "header": "🏛️ Alan Alpha Project - System of Record",
+      "navigation_blocks": [
+        {
+          "domain": "🏛️ 01-SYSTEM-ARCHITECTURE",
+          "description": "Core frameworks, technical architecture, and ADRs",
+          "quick_links": ["RC+ξ Framework", "Service Architecture", "ADR Index"]
+        },
+        {
+          "domain": "🔧 02-DEVELOPMENT",
+          "description": "Standards, environments, and deployment pipelines",
+          "quick_links": ["Coding Conventions", "Environment Setup", "CI/CD Pipeline"]
+        },
+        {
+          "domain": "🧪 03-TESTING-AND-QUALITY",
+          "description": "Testing strategy, quality gates, and evidence",
+          "quick_links": ["AI-Era Testing", "SLOs", "Test Reports"]
+        },
+        {
+          "domain": "🚀 04-OPERATIONS",
+          "description": "System operations, infrastructure, and security",
+          "quick_links": ["Health Monitoring", "Infrastructure", "Security Controls"]
+        },
+        {
+          "domain": "💼 05-BUSINESS-DOMAIN",
+          "description": "Business context and domain knowledge",
+          "quick_links": ["AlphaSphere Fund", "Alan Consciousness", "Integration Ecosystem"]
+        },
+        {
+          "domain": "🔄 06-PROCESSES-AND-WORKFLOWS",
+          "description": "Operating models and process definitions",
+          "quick_links": ["Five-Persona Model", "Evidence Trinity", "Release Management"]
+        },
+        {
+          "domain": "📚 07-KNOWLEDGE-BASE",
+          "description": "Documentation, troubleshooting, and training",
+          "quick_links": ["API Docs", "Troubleshooting", "Training Materials"]
+        },
+        {
+          "domain": "🔗 08-INTEGRATION-REFERENCES",
+          "description": "Cross-system links and external dependencies",
+          "quick_links": ["Jira Links", "Dependencies", "Evidence Archive"]
+        }
+      ]
+    },
+    "breadcrumb_pattern": "AA > Domain > Category > Page",
+    "cross_references": {
+      "jira_integration": "Evidence Trinity links in 06.2 and 08.1",
+      "qtest_integration": "Test evidence links in 03.3 and 08.1",
+      "github_integration": "Repository links in 08.1"
+    }
+  },
+  "labeling_taxonomy": {
+    "domain_labels": [
+      "architecture", "development", "quality", "operations",
+      "business", "processes", "knowledge", "integration"
+    ],
+    "content_type_labels": [
+      "index", "sop", "reference", "guide", "template",
+      "evidence", "archive", "adr"
+    ],
+    "priority_labels": [
+      "critical", "important", "routine", "deprecated"
+    ],
+    "audience_labels": [
+      "architects", "developers", "testers", "operators",
+      "business", "external"
+    ],
+    "evidence_trinity_labels": [
+      "jira-linked", "qtest-linked", "cross-system", "evidence-trinity"
+    ]
+  },
+  "implementation_phases": {
+    "phase_1_foundation": {
+      "duration": "4 hours",
+      "tasks": [
+        "Archive/delete stale content",
+        "Create domain-level parent pages",
+        "Restructure existing content into hierarchy",
+        "Implement basic labeling taxonomy"
+      ]
+    },
+    "phase_2_enhancement": {
+      "duration": "4 hours",
+      "tasks": [
+        "Enhance content with cross-references",
+        "Implement Evidence Trinity integration points",
+        "Create navigation templates and macros",
+        "Establish content governance procedures"
+      ]
+    },
+    "phase_3_optimization": {
+      "duration": "2 hours",
+      "tasks": [
+        "Optimize search and findability",
+        "Implement automated health monitoring",
+        "Create user onboarding guides",
+        "Final validation and testing"
+      ]
+    }
+  },
+  "success_metrics": {
+    "content_organization": {
+      "hierarchy_depth": "≤5 levels",
+      "navigation_efficiency": "Any page reachable in ≤3 clicks",
+      "content_findability": ">90% search success rate"
+    },
+    "evidence_trinity": {
+      "cross_system_links": ">80% of pages have Jira/qTest references",
+      "traceability": "Full bidirectional linking implemented",
+      "automation": "Automated link validation active"
+    },
+    "maintenance_reduction": {
+      "stale_content": "<10% staleness rate maintained",
+      "governance_overhead": "50% reduction in content management time",
+      "user_satisfaction": ">4.5/5 navigation ease rating"
+    }
+  }
+}
