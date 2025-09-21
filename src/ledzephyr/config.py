@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
@@ -37,10 +37,12 @@ class Config(BaseSettings):
     }
 
 
-def load_config(env_file: Optional[Path] = None) -> Config:
+def load_config(env_file: Optional[Union[str, Path]] = None) -> Config:
     """Load configuration from environment variables and .env file."""
-    if env_file and env_file.exists():
-        return Config(_env_file=env_file)
+    if env_file:
+        env_path = Path(env_file) if isinstance(env_file, str) else env_file
+        if env_path.exists():
+            return Config(_env_file=env_path)
     
     # Try to find .env file in current directory or home directory
     for env_path in [Path(".env"), Path.home() / ".env"]:

@@ -25,7 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-packages = [{include = "ledzephyr"}]
+packages = [{include = "ledzephyr", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -68,6 +68,8 @@ safety = "^2.0"
 structlog = "^23.0"
 # Metrics collection (optional)
 prometheus-client = "^0.19"
+pytest-socket = "^0.7.0"
+freezegun = "^1.5.5"
 
 [tool.poetry.scripts]
 lz = "ledzephyr.cli:app"
@@ -97,27 +99,19 @@ enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 show_error_codes = true
 
 [tool.pytest.ini_options]
+addopts = "-q -ra --strict-markers --strict-config --maxfail=1 --durations=10 --color=yes"
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = """
-    --cov=ledzephyr
-    --cov-report=term-missing
-    --cov-report=html
-    --cov-fail-under=90
-    --hypothesis-show-statistics
-    --benchmark-skip
-    --strict-markers
-    --strict-config
-"""
+log_cli = true
+log_cli_level = "INFO"
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "property: marks tests as property-based tests",
-    "adversarial: marks tests as adversarial tests",
-    "benchmark: marks tests as benchmark tests",
-    "unit: marks tests as unit tests"
+    "unit: fast, isolated tests",
+    "integration: cross-component tests",
+    "slow: long-running tests",
+    "flaky: quarantined tests",
+    "property: property-based tests"
 ]
 
 [tool.ruff]
@@ -173,6 +167,7 @@ min_confidence = 80
 paths = ["ledzephyr/"]
 
 [tool.coverage.run]
+branch = true
 source = ["ledzephyr"]
 omit = [
     "*/tests/*",
@@ -181,6 +176,9 @@ omit = [
 ]
 
 [tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
