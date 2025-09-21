@@ -9,7 +9,7 @@ from hypothesis import given
 from hypothesis import strategies as st
 
 from ledzephyr.metrics import MetricsCalculator
-from ledzephyr.models import TeamSource, TestCase
+from ledzephyr.models import TeamSource, TestCaseModel
 
 
 class TestMathGolden:
@@ -25,7 +25,7 @@ class TestMathGolden:
         with open(fixtures_dir / "math_input_basic.json") as f:
             input_data = json.load(f)
 
-        # Convert JSON to TestCase objects
+        # Convert JSON to TestCaseModel objects
         test_cases = []
         for tc_data in input_data["test_cases"]:
             # Convert ISO strings to datetime objects
@@ -37,7 +37,7 @@ class TestMathGolden:
                     tc_data["last_execution"].replace("Z", "+00:00")
                 )
 
-            test_case = TestCase(
+            test_case = TestCaseModel(
                 id=tc_data["id"],
                 key=tc_data["key"],
                 summary=tc_data["summary"],

@@ -88,15 +88,48 @@ def mock_api_client():
 
 
 @pytest.fixture
+def sample_project_metrics():
+    """Provide sample project metrics for testing."""
+    from ledzephyr.models import ProjectMetrics, TeamMetrics, TeamSource
+
+    def _create_metrics():
+        return ProjectMetrics(
+            project_key="DEMO",
+            time_window="7d",
+            total_tests=150,
+            zephyr_tests=75,
+            qtest_tests=75,
+            adoption_ratio=0.5,
+            active_users=12,
+            coverage_parity=0.85,
+            defect_link_rate=0.15,
+            trends=[],
+            teams=[
+                TeamMetrics(
+                    team_name="Frontend",
+                    team_source=TeamSource.COMPONENT,
+                    total_tests=80,
+                    zephyr_tests=40,
+                    qtest_tests=40,
+                    adoption_ratio=0.5,
+                    coverage_parity=0.9,
+                    defect_link_rate=0.1
+                )
+            ]
+        )
+    return _create_metrics
+
+
+@pytest.fixture
 def sample_test_data():
     """Provide sample test case data for calculations."""
     from datetime import datetime
 
-    from ledzephyr.models import TestCase
+    from ledzephyr.models import TestCaseModel
 
     now = datetime.now()
     return [
-        TestCase(
+        TestCaseModel(
             id="Z-1",
             key="Z-1",
             summary="Zephyr Test 1",
@@ -111,7 +144,7 @@ def sample_test_data():
             last_execution=now,
             execution_status="PASS",
         ),
-        TestCase(
+        TestCaseModel(
             id="Q-1",
             key="Q-1",
             summary="qTest Test 1",

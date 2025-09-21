@@ -91,7 +91,7 @@ class JiraProject(BaseModel):
     components: list[str] = Field(default_factory=list, description="Project components")
 
 
-class TestCase(BaseModel):
+class TestCaseModel(BaseModel):
     """Test case information."""
 
     id: str = Field(..., description="Test case ID")

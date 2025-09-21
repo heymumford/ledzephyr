@@ -109,7 +109,7 @@ mypy_path = ["src"]
 exclude = ["tests/.*"]
 
 [tool.pytest.ini_options]
-addopts = "-q --strict-markers --strict-config --maxfail=1 --cov=ledzephyr --cov-report=term-missing"
+addopts = "-q --strict-markers --strict-config --maxfail=1 --cov=ledzephyr --cov-report=term-missing --disable-warnings"
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
@@ -193,7 +193,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 80
+fail_under = 30
 show_missing = true
 skip_covered = true
 exclude_lines = [

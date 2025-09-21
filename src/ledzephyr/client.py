@@ -9,7 +9,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from ledzephyr.cache import get_api_cache
 from ledzephyr.config import Config
-from ledzephyr.models import JiraProject, TestCase
+from ledzephyr.models import JiraProject, TestCaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -154,7 +154,7 @@ class APIClient:
         project_key: str,
         start_date: datetime | None = None,
         end_date: datetime | None = None,
-    ) -> list[TestCase]:
+    ) -> list[TestCaseModel]:
         """Get test cases from Zephyr Scale."""
         if not self.config.zephyr_token:
             logger.warning("No Zephyr token configured")
@@ -180,7 +180,7 @@ class APIClient:
             tests = []
 
             for item in data.get("values", []):
-                test = TestCase(
+                test = TestCaseModel(
                     id=item["id"],
                     key=item["key"],
                     summary=item["name"],
@@ -208,7 +208,7 @@ class APIClient:
         project_key: str,
         start_date: datetime | None = None,
         end_date: datetime | None = None,
-    ) -> list[TestCase]:
+    ) -> list[TestCaseModel]:
         """Get test cases from qTest."""
         if not self.config.qtest_token:
             logger.warning("No qTest token configured")
@@ -246,7 +246,7 @@ class APIClient:
             tests = []
 
             for item in data.get("items", []):
-                test = TestCase(
+                test = TestCaseModel(
                     id=str(item["id"]),
                     key=f"TC-{item['id']}",
                     summary=item["name"],

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock
 
 from ledzephyr.metrics import MetricsCalculator
-from ledzephyr.models import TeamSource, TestCase
+from ledzephyr.models import TeamSource, TestCaseModel
 
 
 class TestMetricsCalculator:
@@ -55,7 +55,7 @@ class TestMetricsCalculator:
         calculator = MetricsCalculator(Mock())
 
         zephyr_tests = [
-            TestCase(
+            TestCaseModel(
                 id="z1",
                 key="Z-1",
                 summary="Test 1",
@@ -70,7 +70,7 @@ class TestMetricsCalculator:
                 last_execution=datetime.now(),
                 execution_status="PASS",
             ),
-            TestCase(
+            TestCaseModel(
                 id="z2",
                 key="Z-2",
                 summary="Test 2",
@@ -88,7 +88,7 @@ class TestMetricsCalculator:
         ]
 
         qtest_tests = [
-            TestCase(
+            TestCaseModel(
                 id="q1",
                 key="Q-1",
                 summary="Test 1",
@@ -103,7 +103,7 @@ class TestMetricsCalculator:
                 last_execution=datetime.now(),
                 execution_status="PASS",
             ),
-            TestCase(
+            TestCaseModel(
                 id="q2",
                 key="Q-2",
                 summary="Test 2",
@@ -130,7 +130,7 @@ class TestMetricsCalculator:
         calculator = MetricsCalculator(Mock())
 
         tests = [
-            TestCase(
+            TestCaseModel(
                 id="t1",
                 key="T-1",
                 summary="Test 1",
@@ -146,7 +146,7 @@ class TestMetricsCalculator:
                 execution_status="PASS",
                 linked_defects=["BUG-1"],
             ),
-            TestCase(
+            TestCaseModel(
                 id="t2",
                 key="T-2",
                 summary="Test 2",
@@ -174,7 +174,7 @@ class TestMetricsCalculator:
         calculator = MetricsCalculator(Mock())
 
         tests = [
-            TestCase(
+            TestCaseModel(
                 id="t1",
                 key="T-1",
                 summary="Test 1",
@@ -189,7 +189,7 @@ class TestMetricsCalculator:
                 last_execution=datetime.now(),
                 execution_status="PASS",
             ),
-            TestCase(
+            TestCaseModel(
                 id="t2",
                 key="T-2",
                 summary="Test 2",
@@ -204,7 +204,7 @@ class TestMetricsCalculator:
                 last_execution=datetime.now(),
                 execution_status="PASS",
             ),
-            TestCase(
+            TestCaseModel(
                 id="t3",
                 key="T-3",
                 summary="Test 3",
@@ -230,7 +230,7 @@ class TestMetricsCalculator:
         """Test team name extraction by component."""
         calculator = MetricsCalculator(Mock())
 
-        test = TestCase(
+        test = TestCaseModel(
             id="t1",
             key="T-1",
             summary="Test 1",
@@ -253,7 +253,7 @@ class TestMetricsCalculator:
         """Test team name extraction by label."""
         calculator = MetricsCalculator(Mock())
 
-        test = TestCase(
+        test = TestCaseModel(
             id="t1",
             key="T-1",
             summary="Test 1",
@@ -282,7 +282,7 @@ class TestMetricsCalculator:
 
         # Mock test cases
         mock_client.get_zephyr_tests.return_value = [
-            TestCase(
+            TestCaseModel(
                 id="z1",
                 key="Z-1",
                 summary="Zephyr Test",
@@ -299,7 +299,7 @@ class TestMetricsCalculator:
             )
         ]
         mock_client.get_qtest_tests.return_value = [
-            TestCase(
+            TestCaseModel(
                 id="q1",
                 key="Q-1",
                 summary="qTest Test",

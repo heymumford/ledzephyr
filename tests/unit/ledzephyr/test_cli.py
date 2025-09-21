@@ -13,7 +13,7 @@ from ledzephyr.cli import app
 class TestDoctorCommand:
     """Test doctor command."""
 
-    def test_doctor_all_connections_succeed_shows_success(self, mock_responses):
+    def test_doctor_all_connections_succeed_shows_success(self, requests_mock):
         """Test doctor command when all connections succeed shows success."""
         # Arrange
         runner = CliRunner()
@@ -40,7 +40,7 @@ class TestDoctorCommand:
             assert "Jira API: Connected" in result.stdout
             assert "Doctor check complete!" in result.stdout
 
-    def test_doctor_connection_fails_shows_failure(self, mock_responses):
+    def test_doctor_connection_fails_shows_failure(self, requests_mock):
         """Test doctor command when connection fails shows failure."""
         # Arrange
         runner = CliRunner()
@@ -194,7 +194,7 @@ class TestMetricsCommand:
             assert csv_file.exists()
             csv_content = csv_file.read_text()
             assert "window,total_tests" in csv_content
-            assert "7d,100" in csv_content
+            assert "7d,150" in csv_content
 
     def test_metrics_teams_source_component_valid_source_returns_data(self, sample_project_metrics):
         """Test metrics command with teams-source component returns data."""

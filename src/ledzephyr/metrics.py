@@ -4,7 +4,7 @@ import logging
 from datetime import datetime, timedelta
 
 from ledzephyr.client import APIClient
-from ledzephyr.models import ProjectMetrics, TeamMetrics, TeamSource, TestCase, TrendData
+from ledzephyr.models import ProjectMetrics, TeamMetrics, TeamSource, TestCaseModel, TrendData
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +101,7 @@ class MetricsCalculator:
             return end_date - timedelta(days=7)
 
     def _update_tests_with_executions(
-        self, tests: list[TestCase], executions: dict[str, dict]
+        self, tests: list[TestCaseModel], executions: dict[str, dict]
     ) -> None:
         """Update test cases with execution data."""
         for test in tests:
@@ -119,7 +119,7 @@ class MetricsCalculator:
             test.linked_defects = execution_data.get("linked_defects", [])
 
     def _calculate_coverage_parity(
-        self, zephyr_tests: list[TestCase], qtest_tests: list[TestCase]
+        self, zephyr_tests: list[TestCaseModel], qtest_tests: list[TestCaseModel]
     ) -> float:
         """Calculate coverage parity between Zephyr and qTest."""
         if not zephyr_tests:
@@ -138,7 +138,7 @@ class MetricsCalculator:
 
         return min(qtest_exec_rate / zephyr_exec_rate, 1.0)
 
-    def _calculate_defect_link_rate(self, tests: list[TestCase]) -> float:
+    def _calculate_defect_link_rate(self, tests: list[TestCaseModel]) -> float:
         """Calculate the rate of tests with linked defects."""
         if not tests:
             return 0.0
@@ -146,7 +146,7 @@ class MetricsCalculator:
         linked_tests = sum(1 for test in tests if test.linked_defects)
         return linked_tests / len(tests)
 
-    def _count_active_users(self, tests: list[TestCase]) -> int:
+    def _count_active_users(self, tests: list[TestCaseModel]) -> int:
         """Count unique active users (based on assignees and recent updates)."""
         active_users = set()
 
@@ -159,13 +159,13 @@ class MetricsCalculator:
 
     def _calculate_team_metrics(
         self,
-        all_tests: list[TestCase],
+        all_tests: list[TestCaseModel],
         teams_source: TeamSource,
-        zephyr_tests: list[TestCase],
-        qtest_tests: list[TestCase],
+        zephyr_tests: list[TestCaseModel],
+        qtest_tests: list[TestCaseModel],
     ) -> dict[str, TeamMetrics]:
         """Calculate metrics broken down by team."""
-        teams: dict[str, list[TestCase]] = {}
+        teams: dict[str, list[TestCaseModel]] = {}
 
         # Group tests by team
         for test in all_tests:
@@ -200,7 +200,7 @@ class MetricsCalculator:
 
         return team_metrics
 
-    def _get_team_name(self, test: TestCase, teams_source: TeamSource) -> str:
+    def _get_team_name(self, test: TestCaseModel, teams_source: TeamSource) -> str:
         """Get team name based on the specified source."""
         if teams_source == TeamSource.COMPONENT:
             return test.component or ""
