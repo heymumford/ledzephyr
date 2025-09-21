@@ -180,7 +180,7 @@ def display_table(metrics_data: Dict[str, ProjectMetrics]) -> None:
 def display_json(metrics_data: Dict[str, ProjectMetrics], output: Optional[Path]) -> None:
     """Display metrics in JSON format."""
     json_data = {
-        window: metrics.dict() for window, metrics in metrics_data.items()
+        window: metrics.model_dump() for window, metrics in metrics_data.items()
     }
 
     if output:
@@ -201,8 +201,16 @@ def save_csv(metrics_data: Dict[str, ProjectMetrics], output: Path) -> None:
 
         writer.writeheader()
         for window, metrics in metrics_data.items():
-            row = metrics.dict()
-            row['window'] = window
+            row = {
+                'window': window,
+                'total_tests': metrics.total_tests,
+                'zephyr_tests': metrics.zephyr_tests,
+                'qtest_tests': metrics.qtest_tests,
+                'adoption_ratio': metrics.adoption_ratio,
+                'active_users': metrics.active_users,
+                'coverage_parity': metrics.coverage_parity,
+                'defect_link_rate': metrics.defect_link_rate
+            }
             writer.writerow(row)
 
 

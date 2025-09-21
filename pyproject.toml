@@ -44,6 +44,30 @@ black = "^24.0"
 mypy = "^1.0"
 pytest-cov = "^4.0"
 pytest-asyncio = "^0.23.0"
+# Property-based testing
+hypothesis = "^6.0"
+# Security scanning
+bandit = "^1.7"
+# Fast linting and import analysis
+ruff = "^0.1"
+# Dead code detection
+vulture = "^2.0"
+# Mutation testing
+mutmut = "^2.4"
+# Parallel test execution
+pytest-xdist = "^3.0"
+# Performance benchmarking
+pytest-benchmark = "^4.0"
+# Enhanced mocking
+pytest-mock = "^3.0"
+# Pre-commit hooks
+pre-commit = "^3.0"
+# Dependency safety checking
+safety = "^2.0"
+# Structured logging
+structlog = "^23.0"
+# Metrics collection (optional)
+prometheus-client = "^0.19"
 
 [tool.poetry.scripts]
 lz = "ledzephyr.cli:app"
@@ -61,10 +85,115 @@ disallow_untyped_defs = true
 disallow_incomplete_defs = true
 check_untyped_defs = true
 disallow_untyped_decorators = true
+# Stricter settings for better type safety
+strict = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+# Enable error codes for precise control
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+# Show error codes in output
+show_error_codes = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
-addopts = "--cov=ledzephyr --cov-report=term-missing --cov-report=html"
+addopts = """
+    --cov=ledzephyr
+    --cov-report=term-missing
+    --cov-report=html
+    --cov-fail-under=90
+    --hypothesis-show-statistics
+    --benchmark-skip
+    --strict-markers
+    --strict-config
+"""
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "property: marks tests as property-based tests",
+    "adversarial: marks tests as adversarial tests",
+    "benchmark: marks tests as benchmark tests",
+    "unit: marks tests as unit tests"
+]
+
+[tool.ruff]
+# Enable comprehensive linting
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "C90", # mccabe complexity
+    "S",   # bandit security
+    "N",   # pep8-naming
+    "D",   # pydocstyle
+]
+ignore = [
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "S101", # Use of assert detected (pytest uses asserts)
+]
+line-length = 88
+target-version = "py38"
+# Exclude directories
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "dist",
+    "build",
+    "*.egg-info",
+]
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.isort]
+known-first-party = ["ledzephyr"]
+force-single-line = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "docs"]
+skips = ["B101"]  # Skip assert_used test
+
+[tool.vulture]
+exclude = ["tests/", "docs/"]
+min_confidence = 80
+paths = ["ledzephyr/"]
+
+[tool.coverage.run]
+source = ["ledzephyr"]
+omit = [
+    "*/tests/*",
+    "*/__main__.py",
+    "*/conftest.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.hypothesis]
+max_examples = 100
+deadline = 1000  # 1 second deadline for property tests
