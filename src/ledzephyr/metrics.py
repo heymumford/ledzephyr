@@ -149,15 +149,11 @@ class MetricsCalculator:
     def _count_active_users(self, tests: list[TestCase]) -> int:
         """Count unique active users (based on assignees and recent updates)."""
         active_users = set()
-        cutoff_date = datetime.now() - timedelta(days=30)
 
         for test in tests:
-            # User is active if they have tests assigned or recently updated tests
+            # User is active if they have tests assigned
             if test.assignee:
                 active_users.add(test.assignee)
-            elif test.updated >= cutoff_date:
-                # Could use creator/updater info if available
-                pass
 
         return len(active_users)
 

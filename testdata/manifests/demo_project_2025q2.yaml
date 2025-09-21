@@ -1,0 +1,36 @@
+dataset_id: demo-project-q2-2025
+as_of: "2025-06-30T23:59:59Z"
+
+sources:
+  jira:
+    mode: replay
+    cassette: testdata/cassettes/jira_demo_project.yaml
+  zephyr:
+    mode: stub
+    preset: mixed_execution_status
+  qtest:
+    mode: fake
+    config:
+      total_tests: 150
+      error_rate: 0.1
+      pagination_size: 50
+
+normalization:
+  currency: USD
+  timezone: UTC
+  rounding: HALF_UP
+  decimal_places: 2
+
+masking:
+  - field: test_id
+    op: deterministic_tokenize
+    salt_ref: env:TDM_SALT
+    alphabet: base32
+  - field: assignee_email
+    op: hash
+    salt_ref: env:TDM_SALT
+
+quality_gates:
+  schema_compliance: error
+  completeness_min: 0.98
+  expected_checksum: a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456

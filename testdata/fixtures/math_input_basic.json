@@ -1,0 +1,66 @@
+{
+  "project_key": "DEMO",
+  "time_window": "7d",
+  "test_cases": [
+    {
+      "id": "Z-1",
+      "key": "Z-1",
+      "summary": "Login validation test",
+      "project_key": "DEMO",
+      "component": "Frontend",
+      "labels": ["ui", "critical"],
+      "assignee": "alice@example.com",
+      "source_system": "zephyr",
+      "created": "2025-06-25T10:00:00Z",
+      "updated": "2025-06-30T15:30:00Z",
+      "status": "Done",
+      "last_execution": "2025-06-30T14:00:00Z",
+      "execution_status": "PASS"
+    },
+    {
+      "id": "Z-2",
+      "key": "Z-2",
+      "summary": "API authentication test",
+      "project_key": "DEMO",
+      "component": "Backend",
+      "labels": ["api", "security"],
+      "assignee": "bob@example.com",
+      "source_system": "zephyr",
+      "created": "2025-06-24T09:00:00Z",
+      "updated": "2025-06-30T16:00:00Z",
+      "status": "Done",
+      "last_execution": null,
+      "execution_status": null
+    },
+    {
+      "id": "Q-1",
+      "key": "Q-1",
+      "summary": "User registration flow",
+      "project_key": "DEMO",
+      "component": "Frontend",
+      "labels": ["ui", "regression"],
+      "assignee": "charlie@example.com",
+      "source_system": "qtest",
+      "created": "2025-06-26T11:00:00Z",
+      "updated": "2025-06-30T17:00:00Z",
+      "status": "In Progress",
+      "last_execution": "2025-06-29T13:00:00Z",
+      "execution_status": "FAIL"
+    },
+    {
+      "id": "Q-2",
+      "key": "Q-2",
+      "summary": "Payment processing validation",
+      "project_key": "DEMO",
+      "component": "Backend",
+      "labels": ["api", "critical"],
+      "assignee": "diana@example.com",
+      "source_system": "qtest",
+      "created": "2025-06-23T08:00:00Z",
+      "updated": "2025-06-30T18:00:00Z",
+      "status": "Done",
+      "last_execution": "2025-06-30T12:00:00Z",
+      "execution_status": "PASS"
+    }
+  ]
+}

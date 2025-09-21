@@ -1,0 +1,47 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Authorization:
+      - Basic dGVzdEBleGFtcGxlLmNvbTp0ZXN0X3Rva2Vu
+      User-Agent:
+      - ledzephyr/0.1.0
+    method: GET
+    uri: https://demo.atlassian.net/rest/api/2/project/DEMO
+  response:
+    body:
+      string: '{"key":"DEMO","name":"Demo Project","description":"Demo project for
+        testing migration metrics","lead":{"displayName":"Demo Lead"},"components":[{"name":"Frontend"},{"name":"Backend"},{"name":"Mobile"}]}'
+    headers:
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Mon, 30 Jun 2025 23:59:59 GMT
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - application/json
+      Authorization:
+      - Basic dGVzdEBleGFtcGxlLmNvbTp0ZXN0X3Rva2Vu
+      User-Agent:
+      - ledzephyr/0.1.0
+    method: GET
+    uri: https://demo.atlassian.net/rest/api/2/myself
+  response:
+    body:
+      string: '{"name":"test.user","displayName":"Test User","emailAddress":"test@example.com"}'
+    headers:
+      Content-Type:
+      - application/json;charset=UTF-8
+      Date:
+      - Mon, 30 Jun 2025 23:59:59 GMT
+    status:
+      code: 200
+      message: OK
+version: 1

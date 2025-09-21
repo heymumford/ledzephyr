@@ -67,6 +67,14 @@ pytest-xdist = "^3.0"
 pytest-benchmark = "^4.0"
 # Enhanced mocking
 pytest-mock = "^3.0"
+# Snapshot testing
+syrupy = "^4.0"
+# VCR replay testing
+vcrpy = "^6.0"
+# YAML processing for manifests
+pyyaml = "^6.0"
+# JSON Schema validation
+jsonschema = "^4.0"
 # Pre-commit hooks
 pre-commit = "^3.0"
 # Dependency safety checking
