@@ -5,7 +5,7 @@ import json
 import tempfile
 from pathlib import Path
 
-from ledzephyr_lean import (
+from ledzephyr.main import (
     ProjectData,
     build_metrics_pipeline,
     calculate_metrics,
