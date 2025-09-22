@@ -1,0 +1,54 @@
+name: Lean CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: latest
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+
+    - name: Install dependencies
+      run: poetry install --no-root
+
+    - name: Run tests
+      run: poetry run python test_lean.py
+
+    - name: Check formatting
+      run: poetry run black --check ledzephyr_lean.py test_lean.py
+
+    - name: Lint
+      run: poetry run ruff check ledzephyr_lean.py test_lean.py
+
+    - name: Verify line count
+      run: |
+        lines=$(wc -l < ledzephyr_lean.py)
+        echo "Lines of code: $lines"
+        if [ $lines -gt 350 ]; then
+          echo "❌ ERROR: Code exceeds 350 lines (target: ~300)"
+          exit 1
+        fi
+        echo "✅ Code is lean: $lines lines"

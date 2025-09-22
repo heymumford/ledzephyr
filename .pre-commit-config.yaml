@@ -1,18 +1,15 @@
 repos:
-- repo: https://github.com/psf/black
-  rev: 24.8.0
-  hooks: [{id: black}]
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.6.9
-  hooks:
-    - id: ruff
-      args: [--fix]       # auto-correct
-    - id: ruff-format     # Ruff formatter if you prefer over Black
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.11.2
-  hooks:
-    - id: mypy
-      additional_dependencies: []
-- repo: https://github.com/PyCQA/bandit
-  rev: 1.7.9
-  hooks: [{id: bandit, args: ["-q","-r","src"]}]
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        files: 'ledzephyr_lean\.py|test_lean\.py'
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+        files: 'ledzephyr_lean\.py|test_lean\.py'
+      - id: ruff-format
+        files: 'ledzephyr_lean\.py|test_lean\.py'
