@@ -126,9 +126,18 @@ clean:   ## clean build artifacts and caches
 	rm -rf src/**/__pycache__ tests/**/__pycache__ tdm/**/__pycache__ migrate_specs/**/__pycache__
 	rm -rf specs/ gold/ test_reports/
 
-# Documentation sync
+# Documentation sync and feedback
 sync-docs:  ## Check documentation sync status between local/Confluence/Jira
 	@LEDZEPHYR_JIRA_URL=https://balabushka.atlassian.net ./scripts/sync-docs.sh
+
+sync-verify:  ## Verify documentation sync and detect drift
+	@./scripts/sync-verify.sh
+
+metrics:  ## Track and report lean metrics
+	@./scripts/metrics-track.sh
+
+feedback:  ## View feedback and improvement guide
+	@cat FEEDBACK.md
 
 # Log viewing targets
 deps-logs:  ## Install lnav for log viewing
