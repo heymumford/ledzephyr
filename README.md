@@ -19,11 +19,14 @@ LEDZEPHYR_JIRA_API_TOKEN=your_token
 lz metrics -p PROJECT -w 7d
 ```
 
-## The Critical 5 Tests
+## Platform Automation
 
-```bash
-make lean-test  # 530ms, covers 90% of risks
-```
+This project uses **cloud-native automation** instead of local scripts:
+- 🤖 **Atlassian Rovo AI** agents handle SDLC automation
+- 🔄 **GitLab/Jira Integration** for bidirectional sync
+- 🚀 **GitHub Actions** for CI/CD pipelines
+
+Run `make platform-info` for details.
 
 ## Documentation
 

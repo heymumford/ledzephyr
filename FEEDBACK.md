@@ -13,17 +13,19 @@
 3. Suggest improvements in the issue description
 
 ### For Process Improvements
-1. Run `make sync-verify` to check current state
+1. Rovo AI agents automatically detect issues
 2. Document findings in Jira under Epic LED-46
 3. Propose changes via pull request
 
-## 📊 Metrics We Track
+## 📊 Automated Metrics
 
-Run `make metrics` to see:
-- Documentation count (target: ≤3 files)
-- Code coverage (target: ≥50%)
-- Test execution time (target: <1s for lean tests)
-- Sync status between systems
+**Rovo AI Agents** automatically track:
+- Documentation sync status
+- Code coverage trends
+- Test execution performance
+- GitLab/Jira integration health
+
+View dashboards in [Jira](https://balabushka.atlassian.net/browse/LED)
 
 ## 🔄 Feedback Loop Process
 
@@ -39,11 +41,7 @@ graph LR
 
 ## 📈 Recent Improvements
 
-Track improvements by running:
-```bash
-./scripts/metrics-track.sh
-tail -5 .metrics/history.jsonl | jq '.'
-```
+Improvements are automatically tracked by Rovo AI agents and displayed in Jira dashboards.
 
 ## 🚀 Continuous Improvement Targets
 
