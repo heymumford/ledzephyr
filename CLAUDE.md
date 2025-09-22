@@ -4,270 +4,266 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LedZephyr is a CLI tool for calculating migration metrics from Zephyr Scale to qTest. It follows a lean architecture philosophy with a focus on simplicity, minimal dependencies, and risk-based testing.
+LedZephyr is a lean CLI tool for calculating migration metrics from Zephyr Scale to qTest. Following a massive simplification (89% code reduction), it now consists of a single ~306-line Python file with minimal dependencies.
+
+### Lean Transformation Achievement
+- **Before**: 2,850 lines across 13 modules + 200 test files
+- **After**: 306 lines in single file (`ledzephyr_lean.py`)
+- **Reduction**: 89.3%
+- **Dependencies**: Reduced from 60+ to 3 (click, httpx, rich)
 
 ### Project Documentation & Integration
 
 #### Atlassian Resources
 - **Confluence Space**: https://balabushka.atlassian.net/wiki/spaces/LedZephyr/overview
-  - Space ID: 8683575
-  - Space Key: LedZephyr
+  - Space ID: 8683575, Space Key: LedZephyr
   - Cloud ID: f1ecf30e-e4d0-48d9-bc3a-e738126b7afd
 - **Jira Project**: LED (https://balabushka.atlassian.net/browse/LED)
-  - Active Epic: LED-46 (Adoption Intelligence System)
-  - Micro-kata tasks: LED-47 through LED-51
-
-#### Documentation Hierarchy
-1. **On Disk** (3 files only):
-   - README.md - Entry point with links
-   - CLAUDE.md - This file, AI instructions
-   - DOCUMENTATION.md - Quick dev reference
-
-2. **In Confluence**:
-   - Mission Control - Lean philosophy and strategy
-   - Technical Vault - Architecture and implementation
-   - Operations Manual - Development guidelines
-
-3. **In Jira**:
-   - Work breakdown and task tracking
-   - Sprint planning and velocity metrics
-   - Epic and story definitions
+  - Epic LED-46: Adoption Intelligence System
+  - Tasks LED-47 through LED-52: Implementation micro-katas
 
 #### MCP Tool Authentication
-Use environment variables:
+**Live Credentials Configuration:**
+- **Cloud ID**: `f1ecf30e-e4d0-48d9-bc3a-e738126b7afd`
+- **Site URL**: `https://balabushka.atlassian.net`
+- **User**: Eric M (ericmumford@gmail.com)
+- **Account ID**: `557058:feeb8338-0c0a-49bf-9930-a3cd13a18ad1`
+
+**Environment Variables:**
 ```bash
-export LEDZEPHYR_JIRA_URL=https://balabushka.atlassian.net
-export LEDZEPHYR_JIRA_API_TOKEN=<token>
-export LEDZEPHYR_CONFLUENCE_API_TOKEN=<token>
+export LEDZEPHYR_ATLASSIAN_URL=https://balabushka.atlassian.net
+export LEDZEPHYR_ATLASSIAN_PROJECT=LED
+export LEDZEPHYR_ATLASSIAN_TOKEN=ATATT3xFfGF0xHPw7c1IcpPdKajFvbeC28F0_Ywtd__9BOZnghqfRmW4NS9ggs5lX9iwpn_AhViikttbKcLMTbc7jW9B3RPoCLX_QlEql_WLGbgMoSv_nT2Bin5ZEq_Vfwr50qWrh9QNdwu9QTtQ9MvREVbkUr5c4SLlpXMTIk6lnOATtD4X21g=002D05A2
 ```
+
+**MCP Tool Capabilities (Verified Working):**
+- ✅ **Jira** - read/write work items (LED project confirmed)
+- ✅ **Confluence** - read/write pages/comments (LedZephyr space)
+- ✅ **Compass** - read/write components and scorecards
+
+**Available MCP Functions:**
+- `mcp__jiraLZ__getVisibleJiraProjects` - List accessible projects
+- `mcp__jiraLZ__searchJiraIssuesUsingJql` - Search issues with JQL
+- `mcp__jiraLZ__createJiraIssue` - Create new issues
+- `mcp__jiraLZ__getJiraIssue` - Get issue details
+- `mcp__jiraLZ__editJiraIssue` - Update existing issues
+- `mcp__jiraLZ__getConfluenceSpaces` - List Confluence spaces
+- `mcp__jiraLZ__getConfluencePage` - Read pages
+- `mcp__jiraLZ__createConfluencePage` - Create pages
+- `mcp__jiraLZ__updateConfluencePage` - Update pages
+- `mcp__jiraLZ__search` - Universal Rovo search across Jira/Confluence
 
 ## Essential Commands
 
 ### Development Setup
 ```bash
-# Initial setup with Poetry
-make init
+# Install dependencies (Poetry)
+make install
 
-# Run the critical 5 tests (530ms, covers 90% of risks)
-make lean-test
-
-# Format and lint code before committing
-make fix
+# Show project metrics and info
+make info
 ```
 
-### Testing Commands
+### Running LedZephyr
 ```bash
-# Run specific test layers
-make unit           # Fast unit tests (<1s)
-make integration    # Integration tests with test doubles (<10s)
-make e2e           # End-to-end manifest-driven tests (<30s)
+# Run with project (fetches fresh data and analyzes)
+make run PROJECT=MYPROJECT
 
-# Run all tests with coverage
-make cov
+# Fetch fresh data only
+make fetch PROJECT=MYPROJECT
 
-# Run specific test with pytest
-.venv/bin/python -m pytest tests/unit/ledzephyr/test_client.py::TestAPIClientEdgeCases::test_context_manager_functionality -v
+# Analyze existing data only
+make analyze PROJECT=MYPROJECT
 
-# School of Fish integration tests
-make schools-all   # Run all test schools in parallel
+# Direct execution with options
+poetry run python ledzephyr_lean.py --project MYPROJECT
+poetry run python ledzephyr_lean.py --project MYPROJECT --fetch
+poetry run python ledzephyr_lean.py --project MYPROJECT --no-fetch
 ```
 
-### Code Quality
+### Testing and Quality
 ```bash
-# Format code
+# Run lean test suite
+make test
+
+# Format code with black
 make format
 
-# Run linting and type checking
+# Lint with ruff
 make lint
-make type
 
-# Security scanning
-make sec
-make audit
-```
-
-### GitHub Actions Workflows
-```bash
-# Check workflow status
-make workflows-status
-
-# Validate all workflows
-make workflows-validate
-
-# Trigger CI workflow
-make workflows-ci
+# Clean cache and temp files
+make clean
 ```
 
 ## Architecture Overview
 
-The codebase follows a monolithic architecture with 4 core components:
+Ultra-lean single-file architecture in `ledzephyr_lean.py` (~306 lines):
 
-1. **CLI Interface** (`src/ledzephyr/cli.py`) - Typer-based CLI handling user commands
-2. **Metrics Calculator** (`src/ledzephyr/metrics.py`) - Pure functions for metric calculations
-3. **API Client** (`src/ledzephyr/client.py`) - HTTP client with retry logic and circuit breaker
-4. **Cache Layer** (`src/ledzephyr/cache.py`) - Memory-based LRU caching
+1. **API Client** (~50 lines) - Generic HTTP fetcher with retry logic
+2. **Data Fetchers** (~100 lines) - Zephyr Scale, qTest, and Jira integrations
+3. **Analysis Engine** (~80 lines) - Statistical calculations and trend analysis
+4. **CLI Interface** (~50 lines) - Click-based command handling
+5. **Storage Layer** (~25 lines) - Local JSON data persistence
 
-### Key Architectural Decisions
-- **Monolith over microservices** - Simplicity is prioritized
-- **Memory cache over Redis** - No external dependencies
-- **Environment variables for config** - No configuration files
-- **5 critical tests over 200** - Risk coverage over code coverage
+### Key Design Principles
+- **Single file over modules** - Maximum simplicity
+- **3 dependencies only** - click, httpx, rich
+- **Local JSON storage** - No databases
+- **6-month activity filter** - Recent data focus
+- **Rich console output** - Beautiful terminal reports
 
-## Test Architecture
+## API Endpoints (15 Essential)
 
-Tests are organized in three layers:
+### Jira Cloud (4 endpoints)
+- `GET /rest/api/3/project` - Project metadata
+- `GET /rest/api/3/search` - Issue search with JQL
+- `GET /rest/api/3/issue/{key}` - Issue details
+- `GET /rest/api/3/project/{key}/statuses` - Project statuses
 
-```
-tests/
-├── unit/          # Pure logic, no I/O (<1s execution)
-├── integration/   # API clients with test doubles (<10s)
-└── e2e/          # Full pipeline validation (<30s)
-```
+### Zephyr Scale (5 endpoints)
+- `GET /rest/atm/1.0/testcase/search` - Test case search
+- `GET /rest/atm/1.0/testrun/search` - Test run search
+- `GET /rest/atm/1.0/execution/search` - Execution search
+- `GET /rest/atm/1.0/project/{key}` - Project info
+- `GET /rest/atm/1.0/automationstatus` - Automation status
 
-### Test Doubles Strategy
-- **Stubs**: Fixed responses in `tests/integration/doubles/stub_*.py`
-- **Fakes**: In-memory implementations with configurable behavior
-- **Gold Master**: Algorithm validation with known input/output pairs
+### qTest (6 endpoints)
+- `GET /api/v3/projects` - Project list
+- `GET /api/v3/projects/{id}/test-cases` - Test cases
+- `GET /api/v3/projects/{id}/test-runs` - Test runs
+- `GET /api/v3/projects/{id}/test-logs` - Execution logs
+- `GET /api/v3/projects/{id}/automation-jobs` - Automation jobs
+- `GET /api/v3/projects/{id}/requirements` - Requirements
 
 ## Configuration
 
-All configuration via environment variables (no config files):
+Environment variables for API access:
 ```bash
+# Required for operation
 LEDZEPHYR_JIRA_URL=https://your.atlassian.net
-LEDZEPHYR_JIRA_API_TOKEN=your_token
-LEDZEPHYR_CACHE_TTL=3600
-LEDZEPHYR_RETRY_COUNT=3
+LEDZEPHYR_JIRA_API_TOKEN=your_jira_token
+LEDZEPHYR_QTEST_URL=https://your.qtest.com
+LEDZEPHYR_QTEST_API_TOKEN=your_qtest_token
+
+# Optional configuration
+LEDZEPHYR_DATA_DIR=./data           # Data storage directory
+LEDZEPHYR_MONTHS_BACK=6             # Activity filter (months)
 ```
 
 ## Dependencies
 
-Core dependencies managed by Poetry:
-- `typer` - CLI framework
-- `httpx` - Modern async-ready HTTP client
-- `pydantic` - Data validation
-- `tenacity` - Retry logic
-- `structlog` - Structured logging
-- `prometheus-client` - Metrics collection
-
-## Error Handling Pattern
-
-The codebase follows a "fail fast, recover gracefully" pattern:
-- `RateLimitError` - Automatic retry with exponential backoff
-- `NetworkError` - Falls back to cached data
-- Other exceptions - Log and exit immediately
-
-## School of Fish Testing
-
-The project implements a parallel testing architecture called "School of Fish":
-- API School - External API interaction patterns
-- Data School - Data flow and transformation patterns
-- Config School - Environment and configuration patterns
-- Performance School - Timing and performance patterns
-
-Run with: `make schools-all`
-
-## GitHub Actions Workflows
-
-11 standardized workflows in `.github/workflows/`:
-- `ci.yml` - Main CI/CD pipeline
-- `test-unit.yml`, `test-integration.yml`, `test-e2e.yml` - Test rails
-- `test-matrix.yml` - Multi-version testing
-- `orchestrator-master.yml` - AI-powered workflow orchestration
-- `coordinator.yml` - Cross-workflow coordination
-
-## Important Files and Patterns
-
-- Test runner script: `scripts/test-runner.sh` - Handles all test execution modes
-- TDM validation: `scripts/tdm.sh` - Test Data Management manifest validation
-- Gold master datasets: `testdata/fixtures/math_*.json`
-- Test doubles: `tests/integration/doubles/`
-- Observability: `src/ledzephyr/observability.py` - Logging, metrics, tracing setup
-
-## CLI Commands
-
-The main CLI entry points are `lz` and `ledzephyr`:
-
-```bash
-# Check API connectivity
-lz doctor
-
-# Calculate metrics
-lz metrics -p PROJECT -w 7d
-
-# Generate adoption report
-lz adoption -p PROJECT -o report.csv
-
-# Inspect cache
-lz cache list
-lz cache clear
-
-# Generate training impact analysis
-lz training-impact -p PROJECT --before 2024-01-01 --after 2024-02-01
+Minimal dependency set managed by Poetry:
+```toml
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"      # CLI framework
+httpx = "^0.27.0"     # HTTP client
+rich = "^13.7.0"      # Rich console output
 ```
+
+## Data Storage
+
+Local JSON files in `data/{project}/` directory:
+- `zephyr_tests.json` - Zephyr test cases
+- `qtest_tests.json` - qTest test cases
+- `jira_issues.json` - Jira issues
+- `analysis.json` - Calculated metrics
+- `timestamp.txt` - Last fetch time
+
+## Migration Metrics Calculated
+
+Core metrics for Zephyr → qTest migration analysis:
+
+1. **Migration Progress** - `qtest_count / (zephyr_count + qtest_count)`
+2. **Activity Trends** - 6-month velocity analysis
+3. **Team Adoption** - Per-user migration patterns
+4. **Quality Metrics** - Test execution rates and outcomes
+5. **Automation Coverage** - Automated vs manual test ratios
+
+## CLI Usage
+
+Main command pattern:
+```bash
+# Basic usage
+ledzephyr --project PROJECT_KEY
+
+# Available options
+--project TEXT    Project key (required)
+--fetch          Force fresh data fetch
+--no-fetch       Use cached data only
+--data-dir PATH  Override data directory
+--help           Show help message
+```
+
+Examples:
+```bash
+# Fetch and analyze ACME project
+ledzephyr --project ACME
+
+# Quick analysis of cached data
+ledzephyr --project ACME --no-fetch
+
+# Force fresh data fetch
+ledzephyr --project ACME --fetch
+```
+
+## Testing
+
+Simple test suite in `test_lean.py`:
+- Unit tests for core functions
+- API integration tests with mocking
+- Data analysis validation
+- Error handling verification
+
+Run with: `make test` or `poetry run python test_lean.py`
+
+## GitHub Workflows
+
+Single lean CI workflow in `.github/workflows/lean-ci.yml`:
+- Python 3.11 setup
+- Dependency installation
+- Code formatting check (black)
+- Linting check (ruff)
+- Test execution
+- Simplified 45-line workflow vs previous 1000+ lines
 
 ## Development Workflow
 
-1. Make changes to code
-2. Run `make lean-test` for quick validation (530ms)
-3. Run `make fix` to format and lint
-4. Run full test suite with `make check`
-5. Commit with proper commit message format
+1. Make changes to `ledzephyr_lean.py`
+2. Run `make test` for validation
+3. Run `make format` and `make lint` for code quality
+4. Test with real project: `make run PROJECT=TEST`
+5. Commit with descriptive message
 
-## Performance Targets
+## Error Handling
 
-- Response time: <100ms (cached), <2s (cold)
-- Cache hit rate: 90%
-- Test execution: Unit <1s, Integration <10s, E2E <30s
-- Code complexity: <10 cyclomatic complexity
+Simple but robust error handling:
+- **API failures**: 3-retry logic with exponential backoff
+- **Network issues**: Graceful degradation to cached data
+- **Missing credentials**: Clear error messages with guidance
+- **Invalid projects**: Validation and helpful suggestions
 
-## Monitoring and Observability
+## Performance Characteristics
 
-- Health endpoint: `/health`
-- Metrics endpoint: `/metrics` (Prometheus format)
-- Structured logging to stderr
-- OpenTelemetry tracing support (when enabled)
+Optimized for simplicity and speed:
+- **Cold start**: <5 seconds for full analysis
+- **Cached analysis**: <1 second
+- **Memory usage**: <50MB
+- **Disk usage**: ~1MB per project
+- **API calls**: Batch requests with 6-month filtering
 
-## Migration Metrics
+## File Structure
 
-The core metrics calculated for Zephyr → qTest migration:
-
-1. **Adoption Ratio** - `qtest_count / total_count`
-2. **Coverage Parity** - `qtest_coverage / zephyr_coverage`
-3. **Active Users** - Unique assignees in time window
-4. **Training Impact** - Pre/post training velocity change
-5. **Team Inventory** - Per-team migration progress
-
-## Critical Test Coverage Areas
-
-Based on risk analysis, these areas require the most test attention:
-
-1. **adoption_report.py** (15% coverage) - User-facing reports driving $10K+ decisions
-2. **identity_resolution.py** (28% coverage) - Entity matching accuracy critical
-3. **training_impact.py** (39% coverage) - ROI calculations for $500K budget
-4. **CLI adoption command** - New user-facing command needs smoke tests
-5. **Cohort analysis** - Edge cases with uneven user distributions
-
-## API Rate Limiting
-
-The client implements adaptive rate limiting with circuit breakers:
-- Jira API: 10 requests/second with burst of 20
-- Zephyr API: Adaptive based on 429 responses
-- qTest API: Token bucket with configurable limits
-- Circuit breaker: 5 failures trigger 60s cooldown
-
-## Data Models
-
-Core data models in `src/ledzephyr/models.py`:
-- `JiraProject` - Project metadata and configuration
-- `TestCaseModel` - Test case with execution history
-- `ProjectMetrics` - Calculated migration metrics
-- `TeamSource` - Team-specific data source
-- `User`, `DailySnapshot`, `TeamInventory` - Adoption tracking
-
-## Two-Module Architecture Pattern
-
-The codebase follows a two-module pattern for new features:
-1. **Logic Module** (`adoption_metrics.py`) - Pure business logic, no I/O
-2. **Report Module** (`adoption_report.py`) - I/O, formatting, presentation
-
-This separation ensures testability and maintainability.
+Extremely lean file organization:
+```
+ledzephyr/
+├── ledzephyr_lean.py    # Main application (306 lines)
+├── test_lean.py         # Test suite
+├── pyproject.toml       # Dependencies
+├── Makefile            # Development commands
+├── README.md           # Project overview
+├── CLAUDE.md           # This file
+└── data/               # Local data storage
+    └── {project}/      # Per-project data
+```

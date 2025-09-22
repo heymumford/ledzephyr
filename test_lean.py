@@ -4,11 +4,11 @@
 import json
 import tempfile
 from pathlib import Path
-from datetime import datetime
-from ledzephyr_lean import calculate_metrics, analyze_trends, store_snapshot
+
+from ledzephyr_lean import calculate_metrics
 
 
-def test_lean_implementation():
+def test_lean_implementation() -> None:
     """Test core functionality with mock data."""
 
     # Mock data
@@ -79,7 +79,6 @@ def test_lean_implementation():
 
     print("\n[PASS] Lean implementation verified - 279 lines vs 2,850 lines!")
     print("       That's a 90.2% reduction in code!")
-    return True
 
 
 if __name__ == "__main__":

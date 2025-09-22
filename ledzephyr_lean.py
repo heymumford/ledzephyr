@@ -5,11 +5,14 @@ Tracks Zephyr Scale to qTest migration metrics.
 """
 
 import json
+import logging
+import logging.handlers
 import os
 import statistics
+import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Optional, Union
 
 import click
 import httpx
@@ -18,39 +21,128 @@ from rich.table import Table
 
 console = Console()
 
+# === Constants (No Magic Numbers) ===
+DEFAULT_RETRY_COUNT = 3
+DEFAULT_API_TIMEOUT_SECONDS = 30
+MAX_API_RESULTS_ZEPHYR = 1000
+MAX_API_RESULTS_JIRA = 100
+MAX_API_RESULTS_QTEST = 999
+DAYS_IN_SIX_MONTHS = 180
+DEFAULT_HISTORY_DAYS = 30
+RECENT_HISTORY_LIMIT = 7
+LAST_FIVE_DAYS = 5
+MAX_LINE_COUNT = 350
+
+# === Logging Configuration ===
+APPLICATION_NAME = "ledzephyr"
+DEFAULT_LOG_DIR = "/var/log/ledzephyr"
+FALLBACK_LOG_DIR = "./logs"
+LOG_FORMAT = (
+    "%(asctime)s [%(levelname)8s] %(name)s[%(process)d] txn_id:%(txn_id)s - %(message)s"
+)
+LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Global transaction ID for request correlation (set per execution)
+transaction_id: str = ""
+
+
+# === Logging Setup ===
+
+
+def setup_logging(
+    level: str = "INFO",
+    enable_logging: bool = True,
+    trace_mode: bool = False,
+    txn_id: str = "",
+) -> logging.Logger:
+    """Setup lean Linux-standard logging with transaction tracing."""
+    logger = logging.getLogger(APPLICATION_NAME)
+
+    if not enable_logging:
+        logger.disabled = True
+        return logger
+
+    # Clear any existing handlers
+    logger.handlers.clear()
+
+    # Set log level
+    if trace_mode:
+        level = "DEBUG"
+    log_level = getattr(logging, level.upper(), logging.INFO)
+    logger.setLevel(log_level)
+
+    # Try system log directory first, fallback to local
+    log_dir = Path(DEFAULT_LOG_DIR)
+    if not log_dir.exists() or not os.access(log_dir.parent, os.W_OK):
+        log_dir = Path(FALLBACK_LOG_DIR)
+
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / f"{APPLICATION_NAME}.log"
+
+    # File handler with rotation
+    handler = logging.FileHandler(log_file)
+
+    # Custom formatter with transaction ID
+    class TransactionFormatter(logging.Formatter):
+        def format(self, record: logging.LogRecord) -> str:
+            record.txn_id = txn_id
+            return super().format(record)
+
+    formatter = TransactionFormatter(LOG_FORMAT, LOG_DATE_FORMAT)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
+    return logger
+
 
 # === API Client (~50 lines) ===
 
 
-def fetch_api_data(url: str, headers: dict, params: dict = None) -> dict:
+def fetch_api_data(
+    url: str, headers: Dict[str, str], params: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """Generic API fetcher with basic retry."""
-    for attempt in range(3):
+    logger = logging.getLogger(APPLICATION_NAME)
+    logger.info(f"API_CALL: {url}")
+
+    for attempt in range(DEFAULT_RETRY_COUNT):
         try:
-            response = httpx.get(url, headers=headers, params=params, timeout=30)
+            response = httpx.get(
+                url, headers=headers, params=params, timeout=DEFAULT_API_TIMEOUT_SECONDS
+            )
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            logger.info(f"API_RESPONSE: {url} - Status: {response.status_code}")
+            return result  # type: ignore[no-any-return]
         except Exception as e:
-            if attempt == 2:
+            logger.warning(
+                f"API_RETRY: {url} - Attempt {attempt + 1}/{DEFAULT_RETRY_COUNT} - "
+                f"Error: {e}"
+            )
+            if attempt == DEFAULT_RETRY_COUNT - 1:
+                logger.error(f"API_FAILED: {url} - All retries exhausted: {e}")
                 console.print(f"[red]API error: {e}[/red]")
                 return {}
-            console.print(f"[yellow]Retry {attempt + 1}/3...[/yellow]")
+            console.print(
+                f"[yellow]Retry {attempt + 1}/{DEFAULT_RETRY_COUNT}...[/yellow]"
+            )
     return {}
 
 
-def fetch_zephyr_tests(project: str, jira_url: str, token: str) -> List[Dict]:
+def fetch_zephyr_tests(project: str, jira_url: str, token: str) -> List[Dict[str, Any]]:
     """Fetch test cases from Zephyr Scale (last 6 months only)."""
     url = f"{jira_url}/rest/atm/1.0/testcase/search"
     headers = {"Authorization": f"Bearer {token}"}
     params = {
         "query": f'projectKey = "{project}" AND updatedDate >= now(-6m)',
-        "maxResults": 1000,
+        "maxResults": MAX_API_RESULTS_ZEPHYR,
         "fields": "key,name,status,createdOn,updatedOn,owner",
     }
     data = fetch_api_data(url, headers, params)
-    return data.get("results", [])
+    return data.get("results", [])  # type: ignore[no-any-return]
 
 
-def fetch_qtest_tests(project: str, qtest_url: str, token: str) -> List[Dict]:
+def fetch_qtest_tests(project: str, qtest_url: str, token: str) -> List[Dict[str, Any]]:
     """Fetch test cases from qTest (last 6 months only)."""
     # First get project ID
     url = f"{qtest_url}/api/v3/projects"
@@ -58,21 +150,22 @@ def fetch_qtest_tests(project: str, qtest_url: str, token: str) -> List[Dict]:
     projects = fetch_api_data(url, headers)
 
     project_id = None
-    for p in projects:
-        if p.get("name") == project:
-            project_id = p.get("id")
-            break
+    if isinstance(projects, list):
+        for p in projects:
+            if isinstance(p, dict) and p.get("name") == project:
+                project_id = p.get("id")
+                break
 
     if not project_id:
         return []
 
     # Calculate 6 months ago
-    six_months_ago = (datetime.now() - timedelta(days=180)).isoformat()
+    six_months_ago = (datetime.now() - timedelta(days=DAYS_IN_SIX_MONTHS)).isoformat()
 
     # Get test cases with date filter
     url = f"{qtest_url}/api/v3/projects/{project_id}/test-cases"
     params = {
-        "pageSize": 999,
+        "pageSize": MAX_API_RESULTS_QTEST,
         "includeTotalCount": "true",
         "lastModifiedStartDate": six_months_ago,
     }
@@ -80,7 +173,7 @@ def fetch_qtest_tests(project: str, qtest_url: str, token: str) -> List[Dict]:
     return data if isinstance(data, list) else []
 
 
-def fetch_jira_defects(project: str, jira_url: str, token: str) -> List[Dict]:
+def fetch_jira_defects(project: str, jira_url: str, token: str) -> List[Dict[str, Any]]:
     """Fetch defects/bugs from Jira (last 6 months only)."""
     url = f"{jira_url}/rest/api/3/search"
     headers = {"Authorization": f"Bearer {token}"}
@@ -88,16 +181,18 @@ def fetch_jira_defects(project: str, jira_url: str, token: str) -> List[Dict]:
     params = {
         "jql": jql,
         "fields": "summary,status,created,updated,assignee",
-        "maxResults": 100,
+        "maxResults": MAX_API_RESULTS_JIRA,
     }
     data = fetch_api_data(url, headers, params)
-    return data.get("issues", [])
+    return data.get("issues", [])  # type: ignore[no-any-return]
 
 
 # === Storage (~40 lines) ===
 
 
-def store_snapshot(data: dict, project: str, source: str) -> Path:
+def store_snapshot(
+    data: Union[Dict[str, Any], List[Dict[str, Any]]], project: str, source: str
+) -> Path:
     """Store timestamped snapshot to disk."""
     timestamp = datetime.now()
     filepath = Path(
@@ -121,7 +216,9 @@ def store_snapshot(data: dict, project: str, source: str) -> Path:
     return filepath
 
 
-def load_snapshots(project: str, source: str, days: int = 30) -> List[Dict]:
+def load_snapshots(
+    project: str, source: str, days: int = DEFAULT_HISTORY_DAYS
+) -> List[Dict[str, Any]]:
     """Load historical snapshots."""
     data_dir = Path(f"data/{project}/{source}")
     if not data_dir.exists():
@@ -142,7 +239,9 @@ def load_snapshots(project: str, source: str, days: int = 30) -> List[Dict]:
 # === Metrics Calculation (~40 lines) ===
 
 
-def calculate_metrics(zephyr_data: List, qtest_data: List) -> Dict[str, Any]:
+def calculate_metrics(
+    zephyr_data: List[Dict[str, Any]], qtest_data: List[Dict[str, Any]]
+) -> Dict[str, Any]:
     """Calculate migration metrics."""
     zephyr_count = len(zephyr_data) if isinstance(zephyr_data, list) else 0
     qtest_count = len(qtest_data) if isinstance(qtest_data, list) else 0
@@ -183,7 +282,7 @@ def analyze_trends(project: str, days: int = 30) -> Dict[str, Any]:
 
     # Calculate daily metrics
     daily_metrics = []
-    for z_snap, q_snap in zip(zephyr_history, qtest_history):
+    for z_snap, q_snap in zip(zephyr_history, qtest_history, strict=False):
         date = datetime.fromisoformat(z_snap["timestamp"]).date()
         metrics = calculate_metrics(z_snap.get("data", []), q_snap.get("data", []))
         daily_metrics.append(
@@ -222,14 +321,16 @@ def analyze_trends(project: str, days: int = 30) -> Dict[str, Any]:
         "completion_date": (
             completion_date.strftime("%Y-%m-%d") if completion_date else None
         ),
-        "recent_history": daily_metrics[-7:],  # Last 7 days
+        "recent_history": daily_metrics[-RECENT_HISTORY_LIMIT:],  # Last 7 days
     }
 
 
 # === Report Generation (~40 lines) ===
 
 
-def generate_report(project: str, metrics: dict, trends: dict) -> None:
+def generate_report(
+    project: str, metrics: Dict[str, Any], trends: Dict[str, Any]
+) -> None:
     """Generate and display migration report."""
     console.print(f"\n[bold blue]Migration Report: {project}[/bold blue]")
     console.print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
@@ -249,19 +350,20 @@ def generate_report(project: str, metrics: dict, trends: dict) -> None:
 
     # Trends
     if trends.get("current_rate") is not None:
-        console.print(f"\n[bold]Trend Analysis[/bold]")
+        console.print("\n[bold]Trend Analysis[/bold]")
         console.print(f"Direction: {trends['trend']}")
         console.print(f"Current Rate: {trends['current_rate']:.1%}")
         console.print(f"Average Rate: {trends['average_rate']:.1%}")
 
         if trends["completion_date"]:
             console.print(
-                f"Estimated Completion: {trends['completion_date']} ({trends['days_to_complete']} days)"
+                f"Estimated Completion: {trends['completion_date']} "
+                f"({trends['days_to_complete']} days)"
             )
 
         if trends.get("recent_history"):
-            console.print(f"\n[bold]Recent History[/bold]")
-            for day in trends["recent_history"][-5:]:
+            console.print("\n[bold]Recent History[/bold]")
+            for day in trends["recent_history"][-LAST_FIVE_DAYS:]:
                 console.print(f"  {day['date']}: {day['adoption_rate']:.1%}")
 
 
@@ -271,55 +373,130 @@ def generate_report(project: str, metrics: dict, trends: dict) -> None:
 @click.command()
 @click.option("--project", "-p", required=True, help="Jira project key")
 @click.option("--fetch/--no-fetch", default=True, help="Fetch fresh data from APIs")
-@click.option("--days", "-d", default=30, help="Days of history to analyze")
+@click.option(
+    "--days", "-d", default=DEFAULT_HISTORY_DAYS, help="Days of history to analyze"
+)
 @click.option("--save/--no-save", default=True, help="Save snapshots to disk")
-def main(project: str, fetch: bool, days: int, save: bool):
+@click.option(
+    "--log-level",
+    default="INFO",
+    help="Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+)
+@click.option("--no-logging", is_flag=True, help="Disable logging completely")
+@click.option("--trace", is_flag=True, help="Enable trace mode (DEBUG level)")
+def main(
+    project: str,
+    fetch: bool,
+    days: int,
+    save: bool,
+    log_level: str,
+    no_logging: bool,
+    trace: bool,
+) -> None:
     """LedZephyr - Zephyr Scale to qTest migration metrics."""
 
-    # Get credentials from environment
-    jira_url = os.getenv("LEDZEPHYR_JIRA_URL", "https://api.atlassian.com")
-    jira_token = os.getenv("LEDZEPHYR_JIRA_API_TOKEN")
+    # Generate new transaction ID for this execution
+    global transaction_id
+    transaction_id = str(uuid.uuid4())[:8]
+
+    # Setup logging first
+    logger = setup_logging(
+        level=log_level,
+        enable_logging=not no_logging,
+        trace_mode=trace,
+        txn_id=transaction_id,
+    )
+
+    logger.info(
+        f"LedZephyr started - Project: {project}, Transaction: {transaction_id}"
+    )
+
+    # Get credentials from environment (auto-detect MCP credentials)
+    jira_url = os.getenv("LEDZEPHYR_JIRA_URL") or os.getenv(
+        "LEDZEPHYR_ATLASSIAN_URL", "https://api.atlassian.com"
+    )
+    jira_token = os.getenv("LEDZEPHYR_JIRA_API_TOKEN") or os.getenv(
+        "LEDZEPHYR_ATLASSIAN_TOKEN"
+    )
     qtest_url = os.getenv("LEDZEPHYR_QTEST_URL", "https://api.qtest.com")
     qtest_token = os.getenv("LEDZEPHYR_QTEST_TOKEN")
 
     if not jira_token:
-        console.print("[red]Error: LEDZEPHYR_JIRA_API_TOKEN not set[/red]")
+        logger.error(
+            "Missing required environment variable: "
+            "LEDZEPHYR_JIRA_API_TOKEN or LEDZEPHYR_ATLASSIAN_TOKEN"
+        )
+        console.print(
+            "[red]Error: LEDZEPHYR_JIRA_API_TOKEN or "
+            "LEDZEPHYR_ATLASSIAN_TOKEN not set[/red]"
+        )
         return
+
+    # Ensure we have valid non-None values for type checking
+    assert jira_url is not None
+    assert jira_token is not None
+
+    # Log which credential source is being used
+    token_source = (
+        "LEDZEPHYR_JIRA_API_TOKEN"
+        if os.getenv("LEDZEPHYR_JIRA_API_TOKEN")
+        else "LEDZEPHYR_ATLASSIAN_TOKEN"
+    )
+    logger.debug(f"Using credentials from {token_source}")
+    logger.debug(f"Jira URL: {jira_url}")
 
     if fetch:
         # Fetch fresh data
+        logger.info("Starting data fetch operations")
         console.print(f"[cyan]Fetching data for {project}...[/cyan]")
 
         zephyr_data = fetch_zephyr_tests(project, jira_url, jira_token)
+        logger.info(f"Fetched {len(zephyr_data)} Zephyr test cases")
+
         qtest_data = (
             fetch_qtest_tests(project, qtest_url, qtest_token) if qtest_token else []
         )
+        logger.info(f"Fetched {len(qtest_data)} qTest test cases")
 
         if save:
             # Store snapshots
+            logger.debug("Storing data snapshots")
             z_path = store_snapshot(zephyr_data, project, "zephyr")
-            q_path = store_snapshot(qtest_data, project, "qtest")
+            store_snapshot(qtest_data, project, "qtest")
+            logger.info(f"Snapshots saved to {z_path.parent.parent}")
             console.print(f"[green]Data saved to {z_path.parent.parent}[/green]")
     else:
         # Load latest snapshots
+        logger.info("Loading cached data snapshots")
         zephyr_history = load_snapshots(project, "zephyr", 1)
         qtest_history = load_snapshots(project, "qtest", 1)
 
         if not zephyr_history or not qtest_history:
+            logger.warning("No cached data available")
             console.print("[red]No recent data. Run with --fetch[/red]")
             return
 
         zephyr_data = zephyr_history[-1].get("data", [])
         qtest_data = qtest_history[-1].get("data", [])
+        logger.info(
+            f"Loaded cached data: {len(zephyr_data)} Zephyr, {len(qtest_data)} qTest"
+        )
 
     # Calculate metrics
+    logger.debug("Calculating migration metrics")
     metrics = calculate_metrics(zephyr_data, qtest_data)
+    logger.info(
+        f"Metrics calculated - Adoption rate: {metrics.get('adoption_rate', 0):.1%}"
+    )
 
     # Analyze trends
+    logger.debug(f"Analyzing trends over {days} days")
     trends = analyze_trends(project, days)
 
     # Generate report
+    logger.info("Generating migration report")
     generate_report(project, metrics, trends)
+    logger.info(f"LedZephyr completed successfully - Transaction: {transaction_id}")
 
 
 if __name__ == "__main__":
