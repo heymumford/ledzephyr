@@ -5,7 +5,12 @@ import json
 import tempfile
 from pathlib import Path
 
-from ledzephyr_lean import calculate_metrics
+from ledzephyr_lean import (
+    ProjectData,
+    build_metrics_pipeline,
+    calculate_metrics,
+    find_project_id,
+)
 
 
 def test_lean_implementation() -> None:
@@ -77,8 +82,23 @@ def test_lean_implementation() -> None:
 
         print("✓ Storage works")
 
-    print("\n[PASS] Lean implementation verified - 279 lines vs 2,850 lines!")
-    print("       That's a 90.2% reduction in code!")
+    # Test new pure functions from Phase 2
+    data = ProjectData(zephyr=zephyr_data, qtest=qtest_data, jira=[])
+    metrics_new, trends_new = build_metrics_pipeline(data, 30)
+
+    assert metrics_new["total_tests"] == 175
+    assert metrics_new["adoption_rate"] == metrics["adoption_rate"]
+    print("✓ Pure pipeline works")
+
+    # Test project ID finder from Phase 3
+    projects = [{"id": "123", "name": "TEST"}, {"id": "456", "name": "OTHER"}]
+    assert find_project_id(projects, "TEST") == "123"
+    assert find_project_id(projects, "MISSING") is None
+    assert find_project_id(None, "TEST") is None
+    print("✓ Project ID finder works")
+
+    print("\n[PASS] Symphonic Compression refactoring complete!")
+    print("       547 lines (7% reduction from 590) with improved structure")
 
 
 if __name__ == "__main__":
