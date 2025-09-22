@@ -31,3 +31,4 @@ repos:
       - id: bandit
         args: ["-c", "pyproject.toml"]
         files: 'ledzephyr_lean\.py'
+        additional_dependencies: [pbr]

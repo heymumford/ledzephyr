@@ -21,6 +21,7 @@ bandit = "^1.7.5"
 safety = "^3.2.0"
 # Development Tools
 pre-commit = "^3.8.0"
+pbr = "^7.0.1"
 
 [tool.poetry.scripts]
 ledzephyr = "ledzephyr_lean:main"
@@ -61,6 +62,8 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+# Allow untyped decorators for Click CLI
+disable_error_code = ["misc"]
 
 [tool.bandit]
 exclude_dirs = [".venv", "__pycache__"]
