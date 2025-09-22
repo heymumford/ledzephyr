@@ -1,0 +1,385 @@
+{
+"@context": "[https://schema.org](https://schema.org)",
+"@type": "CreativeWork",
+"id": "symphonic-compression-primer",
+"name": "Symphonic Compression",
+"version": "1.0.0",
+"description": "A doctrine and agent-ready ontology for writing Python that compresses read-time without loss of meaning or safety.",
+"inLanguage": "en",
+"datePublished": "2025-09-22",
+"license": {
+"name": "MIT License",
+"spdxId": "MIT"
+},
+"copyrightNotice": "Copyright (c) 2025 Eric C. Mumford. All rights reserved.",
+"author": {
+"@type": "Person",
+"name": "Eric C. Mumford",
+"identifier": "@heymumford"
+},
+"publisher": {
+"@type": "Organization",
+"name": "Self-published"
+},
+"keywords": \[
+"readability",
+"software design",
+"python",
+"naming",
+"semantics",
+"concurrency",
+"testing",
+"observability"
+],
+"ontology": {
+"doctrine": {
+"id": "0",
+"title": "Symphonic Compression",
+"lines": \[
+{
+"id": "0.0",
+"text": "Name: Symphonic Compression. Treat this as a north star you can reference while coding.",
+"agent": "Context: repository-wide style doctrine; Goal: align code to doctrine; Assess/Act: scan diffs for doctrine violations and suggest minimal fixes; Errors: conflicting local guides; Output: concise review notes with actionable diffs."
+},
+{
+"id": "0.1",
+"text": "Definition: compress reading time while preserving meaning and safety. Think of it as helping future you read today’s code with ease.",
+"agent": "Context: readability–correctness tension; Goal: reduce read-time without regressions; Assess/Act: measure function size/nesting/hotpaths and propose safe refactors; Errors: performance or behavior drift; Output: before/after metrics and summary."
+},
+{
+"id": "0.2",
+"text": "Treat code as a formal language with syntax, morphology, semantics, and pragmatics that compose. This framing keeps your choices disciplined without feeling rigid.",
+"agent": "Context: linguistic lens for naming/structure; Goal: enforce consistent grammar; Assess/Act: inventory identifiers and module topology, propose renames/extractions; Errors: breaking public APIs; Output: ADR-style note with migration steps."
+}
+]
+},
+"principles": \[
+{
+"id": "1",
+"name": "Semantic economy",
+"lines": \[
+{
+"id": "1.0",
+"text": "1) Semantic economy",
+"agent": "Context: vocabulary control; Goal: one concept ↔ one term; Assess/Act: detect synonyms/polysemy and normalize; Errors: domain conflicts; Output: lexicon diff and rename plan."
+},
+{
+"id": "1.1",
+"text": "Idea: one concept ↔ one lexical item. One name per idea makes recall effortless.",
+"agent": "Context: naming pass; Goal: collapse duplicates; Assess/Act: grep stems and build rename map; Errors: import collisions; Output: PR checklist of renames."
+},
+{
+"id": "1.2",
+"text": "No synonyms. Reducing variants reduces search cost later.",
+"agent": "Context: synonym elimination; Goal: canonicalize; Assess/Act: fuzzy-match identifiers and propose replacements; Errors: shadowing builtins; Output: lint warnings with autofix notes."
+},
+{
+"id": "1.3",
+"text": "Linguistics: minimize polysemy; maximize compositionality. Clear parts make clear wholes.",
+"agent": "Context: meaning clarity; Goal: single meaning per name; Assess/Act: find overloaded names and split APIs; Errors: backward-compat breaks; Output: deprecation plan with timelines."
+},
+{
+"id": "1.4",
+"text": "Why: reduces ambiguity entropy. Fewer meanings mean fewer misreads.",
+"agent": "Context: risk reduction; Goal: lower ambiguity; Assess/Act: count ambiguous identifiers and rename high-risk items; Errors: doc drift; Output: risk report with pointers."
+},
+{
+"id": "1.5",
+"text": "Do: maintain a project lexicon; reuse stems exactly. Your teammates will thank you in code reviews.",
+"agent": "Context: central glossary; Goal: keep authoritative; Assess/Act: validate names against lexicon in CI; Errors: missing entries; Output: updated lexicon and CI status."
+},
+{
+"id": "1.6",
+"text": "Don’t: “record/log/save” for the same act. Pick one and be predictable.",
+"agent": "Context: API verb audit; Goal: unify action words; Assess/Act: find near-synonyms and refactor calls; Errors: external API mismatches; Output: mapping table and diff."
+},
+{
+"id": "1.7",
+"text": "Check: can a newcomer map every term to a single definition in <10 seconds? If not, prune or rename until they can.",
+"agent": "Context: newcomer test; Goal: ≤10s lookup; Assess/Act: script lookup time and flag outliers; Errors: absent glossary; Output: report with links to definitions."
+}
+]
+},
+{
+"id": "2",
+"name": "Intent-first grammar",
+"lines": \[
+{
+"id": "2.0",
+"text": "2) Intent-first grammar",
+"agent": "Context: function/data naming; Goal: verb–noun–adjective roles; Assess/Act: parse names and propose renames; Errors: name clashes; Output: rename suggestions with diffs."
+},
+{
+"id": "2.1",
+"text": "Idea: verbs act, nouns persist, adjectives constrain. This mirrors how we naturally understand actions.",
+"agent": "Context: role tagging; Goal: categorize identifiers; Assess/Act: apply rule-based tagging and rename mis-tagged; Errors: domain exceptions; Output: tag audit summary."
+},
+{
+"id": "2.2",
+"text": "Linguistics: predicate–argument structure; theta roles explicit. Clear roles make reading linear.",
+"agent": "Context: signature clarity; Goal: clear actor/patient; Assess/Act: check parameter names/order and adjust; Errors: API breakage; Output: migration hints for callers."
+},
+{
+"id": "2.3",
+"text": "Why: readers parse roles without comments. Let names do the explaining.",
+"agent": "Context: comment reduction; Goal: remove redundant prose; Assess/Act: detect comment/name duplication and tighten; Errors: removing critical notes; Output: before/after snippet."
+},
+{
+"id": "2.4",
+"text": "Do: fetch\_orders, orders\_frame, max\_items. These patterns read like small sentences.",
+"agent": "Context: exemplar patterns; Goal: promote reuse; Assess/Act: match and suggest pattern-conformant names; Errors: mixed casing/styles; Output: examples list."
+},
+{
+"id": "2.5",
+"text": "Don’t: verb–noun inversions like ordersProcessing. Inversions hide who-does-what.",
+"agent": "Context: anti-pattern scan; Goal: flag inversions; Assess/Act: regex search and propose fixes; Errors: generated code exceptions; Output: lint findings."
+},
+{
+"id": "2.6",
+"text": "Check: every function name is recoverable as “do X to Y under Z”. Say it aloud to test yourself.",
+"agent": "Context: recoverability test; Goal: all pass; Assess/Act: heuristic parser marks failures; Errors: domain verbs unknown; Output: failure list with suggestions."
+}
+]
+},
+{
+"id": "3",
+"name": "Explicit boundaries",
+"lines": \[
+{
+"id": "3.0",
+"text": "3) Explicit boundaries",
+"agent": "Context: purity vs effects; Goal: isolate I/O/time/randomness; Assess/Act: static analysis to extract seams; Errors: hidden side effects; Output: seam map and plan."
+},
+{
+"id": "3.1",
+"text": "Idea: separate pure core from effects. Separation makes tests simple and reliable.",
+"agent": "Context: testability; Goal: maximize pure core; Assess/Act: find mutation points and refactor I/O out; Errors: performance impacts; Output: refactor plan with benchmarks."
+},
+{
+"id": "3.2",
+"text": "Linguistics: mark deixis (time, I/O) as overt morphology. Make context visible in names.",
+"agent": "Context: naming cues; Goal: prefix effectful funcs; Assess/Act: find missing prefixes and rename; Errors: semantic mismatches; Output: rename diff."
+},
+{
+"id": "3.3",
+"text": "Why: referential transparency where possible. Pure parts are easier to reason about.",
+"agent": "Context: reasoning load; Goal: increase pure LOC%; Assess/Act: compute ratio and suggest partitions; Errors: circular deps; Output: metric trend."
+},
+{
+"id": "3.4",
+"text": "Do: fetch\_/write\_/emit\_/cache\_ at edges; pure transforms inside. Readers learn the pattern quickly.",
+"agent": "Context: edge inventory; Goal: complete catalog; Assess/Act: tag functions and align names; Errors: mixed roles; Output: edge catalog."
+},
+{
+"id": "3.5",
+"text": "Don’t: hidden I/O in “helper” functions. Surprises are expensive to debug.",
+"agent": "Context: side-effect hunt; Goal: reveal hidden I/O; Assess/Act: add probes in tests, isolate or rename; Errors: flaky timing; Output: offender list with fixes."
+},
+{
+"id": "3.6",
+"text": "Check: can you run core logic with a fake world? If yes, you’ve drawn the seam well.",
+"agent": "Context: seam test; Goal: core runs with fakes; Assess/Act: spin fake adapters and run suite; Errors: deep coupling; Output: pass/fail report."
+}
+]
+},
+{
+"id": "4",
+"name": "Predictable rhythm",
+"lines": \[
+{
+"id": "4.0",
+"text": "4) Predictable rhythm",
+"agent": "Context: control flow; Goal: shallow, linear paths; Assess/Act: measure nesting/branches and propose early returns; Errors: duplicated checks; Output: complexity deltas."
+},
+{
+"id": "4.1",
+"text": "Idea: straight-line flow with clear cadences. The eye should glide, not stumble.",
+"agent": "Context: readability; Goal: reduce zigzags; Assess/Act: compute cyclomatic + indent depth and split functions; Errors: over-fragmentation; Output: refactor suggestions."
+},
+{
+"id": "4.2",
+"text": "Linguistics: right-branching, low center-embedding. Shallow trees are easier to parse.",
+"agent": "Context: AST shape; Goal: depth ≤3; Assess/Act: analyze AST and hoist guards; Errors: duplicated logic; Output: AST depth report."
+},
+{
+"id": "4.3",
+"text": "Why: working memory bound ≈ 4–7 chunks. Respect the human stack.",
+"agent": "Context: cognitive limits; Goal: ≤7 concepts; Assess/Act: count concepts and split responsibilities; Errors: cohesion loss; Output: concept count."
+},
+{
+"id": "4.4",
+"text": "Do: early returns, small predicates, flat pipelines. Fewer nests, fewer headaches.",
+"agent": "Context: transformations; Goal: flatten branches; Assess/Act: detect deep conditionals and refactor; Errors: semantic drift; Output: test-backed diffs."
+},
+{
+"id": "4.5",
+"text": "Don’t: deep nesting, Boolean soup. Complexity compounds quietly there.",
+"agent": "Context: smell scan; Goal: flag boolean soup; Assess/Act: find long conditions and extract predicates; Errors: shadowed vars; Output: warnings with examples."
+},
+{
+"id": "4.6",
+"text": "Check: max indentation ≤ 3; each block introduces one new idea. This limit is kind to readers.",
+"agent": "Context: indentation budget; Goal: enforce ≤3; Assess/Act: lint and suggest splits; Errors: formatter conflicts; Output: lint report."
+}
+]
+},
+{
+"id": "5",
+"name": "Cognitive budget",
+"lines": \[
+{
+"id": "5.0",
+"text": "5) Cognitive budget",
+"agent": "Context: information rate; Goal: limit novelty per block; Assess/Act: detect dense blocks and split; Errors: scattering logic; Output: suggested breakpoints."
+},
+{
+"id": "5.1",
+"text": "Idea: limit novelty per visual unit. Pace learning so it sticks.",
+"agent": "Context: pacing; Goal: steady load; Assess/Act: compute tokens/new symbols per block; Errors: false positives; Output: density heatmap."
+},
+{
+"id": "5.2",
+"text": "Linguistics: information rate control; minimize surprisal. Predictability reduces fatigue.",
+"agent": "Context: surprisal; Goal: lower unexpected constructs; Assess/Act: flag rare idioms; Errors: necessary idioms; Output: waivers list."
+},
+{
+"id": "5.3",
+"text": "Why: keeps parsing cost stable. Your future self will move faster.",
+"agent": "Context: maintenance; Goal: reduce rereads; Assess/Act: track review comments per function; Errors: noisy metrics; Output: trend chart."
+},
+{
+"id": "5.4",
+"text": "Do: one abstraction per paragraph; split when density rises. Small steps invite understanding.",
+"agent": "Context: structuring; Goal: one idea per block; Assess/Act: suggest splits; Errors: fragmentation; Output: refactor plan."
+},
+{
+"id": "5.5",
+"text": "Don’t: mix concerns in the same stanza. Blends blur intent.",
+"agent": "Context: concern separation; Goal: isolate concerns; Assess/Act: tag mixed blocks; Errors: false grouping; Output: findings list."
+},
+{
+"id": "5.6",
+"text": "Check: eye-scan finds topic sentences in names. If not, rename or reorder.",
+"agent": "Context: skimmability; Goal: pass eye-scan; Assess/Act: generate outline from names; Errors: conflicting patterns; Output: outline and fixes."
+}
+]
+}
+]
+},
+"references": {
+"schema": "[https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html](https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html)",
+"items": \[
+{
+"id": "chomsky-aspects-1965",
+"type": "book",
+"title": "Aspects of the Theory of Syntax",
+"author": \[
+{ "family": "Chomsky", "given": "Noam" }
+],
+"issued": { "date-parts": \[\[1965]] },
+"publisher": "MIT Press",
+"citation": "([MIT Press][1])"
+},
+{
+"id": "pep-20",
+"type": "webpage",
+"title": "PEP 20 – The Zen of Python",
+"author": \[
+{ "family": "Peters", "given": "Tim" }
+],
+"issued": { "date-parts": \[\[2004]] },
+"publisher": "Python Software Foundation",
+"citation": "([Python Enhancement Proposals (PEPs)][2])"
+},
+{
+"id": "fowler-refactoring-2018",
+"type": "book",
+"title": "Refactoring: Improving the Design of Existing Code (2nd ed.)",
+"author": \[
+{ "family": "Fowler", "given": "Martin" }
+],
+"issued": { "date-parts": \[\[2018]] },
+"publisher": "Addison-Wesley",
+"citation": "([martinfowler.com][3])"
+},
+{
+"id": "martin-clean-code-2008",
+"type": "book",
+"title": "Clean Code: A Handbook of Agile Software Craftsmanship",
+"author": \[
+{ "family": "Martin", "given": "Robert C." }
+],
+"issued": { "date-parts": \[\[2008]] },
+"publisher": "Prentice Hall",
+"citation": "([Pearson CMG][4])"
+},
+{
+"id": "poppendieck-lean-2003",
+"type": "book",
+"title": "Lean Software Development: An Agile Toolkit",
+"author": \[
+{ "family": "Poppendieck", "given": "Mary" },
+{ "family": "Poppendieck", "given": "Tom" }
+],
+"issued": { "date-parts": \[\[2003]] },
+"publisher": "Addison-Wesley",
+"citation": "([Pearson CMG][5])"
+},
+{
+"id": "ramalho-fluent-python-2022",
+"type": "book",
+"title": "Fluent Python (2nd ed.)",
+"author": \[
+{ "family": "Ramalho", "given": "Luciano" }
+],
+"issued": { "date-parts": \[\[2022]] },
+"publisher": "O’Reilly Media",
+"citation": "([O'Reilly Media][6])"
+},
+{
+"id": "britannica-sonata-form",
+"type": "webpage",
+"title": "Sonata form",
+"author": \[
+{ "family": "Encyclopaedia Britannica", "given": "" }
+],
+"issued": { "date-parts": \[\[2025]] },
+"publisher": "Britannica",
+"citation": "([Encyclopedia Britannica][7])"
+},
+{
+"id": "britannica-beethoven-symphony-5",
+"type": "webpage",
+"title": "Symphony No. 5 in C Minor, Op. 67",
+"author": \[
+{ "family": "Encyclopaedia Britannica", "given": "" }
+],
+"issued": { "date-parts": \[\[2025]] },
+"publisher": "Britannica",
+"citation": "([Encyclopedia Britannica][8])"
+},
+{
+"id": "dalio-principles-2017",
+"type": "book",
+"title": "Principles: Life and Work",
+"author": \[
+{ "family": "Dalio", "given": "Ray" }
+],
+"issued": { "date-parts": \[\[2017]] },
+"publisher": "Avid Reader Press / Simon & Schuster",
+"citation": "([Google Books][9])"
+}
+]
+}
+}
+
+[1]: https://mitpress.mit.edu/9780262530071/aspects-of-the-theory-of-syntax/?utm_source=chatgpt.com "Aspects of the Theory of Syntax"
+[2]: https://peps.python.org/pep-0020/?utm_source=chatgpt.com "PEP 20 – The Zen of Python"
+[3]: https://martinfowler.com/articles/refactoring-2nd-ed.html?utm_source=chatgpt.com "The Second Edition of \"Refactoring\""
+[4]: https://ptgmedia.pearsoncmg.com/images/9780132350884/samplepages/9780132350884.pdf?utm_source=chatgpt.com "Clean Code: A Handbook of Agile Software Craftsmanship"
+[5]: https://ptgmedia.pearsoncmg.com/images/9780321150783/samplepages/0321150783.pdf?utm_source=chatgpt.com "[PDF] Lean Software Development: An Agile Toolkit - Pearsoncmg.com"
+[6]: https://www.oreilly.com/library/view/fluent-python-2nd/9781492056348/?utm_source=chatgpt.com "Fluent Python, 2nd Edition [Book]"
+[7]: https://www.britannica.com/art/sonata-form?utm_source=chatgpt.com "Sonata form | Classical Music Structure & Development"
+[8]: https://www.britannica.com/topic/Symphony-No-5-in-C-Minor-Op-67?utm_source=chatgpt.com "Symphony No. 5 in C Minor, Op. 67 - Britannica"
+[9]: https://books.google.com/books/about/Principles.html?id=6LGuDgAAQBAJ&utm_source=chatgpt.com "Principles: Life and Work - Ray Dalio"
+
