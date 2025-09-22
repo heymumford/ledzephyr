@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "ledzephyr"
 version = "1.0.0"
-description = "Lean utility for Zephyr Scale to qTest migration metrics (279 lines)"
+description = "Lean utility for Zephyr Scale to qTest migration metrics"
 authors = ["LedZephyr Team"]
 readme = "README.md"
+python = "^3.11"
+packages = [{include = "ledzephyr_lean.py"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -15,5 +17,5 @@ rich = "^13.7.0"
 ledzephyr = "ledzephyr_lean:main"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

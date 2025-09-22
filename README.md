@@ -1,48 +1,88 @@
-# ledzephyr
+# LedZephyr - The 279-Line Solution
 
-Migration metrics for Zephyr Scale → qTest.
+A **lean utility** for tracking Zephyr Scale to qTest migration metrics.
 
-[![Coverage](https://img.shields.io/badge/coverage-53.60%25-yellow.svg)](htmlcov/index.html)
-[![Tests](https://img.shields.io/badge/tests-212-brightgreen.svg)](tests/)
+## The Philosophy
 
-## Quick Start
+> "The code to pull in data from the three API sources, store the timeseries data on disk,
+> perform mathematical and statistical analysis on the trends, and output a lean intelligent
+> synthesis... should take less than 300 lines of code."
+
+We achieved this vision: **279 lines** of clean, readable Python that does exactly what's needed.
+
+## What It Does
+
+1. **Fetches** data from Zephyr Scale, qTest, and Jira APIs
+2. **Stores** timestamped snapshots locally (avoiding repeated API calls)
+3. **Analyzes** migration trends with statistical projections
+4. **Generates** actionable insights and completion estimates
+
+## Installation
 
 ```bash
-# Install
-pip install ledzephyr
-
-# Configure (.env file)
-LEDZEPHYR_JIRA_URL=https://your.atlassian.net
-LEDZEPHYR_JIRA_API_TOKEN=your_token
-
-# Run
-lz metrics -p PROJECT -w 7d
+poetry install
 ```
 
-## Platform Automation
+## Usage
 
-This project uses **cloud-native automation** instead of local scripts:
-- 🤖 **Atlassian Rovo AI** agents handle SDLC automation
-- 🔄 **GitLab/Jira Integration** for bidirectional sync
-- 🚀 **GitHub Actions** for CI/CD pipelines
+```bash
+# Fetch fresh data and analyze
+poetry run python ledzephyr_lean.py --project MYPROJECT
 
-Run `make platform-info` for details.
+# Analyze existing data (no API calls)
+poetry run python ledzephyr_lean.py --project MYPROJECT --no-fetch
 
-## Documentation
+# Analyze 90-day trend
+poetry run python ledzephyr_lean.py --project MYPROJECT --days 90
+```
 
-### Quick Reference
-- [Local Development Guide](DOCUMENTATION.md)
-- [AI Assistant Instructions](CLAUDE.md)
+## Configuration
 
-### Project Management
+Set environment variables:
+
+```bash
+export LEDZEPHYR_JIRA_URL=https://your.atlassian.net
+export LEDZEPHYR_JIRA_API_TOKEN=your_token
+export LEDZEPHYR_QTEST_URL=https://your.qtestnet.com
+export LEDZEPHYR_QTEST_TOKEN=your_token
+```
+
+## The Journey
+
+- **Before**: 2,850 lines across 13 files
+- **After**: 279 lines in a single file
+- **Reduction**: 90.2%
+
+## Code Structure
+
+```python
+# === API Client (~50 lines) ===
+fetch_api_data()      # Generic fetcher with retry
+fetch_zephyr_tests()  # Zephyr Scale API
+fetch_qtest_tests()   # qTest API
+
+# === Storage (~40 lines) ===
+store_snapshot()      # Save timestamped data
+load_snapshots()      # Load historical data
+
+# === Metrics (~40 lines) ===
+calculate_metrics()   # Core calculations
+
+# === Trends (~50 lines) ===
+analyze_trends()      # Statistical analysis
+
+# === Reports (~40 lines) ===
+generate_report()     # Rich console output
+
+# === CLI (~50 lines) ===
+main()               # Click-based interface
+```
+
+## Project Management
+
 - [Confluence Space](https://balabushka.atlassian.net/wiki/spaces/LedZephyr/overview) - Architecture, philosophy, and guides
 - [Jira Project (LED)](https://balabushka.atlassian.net/browse/LED) - Work tracking and roadmap
 
-### Key Resources
-- **Mission Control**: Strategic documentation and lean philosophy
-- **Technical Vault**: Architecture and implementation details
-- **Epic LED-46**: Adoption Intelligence System implementation
-
 ## License
 
-MIT
+MIT - Keep it simple, keep it free.
