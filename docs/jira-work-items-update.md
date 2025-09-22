@@ -221,7 +221,7 @@ make workflows-tests       # Trigger all test workflows
 
 ### Medium Priority
 1. **LED-16 Development**: Real-time monitoring integration
-2. **User Training**: Developer onboarding materials
+2. **Agent Training**: Five-Persona Model onboarding and Wu Wei coordination protocols
 3. **Multi-cloud Support**: Extend deployment capabilities
 4. **Advanced Security**: Enhanced threat detection
 

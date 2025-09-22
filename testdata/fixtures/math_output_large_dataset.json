@@ -1,0 +1,70 @@
+{
+  "project_key": "LARGE",
+  "time_window": "30d",
+  "total_tests": 8,
+  "zephyr_tests": 4,
+  "qtest_tests": 4,
+  "adoption_ratio": 0.5,
+  "active_users": 8,
+  "coverage_parity": 0.5,
+  "defect_link_rate": 0.0,
+  "team_metrics": {
+    "Performance": {
+      "team_name": "Performance",
+      "total_tests": 2,
+      "zephyr_tests": 1,
+      "qtest_tests": 1,
+      "adoption_ratio": 0.5,
+      "active_users": 2,
+      "teams_source": "component"
+    },
+    "Load": {
+      "team_name": "Load",
+      "total_tests": 2,
+      "zephyr_tests": 1,
+      "qtest_tests": 1,
+      "adoption_ratio": 0.5,
+      "active_users": 2,
+      "teams_source": "component"
+    },
+    "Endurance": {
+      "team_name": "Endurance",
+      "total_tests": 1,
+      "zephyr_tests": 1,
+      "qtest_tests": 0,
+      "adoption_ratio": 0.0,
+      "active_users": 1,
+      "teams_source": "component"
+    },
+    "Memory": {
+      "team_name": "Memory",
+      "total_tests": 1,
+      "zephyr_tests": 0,
+      "qtest_tests": 1,
+      "adoption_ratio": 1.0,
+      "active_users": 1,
+      "teams_source": "component"
+    },
+    "Scale": {
+      "team_name": "Scale",
+      "total_tests": 1,
+      "zephyr_tests": 1,
+      "qtest_tests": 0,
+      "adoption_ratio": 0.0,
+      "active_users": 1,
+      "teams_source": "component"
+    },
+    "Resource": {
+      "team_name": "Resource",
+      "total_tests": 1,
+      "zephyr_tests": 0,
+      "qtest_tests": 1,
+      "adoption_ratio": 1.0,
+      "active_users": 1,
+      "teams_source": "component"
+    }
+  },
+  "trend_data": {
+    "week_over_week": {}
+  }
+}

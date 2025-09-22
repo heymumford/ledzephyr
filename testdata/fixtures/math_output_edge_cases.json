@@ -1,0 +1,52 @@
+{
+  "project_key": "EDGE",
+  "time_window": "14d",
+  "total_tests": 5,
+  "zephyr_tests": 3,
+  "qtest_tests": 2,
+  "adoption_ratio": 0.4,
+  "active_users": 3,
+  "coverage_parity": 1.0,
+  "defect_link_rate": 0.0,
+  "team_metrics": {
+    "Special/Component-Name_123": {
+      "team_name": "Special/Component-Name_123",
+      "total_tests": 1,
+      "zephyr_tests": 0,
+      "qtest_tests": 1,
+      "adoption_ratio": 1.0,
+      "active_users": 1,
+      "teams_source": "component"
+    },
+    "TimeTravel": {
+      "team_name": "TimeTravel",
+      "total_tests": 1,
+      "zephyr_tests": 1,
+      "qtest_tests": 0,
+      "adoption_ratio": 0.0,
+      "active_users": 1,
+      "teams_source": "component"
+    },
+    "Duplication": {
+      "team_name": "Duplication",
+      "total_tests": 2,
+      "zephyr_tests": 1,
+      "qtest_tests": 1,
+      "adoption_ratio": 0.5,
+      "active_users": 1,
+      "teams_source": "component"
+    },
+    "Unassigned": {
+      "team_name": "Unassigned",
+      "total_tests": 1,
+      "zephyr_tests": 1,
+      "qtest_tests": 0,
+      "adoption_ratio": 0.0,
+      "active_users": 0,
+      "teams_source": "component"
+    }
+  },
+  "trend_data": {
+    "week_over_week": {}
+  }
+}

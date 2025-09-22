@@ -90,6 +90,17 @@ gold:    ## generate gold master test datasets
 test-specs:  ## run all spec management tests
 	$(PY) pytest tests/specs -q --no-cov
 
+lean-test:  ## Run only the critical 5 tests (530ms total)
+	@echo "Running Critical 5 Lean Tests..."
+	@$(PY) pytest \
+		tests/integration/test_gold_master_algorithms.py::TestGoldMasterAlgorithms::test_basic_dataset_algorithms \
+		tests/unit/ledzephyr/test_client.py::TestAPIClientRequestHandling::test_make_request_429_raises_rate_limit_error \
+		tests/unit/ledzephyr/test_time_windows.py::TestParseWindowsBoundaryConditions::test_parse_windows_leap_year_february_29_calculates_correctly \
+		tests/unit/ledzephyr/test_cache.py::TestSimpleAPICache::test_cache_expiration_functionality \
+		tests/integration/test_gold_master_algorithms.py::TestGoldMasterAlgorithms::test_edge_cases_algorithms \
+		--tb=short -q --no-cov
+	@echo "✅ Core risks validated in <1 second"
+
 # School of Fish Integration Tests
 school-api:       ## run API school tests (external API patterns)
 	$(PY) python -m tests.integration.schools.cli --school api

@@ -280,9 +280,24 @@
             "title": "07.3-Training-Materials",
             "parent_id": "new_page_07",
             "children": [
+              {"title": "Agent Profiles (Five-Persona Model)"},
+              {"title": "Wu Wei Principles & Philosophy"},
+              {"title": "Agent Coordination Protocols"},
+              {"title": "TDD & Evidence-Based Development"},
               {"title": "Onboarding Guides"},
               {"title": "Best Practices"},
               {"title": "Reference Materials"}
+            ]
+          },
+          {
+            "id": "new_page_07_4",
+            "title": "07.4-Agent-Coordination-Guide",
+            "parent_id": "new_page_07",
+            "children": [
+              {"title": "Five-Persona Interaction Patterns"},
+              {"title": "Evidence Trinity Integration"},
+              {"title": "Wu Wei Coordination Framework"},
+              {"title": "Cross-System Synchronization"}
             ]
           }
         ]

@@ -138,7 +138,7 @@ mypy_path = ["src"]
 exclude = ["tests/.*"]
 
 [tool.pytest.ini_options]
-addopts = "-q --strict-markers --strict-config --maxfail=1 --cov=ledzephyr --cov-report=term-missing --disable-warnings"
+addopts = "-q --strict-markers --strict-config --cov=ledzephyr --cov-report=term-missing --disable-warnings"
 testpaths = ["tests"]
 python_files = "test_*.py"
 python_classes = "Test*"

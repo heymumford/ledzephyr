@@ -11,6 +11,8 @@ from rich.console import Console
 from rich.table import Table
 
 from ledzephyr import __version__
+from ledzephyr.adoption_metrics import DailySnapshot, TeamInventory, User
+from ledzephyr.adoption_report import AdoptionReportGenerator
 from ledzephyr.client import APIClient
 from ledzephyr.config import load_config
 from ledzephyr.exporters import DataExporter
@@ -280,6 +282,95 @@ def monitor(
     except Exception as e:
         console.print(f"❌ Error running monitoring server: {e}")
         raise typer.Exit(1) from e
+
+
+@app.command()
+def adoption(
+    output_format: Annotated[str, typer.Option("--format", help="Output format")] = "markdown",
+    output_dir: Annotated[str, typer.Option("--output", help="Output directory")] = "reports",
+    sample_data: Annotated[bool, typer.Option("--sample", help="Use sample data for demo")] = False,
+) -> None:
+    """Generate daily adoption and training target report."""
+    import random
+    from datetime import date, timedelta
+
+    console.print("📊 [bold blue]Generating Adoption & Training Target Report[/bold blue]")
+
+    # Create report generator
+    generator = AdoptionReportGenerator(output_dir=output_dir)
+
+    if sample_data:
+        # Generate sample data for demo
+        console.print("🔄 Using sample data for demonstration...")
+
+        # Sample team inventories
+        teams = ["Platform", "API", "Frontend", "Mobile", "QA", "DevOps", "Data", "Security"]
+        inventories = []
+        for team in teams:
+            total = random.randint(100, 500)
+            migrated = random.randint(int(total * 0.2), int(total * 0.8))
+            inventories.append(
+                TeamInventory(
+                    team=team,
+                    total_tests=total,
+                    migrated_tests=migrated,
+                    as_of_date=date.today(),
+                    baseline_requirements=random.randint(20, 100),
+                    qtest_requirements=random.randint(15, 90),
+                    zephyr_executions=random.randint(100, 1000),
+                    qtest_executions=random.randint(50, 800),
+                )
+            )
+
+        # Sample users
+        users = []
+        for i in range(30):
+            users.append(
+                User(
+                    email=f"user{i}@example.com",
+                    name=f"User {i}",
+                    executions=random.randint(5, 500),
+                    role=random.choice(["tester", "lead", "viewer"]),
+                )
+            )
+
+        # Sample history
+        history = []
+        for i in range(4):
+            week_date = date.today() - timedelta(weeks=3 - i)
+            history.append(DailySnapshot(date=week_date, migrated=100 * (i + 1), total=2000))
+
+        # Sample training history
+        training_history = []
+
+    else:
+        # In production, would pull from actual sources
+        console.print("❌ Production data sources not yet configured. Use --sample for demo.")
+        raise typer.Exit(1)
+
+    # Generate report
+    report = generator.generate_daily_report(
+        inventories=inventories, users=users, history=history, training_history=training_history
+    )
+
+    # Save report
+    filepath = generator.save_report(report, format=output_format)
+    console.print(f"✅ Report saved to: {filepath}")
+
+    # Display summary
+    console.print("\n[bold]Report Summary:[/bold]")
+    console.print(f"📈 Overall Adoption: {report.org_metrics['adoption_rate']}%")
+    console.print(
+        f"📊 Tests Migrated: {report.org_metrics['migrated_tests']:,} / {report.org_metrics['total_tests']:,}"
+    )
+    console.print(f"🚀 Velocity Trend: {report.velocity_metrics['trend']}")
+
+    if report.completion_prediction["estimated_date"] != "Unknown":
+        console.print(f"📅 Estimated Completion: {report.completion_prediction['estimated_date']}")
+
+    console.print("\n[bold]Top Training Targets:[/bold]")
+    for i, rec in enumerate(report.training_recommendations[:3], 1):
+        console.print(f"{i}. {rec['team']} - Priority: {rec['priority_score']:.2f}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,230 @@
+{
+  "test_run": {
+    "timestamp": "2025-09-21 21:58:09",
+    "manifest": "tests/tdm/manifest.json",
+    "mode": "stub"
+  },
+  "scenarios": {
+    "integration_happy_path": {
+      "scenario_id": "integration_happy_path",
+      "scenario_name": "Integration Happy Path",
+      "datasets_used": [
+        "jira_issues",
+        "zephyr_testcases",
+        "qtest_testcases"
+      ],
+      "start_time": 1758506289.613685,
+      "api_calls": [],
+      "errors": [],
+      "data_samples": [
+        "{\"id\": \"10001\", \"key\": \"TEST-1\", \"fields\": {\"summary\": \"Test issue 1\", \"status\": {\"name\": \"Open\"}, \"assignee\": null, \"components\": [{\"name\": \"Frontend\"}], \"labels\": []}}",
+        "{\"id\": \"Z-TC-0001\", \"key\": \"Z-TC-0001\", \"name\": \"Test Case 1\", \"projectId\": 10001, \"status\": \"Draft\", \"labels\": [], \"priority\": \"Medium\", \"component\": \"Frontend\", \"estimatedTime\": 301000, \"createdOn\": \"2024-01-01T00:00:00Z\", \"updatedOn\": \"2024-01-02T00:00:00Z\"}",
+        "{\"id\": 100001, \"name\": \"Test Case 1\", \"description\": \"Description for test case 1\", \"test_case_version_id\": 200001, \"project_id\": 12345, \"created_date\": \"2024-01-01T00:00:00Z\", \"last_modified_date\": \"2024-01-02T00:00:00Z\", \"properties\": [{\"field_id\": 1, \"field_value\": \"Manual\"}, {\"field_id\": 2, \"field_value\": \"Medium\"}, {\"field_id\": 3, \"field_value\": \"Functional\"}], \"test_steps\": [{\"order\": 1, \"description\": \"Step 1 description\", \"expected_result\": \"Expected result for step 1\"}, {\"order\": 2, \"description\": \"Step 2 description\", \"expected_result\": \"Expected result for step 2\"}]}"
+      ],
+      "test_results": {
+        "jira_project": "PASS",
+        "jira_search_page1": "PASS",
+        "jira_search_page2": "PASS",
+        "zephyr_testcases": "PASS",
+        "zephyr_testcycles": "PASS",
+        "qtest_projects": "PASS",
+        "qtest_testcases": "PASS"
+      },
+      "end_time": 1758506289.614012,
+      "execution_time": 0.00032711029052734375,
+      "request_summary": {
+        "total_requests": 0,
+        "unique_endpoints": 0,
+        "methods_used": [],
+        "avg_response_time_ms": 0,
+        "pagination_calls": 0,
+        "auth_headers_sent": 0,
+        "error_responses": 0
+      }
+    },
+    "pagination_test": {
+      "scenario_id": "pagination_test",
+      "scenario_name": "Pagination Test",
+      "datasets_used": [
+        "jira_issues",
+        "zephyr_testcases",
+        "qtest_testcases"
+      ],
+      "start_time": 1758506289.6140742,
+      "api_calls": [],
+      "errors": [
+        "assert False\n +  where False = assert_pagination_used()\n +    where assert_pagination_used = <integration.doubles.spy_transport.SpyTransport object at 0x10ee95210>.assert_pagination_used\n +      where <integration.doubles.spy_transport.SpyTransport object at 0x10ee95210> = <test_manifest_driven_replay.ManifestDrivenTest object at 0x10ec63e90>.spy"
+      ],
+      "data_samples": [],
+      "end_time": 1758506289.6145222,
+      "execution_time": 0.00044798851013183594,
+      "request_summary": {
+        "total_requests": 0,
+        "unique_endpoints": 0,
+        "methods_used": [],
+        "avg_response_time_ms": 0,
+        "pagination_calls": 0,
+        "auth_headers_sent": 0,
+        "error_responses": 0
+      }
+    }
+  },
+  "quality_gates": {
+    "integration_happy_path": {
+      "overall_status": "failed",
+      "summary": {
+        "total": 5,
+        "passed": 1,
+        "failed": 2,
+        "warnings": 0,
+        "skipped": 2
+      },
+      "results": [
+        {
+          "name": "schema_completeness",
+          "status": "passed",
+          "message": "Schema completeness 100.0% >= 95%",
+          "details": {
+            "completeness_percentage": 100.0,
+            "total_fields": 14,
+            "missing_fields": 0,
+            "incomplete_datasets": []
+          },
+          "execution_time_ms": 0.016689300537109375
+        },
+        {
+          "name": "data_coverage",
+          "status": "failed",
+          "message": "Data coverage 0.0% < 80%",
+          "details": {
+            "coverage_percentage": 0.0,
+            "total_scenarios": 2,
+            "tested_scenarios": 0
+          },
+          "execution_time_ms": 0.0059604644775390625
+        },
+        {
+          "name": "performance",
+          "status": "skipped",
+          "message": "No performance data available",
+          "details": {},
+          "execution_time_ms": 0.0011920928955078125
+        },
+        {
+          "name": "sensitive_data",
+          "status": "failed",
+          "message": "3 sensitive fields not masked",
+          "details": {
+            "sensitive_fields": [
+              "id",
+              "assignee.email",
+              "id",
+              "id",
+              "assigned_to"
+            ],
+            "unmasked_fields": [
+              "id",
+              "id",
+              "id"
+            ],
+            "potential_leaks": []
+          },
+          "execution_time_ms": 0.7350444793701172
+        },
+        {
+          "name": "determinism",
+          "status": "skipped",
+          "message": "Need at least 2 runs to verify determinism",
+          "details": {},
+          "execution_time_ms": 0.00095367431640625
+        }
+      ]
+    },
+    "pagination_test": {
+      "overall_status": "failed",
+      "summary": {
+        "total": 5,
+        "passed": 1,
+        "failed": 2,
+        "warnings": 0,
+        "skipped": 2
+      },
+      "results": [
+        {
+          "name": "schema_completeness",
+          "status": "passed",
+          "message": "Schema completeness 100.0% >= 95%",
+          "details": {
+            "completeness_percentage": 100.0,
+            "total_fields": 14,
+            "missing_fields": 0,
+            "incomplete_datasets": []
+          },
+          "execution_time_ms": 0.009059906005859375
+        },
+        {
+          "name": "data_coverage",
+          "status": "failed",
+          "message": "Data coverage 0.0% < 80%",
+          "details": {
+            "coverage_percentage": 0.0,
+            "total_scenarios": 2,
+            "tested_scenarios": 0
+          },
+          "execution_time_ms": 0.0040531158447265625
+        },
+        {
+          "name": "performance",
+          "status": "skipped",
+          "message": "No performance data available",
+          "details": {},
+          "execution_time_ms": 0.00095367431640625
+        },
+        {
+          "name": "sensitive_data",
+          "status": "failed",
+          "message": "3 sensitive fields not masked",
+          "details": {
+            "sensitive_fields": [
+              "id",
+              "assignee.email",
+              "id",
+              "id",
+              "assigned_to"
+            ],
+            "unmasked_fields": [
+              "id",
+              "id",
+              "id"
+            ],
+            "potential_leaks": []
+          },
+          "execution_time_ms": 0.011682510375976562
+        },
+        {
+          "name": "determinism",
+          "status": "skipped",
+          "message": "Need at least 2 runs to verify determinism",
+          "details": {},
+          "execution_time_ms": 0.00095367431640625
+        }
+      ]
+    }
+  },
+  "vcr_stats": {
+    "hits": 0,
+    "misses": 0,
+    "recordings": 0,
+    "total_cassettes": 0
+  },
+  "spy_summary": {
+    "total_requests": 0,
+    "unique_endpoints": 0,
+    "methods_used": [],
+    "avg_response_time_ms": 0,
+    "pagination_calls": 0,
+    "auth_headers_sent": 0,
+    "error_responses": 0
+  },
+  "masking_tokens": 0
+}

@@ -1,6 +1,6 @@
 # Test Architecture Documentation
 
-This directory implements a **three-layer balanced testing architecture** with clear separation of concerns and optimal speed/value ratios.
+This directory implements a **comprehensive testing framework** with gold master validation, achieving **53.60% code coverage** with 212 passing tests.
 
 ## Test Layer Architecture
 
@@ -174,6 +174,49 @@ pytest tests/e2e/ -m "e2e"
 - Validate end-to-end data flow
 - Enforce quality gates
 
+## Test Coverage Summary
+
+### Current Coverage: 53.60%
+
+| Test Category | Count | Purpose |
+|---------------|-------|---------|
+| **Unit Tests** | 156 | Core logic, calculations, parsing |
+| **Integration Tests** | 48 | API clients, cross-component |
+| **Gold Master Tests** | 8 | Algorithm validation |
+| **Total** | 212 | Comprehensive coverage |
+
+### Module Coverage Details
+
+| Module | Coverage | Focus Area |
+|--------|----------|------------|
+| time_windows.py | 100% | Time parsing and calculations |
+| observability.py | 98% | Logging, metrics, tracing |
+| client.py | 95% | API interactions |
+| config.py | 76% | Configuration management |
+| cache.py | 71% | Request caching |
+| metrics.py | 50% | Metric calculations |
+| validators.py | 36% | Input validation |
+
+## Gold Master Testing
+
+The project implements comprehensive gold master testing for algorithm validation:
+
+### Test Datasets
+- **Basic**: Standard test cases for core functionality
+- **Edge Cases**: Boundary conditions, special characters, null values
+- **Large Dataset**: Performance and scalability testing
+
+### Running Gold Master Tests
+```bash
+# Run all gold master tests
+pytest tests/integration/test_gold_master_algorithms.py -v
+
+# Run with coverage
+pytest tests/integration/test_gold_master_algorithms.py --cov=src/ledzephyr/metrics
+```
+
+See [docs/GOLD_MASTER_TESTING.md](../docs/GOLD_MASTER_TESTING.md) for detailed documentation.
+
 ## Configuration
 
 Global test configuration in `conftest.py`:
@@ -181,3 +224,4 @@ Global test configuration in `conftest.py`:
 - Hypothesis profiles (CI, dev, exhaustive)
 - Shared fixtures and test data
 - Custom pytest markers
+- Gold master dataset loading

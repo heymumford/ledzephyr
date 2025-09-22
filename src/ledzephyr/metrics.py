@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class MetricsCalculator:
     """Calculate migration metrics for projects and teams."""
 
-    def __init__(self, client: APIClient):
+    def __init__(self, client: APIClient = None):
         self.client = client
 
     def calculate_metrics(
@@ -76,6 +76,55 @@ class MetricsCalculator:
             active_users=active_users,
             team_metrics=team_metrics,
             trend_data=trend_data,
+        )
+
+    def calculate_project_metrics(
+        self,
+        test_cases: list[TestCaseModel],
+        project_key: str,
+        time_window: str,
+        teams_source: TeamSource = TeamSource.COMPONENT,
+    ) -> ProjectMetrics:
+        """Calculate metrics directly from test cases (for testing purposes)."""
+
+        # Separate tests by source system
+        zephyr_tests = [t for t in test_cases if t.source_system == "zephyr"]
+        qtest_tests = [t for t in test_cases if t.source_system == "qtest"]
+
+        # Calculate basic metrics
+        total_tests = len(test_cases)
+        zephyr_count = len(zephyr_tests)
+        qtest_count = len(qtest_tests)
+
+        # Calculate adoption ratio (qtest / total, but 0 if no tests)
+        adoption_ratio = qtest_count / total_tests if total_tests > 0 else 0.0
+
+        # Calculate coverage parity
+        coverage_parity = self._calculate_coverage_parity(zephyr_tests, qtest_tests)
+
+        # Calculate defect link rate
+        defect_link_rate = self._calculate_defect_link_rate(test_cases)
+
+        # Calculate active users (unique assignees)
+        active_users = len(set(t.assignee for t in test_cases if t.assignee))
+
+        # Calculate team metrics
+        team_metrics = self._calculate_team_metrics(
+            test_cases, teams_source, zephyr_tests, qtest_tests
+        )
+
+        return ProjectMetrics(
+            project_key=project_key,
+            time_window=time_window,
+            total_tests=total_tests,
+            zephyr_tests=zephyr_count,
+            qtest_tests=qtest_count,
+            adoption_ratio=adoption_ratio,
+            coverage_parity=coverage_parity,
+            defect_link_rate=defect_link_rate,
+            active_users=active_users,
+            team_metrics=team_metrics,
+            trend_data=None,  # Not calculated for direct method
         )
 
     def _parse_time_window(self, time_window: str, end_date: datetime) -> datetime:
