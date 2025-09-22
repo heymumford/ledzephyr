@@ -6,13 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 LedZephyr is a CLI tool for calculating migration metrics from Zephyr Scale to qTest. It follows a lean architecture philosophy with a focus on simplicity, minimal dependencies, and risk-based testing.
 
-### Project Documentation
-- **Confluence Space**: https://balabushka.atlassian.net/wiki/spaces/LedZephyr/overview?homepageId=8683825
+### Project Documentation & Integration
+
+#### Atlassian Resources
+- **Confluence Space**: https://balabushka.atlassian.net/wiki/spaces/LedZephyr/overview
   - Space ID: 8683575
   - Space Key: LedZephyr
-  - Homepage ID: 8683825
+  - Cloud ID: f1ecf30e-e4d0-48d9-bc3a-e738126b7afd
 - **Jira Project**: LED (https://balabushka.atlassian.net/browse/LED)
-- **Cloud ID**: f1ecf30e-e4d0-48d9-bc3a-e738126b7afd
+  - Active Epic: LED-46 (Adoption Intelligence System)
+  - Micro-kata tasks: LED-47 through LED-51
+
+#### Documentation Hierarchy
+1. **On Disk** (3 files only):
+   - README.md - Entry point with links
+   - CLAUDE.md - This file, AI instructions
+   - DOCUMENTATION.md - Quick dev reference
+
+2. **In Confluence**:
+   - Mission Control - Lean philosophy and strategy
+   - Technical Vault - Architecture and implementation
+   - Operations Manual - Development guidelines
+
+3. **In Jira**:
+   - Work breakdown and task tracking
+   - Sprint planning and velocity metrics
+   - Epic and story definitions
+
+#### MCP Tool Authentication
+Use environment variables:
+```bash
+export LEDZEPHYR_JIRA_URL=https://balabushka.atlassian.net
+export LEDZEPHYR_JIRA_API_TOKEN=<token>
+export LEDZEPHYR_CONFLUENCE_API_TOKEN=<token>
+```
 
 ## Essential Commands
 

@@ -27,12 +27,18 @@ make lean-test  # 530ms, covers 90% of risks
 
 ## Documentation
 
-See [DOCUMENTATION.md](DOCUMENTATION.md) for:
-- Architecture
-- API Reference
-- Configuration
-- Troubleshooting
-- Development
+### Quick Reference
+- [Local Development Guide](DOCUMENTATION.md)
+- [AI Assistant Instructions](CLAUDE.md)
+
+### Project Management
+- [Confluence Space](https://balabushka.atlassian.net/wiki/spaces/LedZephyr/overview) - Architecture, philosophy, and guides
+- [Jira Project (LED)](https://balabushka.atlassian.net/browse/LED) - Work tracking and roadmap
+
+### Key Resources
+- **Mission Control**: Strategic documentation and lean philosophy
+- **Technical Vault**: Architecture and implementation details
+- **Epic LED-46**: Adoption Intelligence System implementation
 
 ## License
 
