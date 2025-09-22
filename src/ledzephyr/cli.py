@@ -150,28 +150,25 @@ def metrics(
                 display_table(all_metrics)
                 # Save to file if specified
                 if output:
-                    exporter = DataExporter()
-                    if output.suffix == ".xlsx":
-                        exporter.export(all_metrics, output, format="excel")
-                    elif output.suffix == ".pdf":
-                        exporter.export(all_metrics, output, format="pdf")
-                    elif output.suffix == ".html":
-                        exporter.export(all_metrics, output, format="html")
+                    if output.suffix in [".json", ".csv"]:
+                        exporter = DataExporter()
+                        exporter.export(all_metrics, output)
                     else:
                         save_csv(all_metrics, output)
                     console.print(f"📄 Results saved to: {output}")
             elif output_format == "json":
                 display_json(all_metrics, output)
-            elif output_format in ["excel", "pdf", "html", "csv"]:
+            elif output_format == "csv":
                 if not output:
                     output = Path(
-                        f"metrics_{project}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{output_format}"
+                        f"metrics_{project}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
                     )
                 exporter = DataExporter()
-                exported_path = exporter.export(all_metrics, output, format=output_format)
+                exported_path = exporter.export(all_metrics, output)
                 console.print(f"📄 Results exported to: {exported_path}")
             else:
                 console.print(f"❌ Unsupported format: {output_format}")
+                console.print("Supported formats: table, json, csv")
                 raise typer.Exit(1)
 
             obs.log("info", "Metrics generation completed", project=project)
