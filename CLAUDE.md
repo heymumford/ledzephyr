@@ -4,13 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-LedZephyr is a lean CLI tool for calculating migration metrics from Zephyr Scale to qTest. Following a massive simplification (89% code reduction), it now consists of a single ~306-line Python file with minimal dependencies.
+LedZephyr is a lean CLI tool for calculating migration metrics from Zephyr Scale to qTest. Following a massive simplification (79% code reduction), it now consists of a well-structured Python package with a single main module.
 
 ### Lean Transformation Achievement
 - **Before**: 2,850 lines across 13 modules + 200 test files
-- **After**: 306 lines in single file (`ledzephyr_lean.py`)
-- **Reduction**: 89.3%
-- **Dependencies**: Reduced from 60+ to 3 (click, httpx, rich)
+- **After**: 605 lines in main module (`ledzephyr/main.py`) + 105 lines tests
+- **Reduction**: 79% main code reduction
+- **Dependencies**: Reduced from 60+ to 3 runtime (click, httpx, rich)
+- **Features Added**: Production-grade logging, transaction tracing, comprehensive type safety
 
 ### Project Documentation & Integration
 
@@ -76,14 +77,22 @@ make fetch PROJECT=MYPROJECT
 make analyze PROJECT=MYPROJECT
 
 # Direct execution with options
-poetry run python ledzephyr_lean.py --project MYPROJECT
-poetry run python ledzephyr_lean.py --project MYPROJECT --fetch
-poetry run python ledzephyr_lean.py --project MYPROJECT --no-fetch
+poetry run ledzephyr --project MYPROJECT
+poetry run ledzephyr --project MYPROJECT --fetch
+poetry run ledzephyr --project MYPROJECT --no-fetch
 ```
 
 ### Testing and Quality
 ```bash
-# Run lean test suite
+# Run comprehensive test suite (recommended)
+make test-all
+
+# Run specific test layers
+make test-unit          # Unit tests (16 tests)
+make test-contract      # Contract tests (14 tests)
+make test-integration   # Integration tests (11 tests)
+
+# Run legacy test suite
 make test
 
 # Format code with black
@@ -92,26 +101,41 @@ make format
 # Lint with ruff
 make lint
 
+# Type check with mypy
+make type
+
+# Security scan with bandit
+make security
+
 # Clean cache and temp files
 make clean
 ```
 
+**Test Execution Order**: Unit → Contract → Integration → E2E (manual)
+
+For E2E testing instructions, see [`tests/test_e2e.md`](tests/test_e2e.md)
+
 ## Architecture Overview
 
-Ultra-lean single-file architecture in `ledzephyr_lean.py` (~306 lines):
+Lean package architecture in `ledzephyr/main.py` (605 lines, well-structured):
 
-1. **API Client** (~50 lines) - Generic HTTP fetcher with retry logic
-2. **Data Fetchers** (~100 lines) - Zephyr Scale, qTest, and Jira integrations
-3. **Analysis Engine** (~80 lines) - Statistical calculations and trend analysis
-4. **CLI Interface** (~50 lines) - Click-based command handling
-5. **Storage Layer** (~25 lines) - Local JSON data persistence
+1. **Logging Setup** (~50 lines) - Production-grade logging with transaction IDs
+2. **API Client** (~50 lines) - Generic HTTP fetcher with retry logic
+3. **Data Fetchers** (~110 lines) - Zephyr Scale, qTest, and Jira integrations
+4. **Analysis Engine** (~110 lines) - Statistical calculations and trend analysis
+5. **CLI Interface** (~110 lines) - Click-based command handling with comprehensive options
+6. **Storage Layer** (~50 lines) - Local JSON data persistence with timestamps
+7. **Data Models** (~30 lines) - Type-safe data structures
+8. **Credential Management** (~25 lines) - Environment-based configuration
 
 ### Key Design Principles
-- **Single file over modules** - Maximum simplicity
-- **3 dependencies only** - click, httpx, rich
-- **Local JSON storage** - No databases
+- **Single main module** - Maximum simplicity while maintaining structure
+- **3 runtime dependencies** - click, httpx, rich
+- **Local JSON storage** - No databases, timestamped snapshots
 - **6-month activity filter** - Recent data focus
 - **Rich console output** - Beautiful terminal reports
+- **Type safety** - Comprehensive type hints for mypy
+- **Transaction tracing** - Correlate logs across distributed systems
 
 ## API Endpoints (15 Essential)
 
@@ -255,15 +279,22 @@ Optimized for simplicity and speed:
 
 ## File Structure
 
-Extremely lean file organization:
+Lean package organization:
 ```
 ledzephyr/
-├── ledzephyr_lean.py    # Main application (306 lines)
-├── test_lean.py         # Test suite
-├── pyproject.toml       # Dependencies
+├── ledzephyr/          # Main package
+│   ├── __init__.py     # Package exports
+│   ├── __main__.py     # Entry point for python -m
+│   └── main.py         # Main application (605 lines)
+├── test_lean.py        # Test suite (105 lines)
+├── pyproject.toml      # Dependencies & tool config
 ├── Makefile            # Development commands
 ├── README.md           # Project overview
-├── CLAUDE.md           # This file
+├── CLAUDE.md           # This file (AI context)
+├── .github/            # CI/CD workflows
 └── data/               # Local data storage
-    └── {project}/      # Per-project data
+    └── {project}/      # Per-project snapshots
+        ├── zephyr/     # Zephyr Scale snapshots
+        ├── qtest/      # qTest snapshots
+        └── jira/       # Jira snapshots
 ```

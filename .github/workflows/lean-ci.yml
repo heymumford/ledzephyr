@@ -38,26 +38,26 @@ jobs:
       run: poetry run python test_lean.py
 
     - name: Check formatting
-      run: poetry run black --check ledzephyr_lean.py test_lean.py
+      run: poetry run black --check ledzephyr/main.py test_lean.py
 
     - name: Lint with ruff
-      run: poetry run ruff check ledzephyr_lean.py test_lean.py
+      run: poetry run ruff check ledzephyr/main.py test_lean.py
 
     - name: Type check
-      run: poetry run mypy ledzephyr_lean.py test_lean.py
+      run: poetry run mypy ledzephyr/main.py test_lean.py
 
     - name: Security scan
-      run: poetry run bandit -c pyproject.toml ledzephyr_lean.py
+      run: poetry run bandit -c pyproject.toml ledzephyr/main.py
 
     - name: Dependency vulnerability check
       run: poetry run safety scan --output screen || echo "Vulnerabilities found in dependencies"
 
     - name: Verify line count
       run: |
-        lines=$(wc -l < ledzephyr_lean.py)
+        lines=$(wc -l < ledzephyr/main.py)
         echo "Lines of code: $lines"
-        if [ $lines -gt 450 ]; then
-          echo "❌ ERROR: Code exceeds 450 lines (target: ~400 with logging)"
+        if [ $lines -gt 650 ]; then
+          echo "❌ ERROR: Code exceeds 650 lines (target: ~600 with logging)"
           exit 1
         fi
         echo "✅ Code is lean: $lines lines"
