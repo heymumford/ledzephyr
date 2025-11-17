@@ -3,7 +3,7 @@ PACKAGE := ledzephyr
 SCRIPT := ledzephyr/main.py
 PY := poetry run
 
-.PHONY: help run test format lint clean install logs logs-errors logs-follow
+.PHONY: help run test test-unit test-contract test-integration test-all format lint clean install logs logs-errors logs-follow
 
 help:  ## Show this help
 	@grep -E '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -15,17 +15,30 @@ run:  ## Run LedZephyr (requires PROJECT env var)
 	@if [ -z "$(PROJECT)" ]; then echo "Usage: make run PROJECT=MYPROJECT"; exit 1; fi
 	$(PY) ledzephyr --project $(PROJECT)
 
-test:  ## Run lean test suite
+# Testing commands
+test:  ## Run original lean test suite (backwards compat)
 	$(PY) python test_lean.py
 
+test-unit:  ## Run unit tests only
+	$(PY) python tests/test_unit.py
+
+test-contract:  ## Run contract tests only
+	$(PY) python tests/test_contract.py
+
+test-integration:  ## Run integration tests only
+	$(PY) python tests/test_integration.py
+
+test-all:  ## Run full test suite (unit -> contract -> integration)
+	$(PY) python tests/run_all_tests.py
+
 format:  ## Format code with black
-	$(PY) black $(SCRIPT) test_lean.py
+	$(PY) black $(SCRIPT) test_lean.py tests/
 
 lint:  ## Lint with ruff
-	$(PY) ruff check $(SCRIPT) test_lean.py
+	$(PY) ruff check $(SCRIPT) test_lean.py tests/
 
 type:  ## Type check with mypy
-	$(PY) mypy $(SCRIPT) test_lean.py
+	$(PY) mypy $(SCRIPT) test_lean.py tests/
 
 security:  ## Security scan with bandit
 	$(PY) bandit -c pyproject.toml $(SCRIPT)
@@ -57,13 +70,14 @@ analyze:  ## Analyze existing data (requires PROJECT)
 info:  ## Show lean metrics
 	@echo "📊 LedZephyr Lean Metrics"
 	@echo "========================"
-	@echo "Lines of code: $$(wc -l < $(SCRIPT))"
-	@echo "Dependencies: 3 (click, httpx, rich)"
+	@echo "Main module: $$(wc -l < $(SCRIPT)) lines"
+	@echo "Test suite: $$(wc -l < test_lean.py) lines"
+	@echo "Dependencies: 3 runtime (click, httpx, rich)"
 	@echo "API endpoints: 15"
 	@echo ""
 	@echo "Before: 2,850 lines across 13 files"
-	@echo "After: $$(wc -l < $(SCRIPT)) lines in 1 file"
-	@echo "Reduction: 85%+"
+	@echo "After: $$(wc -l < $(SCRIPT)) lines main + $$(wc -l < test_lean.py) tests"
+	@echo "Reduction: 79% main code"
 
 logs:  ## Show recent log entries
 	@if [ -f ./logs/ledzephyr.log ]; then tail -20 ./logs/ledzephyr.log; else echo "No logs found. Run LedZephyr first."; fi
