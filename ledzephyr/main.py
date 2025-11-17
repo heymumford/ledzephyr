@@ -32,7 +32,6 @@ DAYS_IN_SIX_MONTHS = 180
 DEFAULT_HISTORY_DAYS = 30
 RECENT_HISTORY_LIMIT = 7
 LAST_FIVE_DAYS = 5
-MAX_LINE_COUNT = 350
 
 # === Logging Configuration ===
 APPLICATION_NAME = "ledzephyr"
@@ -311,7 +310,12 @@ def calculate_metrics(
 def analyze_trends_from_data(
     zephyr_data: List[Dict[str, Any]], qtest_data: List[Dict[str, Any]], days: int = 30
 ) -> Dict[str, Any]:
-    """Analyze migration trends from provided data (pure function)."""
+    """Analyze migration trends from provided data (pure function).
+
+    TODO: This is currently a stub that returns placeholder data.
+    For real trend analysis with historical data, use analyze_trends() instead,
+    or enhance this function to accept historical snapshots as parameters.
+    """
     # For now, return a simple trend based on current data
     # In a full implementation, this would use historical snapshots
     current_metrics = calculate_metrics(zephyr_data, qtest_data)

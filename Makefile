@@ -57,13 +57,14 @@ analyze:  ## Analyze existing data (requires PROJECT)
 info:  ## Show lean metrics
 	@echo "📊 LedZephyr Lean Metrics"
 	@echo "========================"
-	@echo "Lines of code: $$(wc -l < $(SCRIPT))"
-	@echo "Dependencies: 3 (click, httpx, rich)"
+	@echo "Main module: $$(wc -l < $(SCRIPT)) lines"
+	@echo "Test suite: $$(wc -l < test_lean.py) lines"
+	@echo "Dependencies: 3 runtime (click, httpx, rich)"
 	@echo "API endpoints: 15"
 	@echo ""
 	@echo "Before: 2,850 lines across 13 files"
-	@echo "After: $$(wc -l < $(SCRIPT)) lines in 1 file"
-	@echo "Reduction: 85%+"
+	@echo "After: $$(wc -l < $(SCRIPT)) lines main + $$(wc -l < test_lean.py) tests"
+	@echo "Reduction: 79% main code"
 
 logs:  ## Show recent log entries
 	@if [ -f ./logs/ledzephyr.log ]; then tail -20 ./logs/ledzephyr.log; else echo "No logs found. Run LedZephyr first."; fi
