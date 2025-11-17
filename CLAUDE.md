@@ -84,7 +84,15 @@ poetry run ledzephyr --project MYPROJECT --no-fetch
 
 ### Testing and Quality
 ```bash
-# Run lean test suite
+# Run comprehensive test suite (recommended)
+make test-all
+
+# Run specific test layers
+make test-unit          # Unit tests (16 tests)
+make test-contract      # Contract tests (14 tests)
+make test-integration   # Integration tests (11 tests)
+
+# Run legacy test suite
 make test
 
 # Format code with black
@@ -93,9 +101,19 @@ make format
 # Lint with ruff
 make lint
 
+# Type check with mypy
+make type
+
+# Security scan with bandit
+make security
+
 # Clean cache and temp files
 make clean
 ```
+
+**Test Execution Order**: Unit → Contract → Integration → E2E (manual)
+
+For E2E testing instructions, see [`tests/test_e2e.md`](tests/test_e2e.md)
 
 ## Architecture Overview
 

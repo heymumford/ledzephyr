@@ -86,6 +86,54 @@ generate_report()     # Rich console output
 main()               # Click-based interface with comprehensive options
 ```
 
+## Testing
+
+LedZephyr includes a comprehensive multi-layered test suite following the test pyramid:
+
+### Test Layers
+
+1. **Unit Tests** (16 tests) - Fast, isolated pure function tests
+2. **Contract Tests** (14 tests) - API interface health checks
+3. **Integration Tests** (11 tests) - Component interaction tests
+4. **E2E Tests** (manual) - Full system tests with real APIs
+
+### Running Tests
+
+```bash
+# Run all automated tests (recommended)
+make test-all
+
+# Run specific test layers
+make test-unit          # Unit tests only
+make test-contract      # Contract tests only
+make test-integration   # Integration tests only
+
+# Run legacy test suite
+make test
+
+# Format and lint tests
+make format lint
+```
+
+### Test Execution Order
+
+Tests execute in the proper order:
+1. **Unit** → 2. **Contract** → 3. **Integration** → 4. **E2E** (manual)
+
+If any layer fails, execution stops to ensure issues are fixed before testing higher layers.
+
+### E2E Testing
+
+Manual E2E tests verify the complete system with real API credentials.
+See [`tests/test_e2e.md`](tests/test_e2e.md) for detailed instructions and test scenarios.
+
+### Test Coverage
+
+- **Unit**: All pure functions and data models
+- **Contract**: All external API interfaces
+- **Integration**: Full data pipelines and error handling
+- **E2E**: Real-world usage scenarios
+
 ## Project Management
 
 - [Confluence Space](https://balabushka.atlassian.net/wiki/spaces/LedZephyr/overview) - Architecture, philosophy, and guides

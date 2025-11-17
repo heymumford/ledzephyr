@@ -3,7 +3,7 @@ PACKAGE := ledzephyr
 SCRIPT := ledzephyr/main.py
 PY := poetry run
 
-.PHONY: help run test format lint clean install logs logs-errors logs-follow
+.PHONY: help run test test-unit test-contract test-integration test-all format lint clean install logs logs-errors logs-follow
 
 help:  ## Show this help
 	@grep -E '^[a-z-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -15,17 +15,30 @@ run:  ## Run LedZephyr (requires PROJECT env var)
 	@if [ -z "$(PROJECT)" ]; then echo "Usage: make run PROJECT=MYPROJECT"; exit 1; fi
 	$(PY) ledzephyr --project $(PROJECT)
 
-test:  ## Run lean test suite
+# Testing commands
+test:  ## Run original lean test suite (backwards compat)
 	$(PY) python test_lean.py
 
+test-unit:  ## Run unit tests only
+	$(PY) python tests/test_unit.py
+
+test-contract:  ## Run contract tests only
+	$(PY) python tests/test_contract.py
+
+test-integration:  ## Run integration tests only
+	$(PY) python tests/test_integration.py
+
+test-all:  ## Run full test suite (unit -> contract -> integration)
+	$(PY) python tests/run_all_tests.py
+
 format:  ## Format code with black
-	$(PY) black $(SCRIPT) test_lean.py
+	$(PY) black $(SCRIPT) test_lean.py tests/
 
 lint:  ## Lint with ruff
-	$(PY) ruff check $(SCRIPT) test_lean.py
+	$(PY) ruff check $(SCRIPT) test_lean.py tests/
 
 type:  ## Type check with mypy
-	$(PY) mypy $(SCRIPT) test_lean.py
+	$(PY) mypy $(SCRIPT) test_lean.py tests/
 
 security:  ## Security scan with bandit
 	$(PY) bandit -c pyproject.toml $(SCRIPT)
