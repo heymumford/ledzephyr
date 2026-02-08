@@ -8,7 +8,7 @@ packages = [{include = "ledzephyr", from = "."}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-click = "^8.1.7"
+click = "^8.3.1"
 httpx = "^0.27.0"
 rich = "^13.7.0"
 
