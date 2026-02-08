@@ -34,7 +34,7 @@ LedZephyr is a lean CLI tool for calculating migration metrics from Zephyr Scale
 ```bash
 export LEDZEPHYR_ATLASSIAN_URL=https://balabushka.atlassian.net
 export LEDZEPHYR_ATLASSIAN_PROJECT=LED
-export LEDZEPHYR_ATLASSIAN_TOKEN=ATATT3xFfGF0xHPw7c1IcpPdKajFvbeC28F0_Ywtd__9BOZnghqfRmW4NS9ggs5lX9iwpn_AhViikttbKcLMTbc7jW9B3RPoCLX_QlEql_WLGbgMoSv_nT2Bin5ZEq_Vfwr50qWrh9QNdwu9QTtQ9MvREVbkUr5c4SLlpXMTIk6lnOATtD4X21g=002D05A2
+export LEDZEPHYR_ATLASSIAN_TOKEN=<YOUR_ATLASSIAN_API_TOKEN>
 ```
 
 **MCP Tool Capabilities (Verified Working):**
