@@ -307,6 +307,66 @@ def calculate_metrics(
 # === Trend Analysis ===
 
 
+# === Trend Analysis Helpers (Extracted Methods) ===
+
+
+def _calculate_daily_metrics(
+    zephyr_snap: Dict[str, Any], qtest_snap: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Calculate metrics for a single day from snapshots."""
+    z_data = zephyr_snap.get("data", [])
+    q_data = qtest_snap.get("data", [])
+
+    date = datetime.fromisoformat(zephyr_snap["timestamp"]).date()
+    metrics = calculate_metrics(z_data, q_data)
+
+    return {
+        "date": str(date),
+        "adoption_rate": metrics["adoption_rate"],
+        "total": metrics["total_tests"],
+    }
+
+
+def _calculate_trend_vector(rates: List[float]) -> Dict[str, Any]:
+    """Calculate trend direction and rate from adoption rates."""
+    if len(rates) < 2:
+        return {
+            "trend": "→",
+            "daily_change": 0,
+            "current_rate": rates[-1] if rates else 0,
+            "average_rate": rates[-1] if rates else 0,
+        }
+
+    first_rate = rates[0]
+    last_rate = rates[-1]
+    avg_rate = statistics.mean(rates)
+    daily_change = (last_rate - first_rate) / len(rates) if len(rates) > 1 else 0
+
+    return {
+        "trend": "↑" if daily_change > 0 else "↓" if daily_change < 0 else "→",
+        "daily_change": daily_change,
+        "current_rate": last_rate,
+        "average_rate": avg_rate,
+    }
+
+
+def _project_completion_date(current_rate: float, daily_change: float) -> Dict[str, Any]:
+    """Project completion date based on linear trend."""
+    if daily_change > 0 and current_rate < 1.0:
+        days_to_complete = int((1.0 - current_rate) / daily_change)
+        completion_date = datetime.now() + timedelta(days=days_to_complete)
+    else:
+        days_to_complete = None
+        completion_date = None
+
+    return {
+        "days_to_complete": days_to_complete,
+        "completion_date": (
+            completion_date.strftime("%Y-%m-%d") if completion_date else None
+        ),
+    }
+
+
 def analyze_trends_from_data(
     zephyr_data: List[Dict[str, Any]], qtest_data: List[Dict[str, Any]], days: int = 30
 ) -> Dict[str, Any]:
@@ -340,47 +400,27 @@ def analyze_trends(project: str, days: int = 30) -> Dict[str, Any]:
     if not zephyr_history or not qtest_history:
         return {"status": "Insufficient historical data"}
 
-    # Calculate daily metrics
-    daily_metrics = []
-    for z_snap, q_snap in zip(zephyr_history, qtest_history, strict=False):
-        date = datetime.fromisoformat(z_snap["timestamp"]).date()
-        metrics = calculate_metrics(z_snap.get("data", []), q_snap.get("data", []))
-        daily_metrics.append(
-            {
-                "date": str(date),
-                "adoption_rate": metrics["adoption_rate"],
-                "total": metrics["total_tests"],
-            }
-        )
+    # Calculate daily metrics using extracted helper
+    daily_metrics = [
+        _calculate_daily_metrics(z_snap, q_snap)
+        for z_snap, q_snap in zip(zephyr_history, qtest_history, strict=False)
+    ]
 
     if len(daily_metrics) < 2:
         return {"status": "Need at least 2 days of data"}
 
-    # Calculate trend
+    # Calculate trend using extracted helpers
     rates = [m["adoption_rate"] for m in daily_metrics]
-    first_rate = rates[0]
-    last_rate = rates[-1]
-    avg_rate = statistics.mean(rates)
-
-    # Simple linear projection
-    daily_change = (last_rate - first_rate) / len(rates) if len(rates) > 1 else 0
-
-    if daily_change > 0 and last_rate < 1.0:
-        days_to_complete = int((1.0 - last_rate) / daily_change)
-        completion_date = datetime.now() + timedelta(days=days_to_complete)
-    else:
-        days_to_complete = None
-        completion_date = None
+    trend = _calculate_trend_vector(rates)
+    completion = _project_completion_date(trend["current_rate"], trend["daily_change"])
 
     return {
-        "trend": "↑" if daily_change > 0 else "↓" if daily_change < 0 else "→",
-        "current_rate": last_rate,
-        "average_rate": avg_rate,
-        "daily_change": daily_change,
-        "days_to_complete": days_to_complete,
-        "completion_date": (
-            completion_date.strftime("%Y-%m-%d") if completion_date else None
-        ),
+        "trend": trend["trend"],
+        "current_rate": trend["current_rate"],
+        "average_rate": trend["average_rate"],
+        "daily_change": trend["daily_change"],
+        "days_to_complete": completion["days_to_complete"],
+        "completion_date": completion["completion_date"],
         "recent_history": daily_metrics[-RECENT_HISTORY_LIMIT:],  # Last 7 days
     }
 
@@ -388,14 +428,8 @@ def analyze_trends(project: str, days: int = 30) -> Dict[str, Any]:
 # === Report Generation ===
 
 
-def generate_report(
-    project: str, metrics: Dict[str, Any], trends: Dict[str, Any]
-) -> None:
-    """Generate and display migration report."""
-    console.print(f"\n[bold blue]Migration Report: {project}[/bold blue]")
-    console.print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-
-    # Current state table
+def _build_current_state_table(metrics: Dict[str, Any]) -> Table:
+    """Build current state metrics table."""
     table = Table(title="Current State")
     table.add_column("Metric", style="cyan")
     table.add_column("Value", style="green")
@@ -406,6 +440,18 @@ def generate_report(
     table.add_row("Migration Progress", metrics["migration_progress"])
     table.add_row("Status", metrics["status"])
 
+    return table
+
+
+def generate_report(
+    project: str, metrics: Dict[str, Any], trends: Dict[str, Any]
+) -> None:
+    """Generate and display migration report."""
+    console.print(f"\n[bold blue]Migration Report: {project}[/bold blue]")
+    console.print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+
+    # Current state table
+    table = _build_current_state_table(metrics)
     console.print(table)
 
     # Trends

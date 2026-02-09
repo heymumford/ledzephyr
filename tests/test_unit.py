@@ -16,6 +16,10 @@ from ledzephyr.main import (
     find_project_id,
     load_snapshots,
     store_snapshot,
+    _calculate_daily_metrics,
+    _calculate_trend_vector,
+    _project_completion_date,
+    _build_current_state_table,
 )
 
 
@@ -253,6 +257,90 @@ def test_load_snapshots_no_directory() -> None:
     assert snapshots == []
 
 
+def test_calculate_daily_metrics() -> None:
+    """Test daily metrics calculation from snapshots."""
+    zephyr_snap = {"data": [{"id": f"Z-{i}"} for i in range(100)], "timestamp": "2024-01-01T00:00:00"}
+    qtest_snap = {"data": [{"id": f"Q-{i}"} for i in range(40)], "timestamp": "2024-01-01T00:00:00"}
+
+    daily_metrics = _calculate_daily_metrics(zephyr_snap, qtest_snap)
+
+    assert daily_metrics["date"] == "2024-01-01"
+    assert abs(daily_metrics["adoption_rate"] - 0.2857) < 0.001  # 40 / 140
+    assert daily_metrics["total"] == 140
+
+
+def test_calculate_trend_vector() -> None:
+    """Test trend vector calculation from adoption rates."""
+    rates = [0.10, 0.15, 0.20, 0.25, 0.30]
+
+    trend = _calculate_trend_vector(rates)
+
+    assert trend["trend"] == "↑"  # Positive trend
+    assert trend["daily_change"] > 0
+    assert abs(trend["current_rate"] - 0.30) < 0.001
+    assert abs(trend["average_rate"] - 0.20) < 0.001
+
+
+def test_calculate_trend_vector_flat() -> None:
+    """Test flat trend detection."""
+    rates = [0.50, 0.50, 0.50, 0.50, 0.50]
+
+    trend = _calculate_trend_vector(rates)
+
+    assert trend["trend"] == "→"  # Flat trend
+    assert trend["daily_change"] == 0
+
+
+def test_calculate_trend_vector_declining() -> None:
+    """Test declining trend detection."""
+    rates = [0.80, 0.75, 0.70, 0.65, 0.60]
+
+    trend = _calculate_trend_vector(rates)
+
+    assert trend["trend"] == "↓"  # Declining trend
+    assert trend["daily_change"] < 0
+
+
+def test_project_completion_date_linear() -> None:
+    """Test completion date projection."""
+    current_rate = 0.75  # 75% done
+    daily_change = 0.05  # 5% per day
+
+    completion = _project_completion_date(current_rate, daily_change)
+
+    assert completion["days_to_complete"] == 5
+    assert completion["completion_date"] is not None
+
+
+def test_project_completion_date_impossible() -> None:
+    """Test completion projection when impossible."""
+    current_rate = 0.75  # 75% done
+    daily_change = -0.05  # Declining (negative progress)
+
+    completion = _project_completion_date(current_rate, daily_change)
+
+    assert completion["days_to_complete"] is None
+    assert completion["completion_date"] is None
+
+
+def test_build_current_state_table() -> None:
+    """Test current state table building."""
+    metrics = {
+        "total_tests": 175,
+        "zephyr_tests": 100,
+        "qtest_tests": 75,
+        "migration_progress": "42.9%",
+        "status": "In Progress"
+    }
+
+    table = _build_current_state_table(metrics)
+
+    # Table should be created (RichTable object)
+    assert table is not None
+    assert hasattr(table, 'title')
+    assert table.title == "Current State"
+
+
 def run_unit_tests() -> None:
     """Run all unit tests."""
     tests = [
@@ -275,6 +363,13 @@ def run_unit_tests() -> None:
         ("Store snapshot", test_store_snapshot),
         ("Load snapshots", test_load_snapshots),
         ("Load snapshots (no dir)", test_load_snapshots_no_directory),
+        ("Calculate daily metrics", test_calculate_daily_metrics),
+        ("Calculate trend vector (↑)", test_calculate_trend_vector),
+        ("Calculate trend vector (→)", test_calculate_trend_vector_flat),
+        ("Calculate trend vector (↓)", test_calculate_trend_vector_declining),
+        ("Project completion (linear)", test_project_completion_date_linear),
+        ("Project completion (impossible)", test_project_completion_date_impossible),
+        ("Build current state table", test_build_current_state_table),
     ]
 
     print("Running Unit Tests...")
