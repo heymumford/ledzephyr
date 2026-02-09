@@ -1,0 +1,261 @@
+================================================================================
+LEDZEPHYR TEST ONTOLOGY - EXECUTIVE SUMMARY
+================================================================================
+
+DELIVERABLES:
+1. TEST_ONTOLOGY.md (primary reference document)
+   - 400 lines covering epistemological framework and test hierarchy
+   - Detailed test inventory with 34 existing tests mapped to categories
+   - Decision matrix for classifying new tests
+   - References to testing theory (DDD, contract testing, property-based)
+
+2. TEST_CLASSIFICATION_GUIDE.md (quick reference)
+   - 250 lines with decision tree and cheat sheet
+   - Visual guide to which category applies when
+   - Mocking patterns by category
+   - Common pitfalls and how to avoid them
+
+3. EPISTEMOLOGY.md (philosophical foundation)
+   - 300 lines explaining WHY we test the way we do
+   - Five forms of knowledge (contract, math, state, behavioral, transformation)
+   - Examples mapping philosophy to practice
+   - Epistemological hierarchy showing dependencies
+
+4. TEST_FRAMEWORK_SUMMARY.txt (this file)
+   - Quick reference checklist
+
+================================================================================
+CORE INSIGHT: FIVE WAYS OF KNOWING
+================================================================================
+
+The LedZephyr test strategy is grounded in five epistemological categories:
+
+1. CONTRACT KNOWLEDGE (Boundary Testing)
+   Question: Do external APIs return well-formed data?
+   Test Type: Contract Tests (14 existing)
+   Verification: Schema, field types, error codes, timeouts, retry logic
+   Example: test_zephyr_api_contract, test_retry_contract_exhausted
+
+2. MATHEMATICAL KNOWLEDGE (Invariant Testing)
+   Question: Do calculations always satisfy domain properties?
+   Test Type: Property Tests (6+ existing)
+   Verification: Bounds, determinism, idempotence, mathematical properties
+   Example: test_calculate_metrics_complete_migration, test_adoption_rate_bounds
+
+3. STATE KNOWLEDGE (Persistence Testing)
+   Question: Does data survive write→read→delete lifecycle?
+   Test Type: State Machine Tests (3+ existing)
+   Verification: Data equality, timestamp ordering, multi-project isolation
+   Example: test_storage_and_retrieval_pipeline, test_multiple_projects_isolation
+
+4. BEHAVIORAL KNOWLEDGE (Workflow Testing)
+   Question: Do all domains work together end-to-end?
+   Test Type: Integration Tests (11 existing)
+   Verification: Data flow correctness, error handling, graceful degradation
+   Example: test_full_data_collection_pipeline, test_error_handling_pipeline
+
+5. TRANSFORMATION KNOWLEDGE (Lossless Conversion Testing)
+   Question: Does data survive bidirectional A→B→A transformation?
+   Test Type: Round-Trip Tests (0 existing, future use)
+   Verification: Unicode preservation, batch consistency, status mapping
+   Example: test_round_trip_zephyr_to_qtest, test_batch_conversion
+
+================================================================================
+TEST CATEGORY QUICK REFERENCE
+================================================================================
+
+CATEGORY          | PURPOSE              | MOCKS         | SPEED | COUNT
+-----------------|----------------------|---------------|-------|-------
+Contract          | Boundary validation  | httpx, APIs   | 70ms  | 14
+Property          | Invariant proving    | None          | 10ms  | 6+
+State Machine     | Persistence testing  | tempfile      | 100ms | 3+
+Integration       | Workflow testing     | External APIs | 200ms | 11
+Round-Trip        | Conversion testing   | None          | 50ms  | 0+
+
+TOTAL: 34+ tests across 5 categories
+
+================================================================================
+DECISION TREE: CLASSIFYING NEW TESTS
+================================================================================
+
+Start: "I want to test..."
+
+1. "An API endpoint or response format"?
+   YES → CONTRACT TEST
+        └─ Mock: httpx.get, fetch_api_data
+        └─ Verify: Schema, fields, enums, error codes
+
+2. "A pure calculation (always deterministic, no I/O)"?
+   YES → PROPERTY TEST
+        └─ Mock: None
+        └─ Verify: Invariants, bounds, idempotence
+
+3. "Writing and reading from storage"?
+   YES → STATE MACHINE TEST
+        └─ Mock: tempfile (filesystem only)
+        └─ Verify: Write→Read equality, isolation
+
+4. "Multiple domains together (fetch + store + calculate)"?
+   YES → INTEGRATION TEST
+        └─ Mock: External APIs only, not internal functions
+        └─ Verify: Data flow, error handling, workflows
+
+5. "Data transformation (A → B → A)"?
+   YES → ROUND-TRIP TEST
+        └─ Mock: None
+        └─ Verify: Lossless conversion, unicode, batch consistency
+
+DEFAULT: Contract (boundary) or Property (behavior)
+
+================================================================================
+FIVE DOMAINS AND THEIR CONTRACTS
+================================================================================
+
+DOMAIN 1: API INTEGRATION LAYER
+  Purpose: Fetch test data from Zephyr, qTest, Jira with retry resilience
+  Contracts:
+    - Zephyr API returns dict with 'results' key
+    - qTest API returns list of project objects with 'id' and 'name'
+    - Jira API returns dict with 'issues' key
+    - HTTP requests timeout after 30 seconds
+    - Failed requests retry exactly 3 times
+    - Missing credentials fail with clear error
+  Test Strategy: Contract Tests (14)
+
+DOMAIN 2: METRICS COMPUTATION ENGINE
+  Purpose: Pure statistical calculations on Zephyr/qTest datasets
+  Invariants:
+    - adoption_rate = qtest_count / (zephyr_count + qtest_count)
+    - adoption_rate ∈ [0.0, 1.0] always
+    - remaining = zephyr_count (always)
+    - total = zephyr_count + qtest_count (always)
+    - status = "Complete" IFF adoption_rate ≥ 1.0
+    - Empty data returns safe defaults, never crashes
+  Test Strategy: Property Tests (6+)
+
+DOMAIN 3: DATA PERSISTENCE & RETRIEVAL
+  Purpose: Store timestamped snapshots locally and retrieve historical data
+  Invariants:
+    - Written data ≡ Read data
+    - Timestamps valid ISO 8601
+    - Multiple projects don't interfere
+    - Old data filtered by cutoff date
+  Test Strategy: State Machine Tests (3+)
+
+DOMAIN 4: WORKFLOW ORCHESTRATION
+  Purpose: Coordinate fetch → store → calculate → report pipeline
+  Invariants:
+    - All domains work together end-to-end
+    - API failures don't crash dependent operations
+    - Missing data triggers graceful degradation
+    - Error messages are clear and actionable
+  Test Strategy: Integration Tests (11)
+
+DOMAIN 5: TEST CASE CONVERSION (FUTURE)
+  Purpose: Bidirectional conversion between Zephyr and qTest formats
+  Invariants:
+    - Zephyr → qTest → Zephyr = original (round-trip lossless)
+    - Status mapping is bidirectional (Approved ↔ Active)
+    - Unicode preserved (emoji, accents, special characters)
+    - Batch conversion ≡ sequential conversion
+    - Attachments preserve size and content
+  Test Strategy: Round-Trip Tests (0+ future)
+
+================================================================================
+EXECUTION STRATEGY
+================================================================================
+
+Run Order (Dependencies):
+1. Unit Tests (property + state machine) - ~1s, no mocks
+2. Contract Tests - ~1s, mocked external APIs
+3. Integration Tests - ~2-3s, mocked APIs, full pipelines
+4. E2E Tests (manual) - real APIs only, on demand
+
+Commands:
+  make test-all          # Run all test layers in order
+  make test-unit         # Run unit tests (~1s)
+  make test-contract     # Run contract tests (~1s)
+  make test-integration  # Run integration tests (~2s)
+
+================================================================================
+COVERAGE TARGETS
+================================================================================
+
+Contract Tests (L1): 100% of API calls
+  - All fetch_* functions tested
+  - All error paths tested
+  - All retry scenarios tested
+
+Property Tests (L2): 100% of pure calculations
+  - All calculate_metrics variants tested
+  - All invariants proven for edge cases
+  - All data models validated
+
+State Machine Tests (L3): 100% of I/O operations
+  - store_snapshot + load_snapshots lifecycle
+  - Multi-project isolation
+  - Time-based filtering
+
+Integration Tests (L4): 80%+ of workflows
+  - Fetch → Store pipeline
+  - Fetch → Store → Calculate pipeline
+  - Fetch → Store → Calculate → Report pipeline
+  - Error handling and degradation paths
+
+Round-Trip Tests (L5): 100% of converters (future)
+  - Zephyr ↔ qTest conversions
+  - Status mapping symmetry
+  - Batch consistency
+
+================================================================================
+NAMING CONVENTION
+================================================================================
+
+Format: test_[FUNCTION]_[SCENARIO]_[CATEGORY]
+
+Examples:
+  Contract:    test_zephyr_api_contract_empty
+  Property:    test_calculate_metrics_complete_migration
+  State:       test_storage_and_retrieval_pipeline
+  Integration: test_full_data_collection_pipeline
+  Round-Trip:  test_round_trip_zephyr_to_qtest
+
+================================================================================
+FILES CREATED
+================================================================================
+
+1. /Users/vorthruna/ProjectsWATTS/ledzephyr/TEST_ONTOLOGY.md
+   - 400 lines, comprehensive reference
+   - Best for: Deep understanding, future expansion
+
+2. /Users/vorthruna/ProjectsWATTS/ledzephyr/TEST_CLASSIFICATION_GUIDE.md
+   - 250 lines, quick reference
+   - Best for: Day-to-day usage, decision-making
+
+3. /Users/vorthruna/ProjectsWATTS/ledzephyr/EPISTEMOLOGY.md
+   - 300 lines, philosophical foundation
+   - Best for: Understanding WHY we test this way
+
+4. /Users/vorthruna/ProjectsWATTS/ledzephyr/TEST_FRAMEWORK_SUMMARY.txt
+   - This file, executive summary
+
+================================================================================
+NEXT STEPS FOR IMPLEMENTATION
+================================================================================
+
+1. Use TEST_CLASSIFICATION_GUIDE.md as primary reference
+2. Use decision tree when classifying new tests
+3. Refer to TEST_ONTOLOGY.md for detailed domain knowledge
+4. Reference EPISTEMOLOGY.md when explaining test strategy
+5. Extend with Round-Trip tests as converters mature
+
+Success Criteria:
+  [ ] All 34 existing tests mapped to categories
+  [ ] 100% test coverage of API boundaries
+  [ ] 100% test coverage of calculations
+  [ ] 100% test coverage of persistence
+  [ ] 80%+ test coverage of workflows
+  [ ] 0 tests take >1 second
+  [ ] All tests pass with 0 flakes
+
+================================================================================

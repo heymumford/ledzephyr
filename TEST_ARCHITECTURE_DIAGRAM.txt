@@ -1,0 +1,273 @@
+================================================================================
+LEDZEPHYR TEST ARCHITECTURE DIAGRAM
+================================================================================
+
+EPISTEMOLOGICAL HIERARCHY (Five Forms of Knowledge)
+====================================================
+
+                        TRANSFORMATION KNOWLEDGE
+                        (Lossless Conversion)
+                        Round-Trip Tests: 0
+                        "A→B→A = A?"
+                                |
+                                |
+                        BEHAVIORAL KNOWLEDGE
+                        (Workflow Integration)
+                        Integration Tests: 11
+                        "Do domains cooperate?"
+                                |
+                                |
+                        STATE KNOWLEDGE
+                        (Data Persistence)
+                        State Machine Tests: 3+
+                        "Does data persist?"
+                                |
+                                |
+                        MATHEMATICAL KNOWLEDGE
+                        (Calculation Invariants)
+                        Property Tests: 6+
+                        "Are formulas always correct?"
+                                |
+                                |
+                        CONTRACT KNOWLEDGE
+                        (Boundary Validation)
+                        Contract Tests: 14
+                        "Do APIs return expected data?"
+
+Legend: Each level builds on the one below it
+
+
+LEDZEPHYR ARCHITECTURE (Five Bounded Contexts)
+===============================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │             WORKFLOW ORCHESTRATION (Domain 4)            │  │
+│  │  fetch_all_data() → build_metrics_pipeline()             │  │
+│  │  generate_report() → analyze_trends()                    │  │
+│  │  [11 Integration Tests]                                  │  │
+│  └─────────┬──────────────────────────────────────┬─────────┘  │
+│            |                                      |             │
+│  ┌─────────▼─────────────┐        ┌──────────────▼──────────┐  │
+│  │  API INTEGRATION (D1) │        │ METRICS COMPUTATION (D2)│  │
+│  │  fetch_*_from_*       │        │ calculate_metrics()     │  │
+│  │  try_api_call()       │        │ analyze_trends_*()      │  │
+│  │  [14 Contract Tests]  │        │ find_project_id()       │  │
+│  │                       │        │ [6+ Property Tests]     │  │
+│  │  External APIs:       │        │                         │  │
+│  │  - Zephyr Scale       │        │ Invariants:             │  │
+│  │  - qTest              │        │ - rate ∈ [0.0, 1.0]    │  │
+│  │  - Jira Cloud         │        │ - remaining = zephyr    │  │
+│  │                       │        │ - total = z + q         │  │
+│  └───────────┬───────────┘        └──────────────┬──────────┘  │
+│              |                                   |              │
+│              └─────────────┬─────────────────────┘              │
+│                            |                                    │
+│  ┌─────────────────────────▼──────────────────────────────┐   │
+│  │      DATA PERSISTENCE & RETRIEVAL (Domain 3)          │   │
+│  │  store_snapshot() → load_snapshots()                  │   │
+│  │  [3+ State Machine Tests]                             │   │
+│  │                                                         │   │
+│  │  Contracts:                                            │   │
+│  │  - Written data ≡ Read data                           │   │
+│  │  - Timestamps: ISO 8601                              │   │
+│  │  - Project isolation                                  │   │
+│  │  - Time-based filtering                              │   │
+│  └─────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │    TEST CASE CONVERSION (Domain 5 - FUTURE)           │  │
+│  │  ZephyrToQtestConverter.convert()                      │  │
+│  │  QtestToZephyrConverter.convert()                      │  │
+│  │  [0+ Round-Trip Tests]                                │  │
+│  │                                                         │  │
+│  │  Contracts:                                            │  │
+│  │  - Z→Q→Z = original (round-trip lossless)            │  │
+│  │  - Status mapping symmetric                           │  │
+│  │  - Unicode preserved                                  │  │
+│  │  - Batch ≡ sequential                                │  │
+│  └─────────────────────────────────────────────────────────┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+
+DATA FLOW: Fetch → Store → Calculate → Report
+==============================================
+
+START
+  |
+  ├─→ fetch_all_data()
+  |   └─→ fetch_test_data_from_zephyr()     [Contract Tests]
+  |   └─→ fetch_test_data_from_qtest()      [Contract Tests]
+  |   └─→ fetch_defect_data_from_jira()     [Contract Tests]
+  |
+  ├─→ store_snapshot()                      [State Tests]
+  |   └─→ Write data to disk
+  |   └─→ Create metadata
+  |
+  ├─→ calculate_metrics()                   [Property Tests]
+  |   └─→ adoption_rate = qtest / (q+z)
+  |   └─→ Status determination
+  |   └─→ Migration progress
+  |
+  ├─→ analyze_trends_from_data()            [Property Tests]
+  |   └─→ Trend direction (↑ ↓ →)
+  |   └─→ Daily change rate
+  |   └─→ Completion estimate
+  |
+  ├─→ generate_report()
+  |   └─→ Format metrics for display
+  |   └─→ Print trends
+  |
+  └─→ END (Success or graceful failure)
+
+[Integration Tests verify entire pipeline]
+
+
+TEST CLASSIFICATION DECISION TREE
+==================================
+
+                    NEW TEST
+                        |
+        ┌───────────────┼───────────────┐
+        |               |               |
+    "API or        "Pure calc    "Data write/    "Multi-domain    "A→B→A
+     boundary?"    no I/O?"      read?"          workflow?"       transform?"
+        |               |           |               |               |
+       YES              YES        YES             YES              YES
+        |               |           |               |               |
+    CONTRACT        PROPERTY      STATE         INTEGRATION     ROUND-TRIP
+      TEST           TEST       MACHINE          TEST            TEST
+        |               |         TEST            |               |
+        |               |           |             |               |
+    Mock:           Mock:       Mock:         Mock:           Mock:
+    httpx           None        tempfile      External         None
+    APIs                                      APIs only
+    
+    Verify:         Verify:     Verify:      Verify:         Verify:
+    Schema          Invariants  Write→Read   Data flow       Lossless
+    Fields          Bounds      Isolation    Workflows       Unicode
+    Enums           Idempotence Timestamps   Error handling  Batch
+    Errors          Determinism Filtering    Resilience      consistency
+    Retries         Properties             Graceful         Status
+    Timeouts                               degradation      mapping
+
+
+TEST EXECUTION SEQUENCE
+=======================
+
+LAYER 1 (Fast, No I/O)
+├─ Property Tests (6+)           ~10ms each
+├─ Data Model Tests (3+)         ~5ms each
+└─ Total: ~1 second
+
+LAYER 2 (Medium, Mocked APIs)
+├─ Contract Tests (14)           ~70ms each
+└─ Total: ~1 second
+
+LAYER 3 (Slower, I/O + Mocking)
+├─ State Machine Tests (3+)      ~100ms each
+├─ Integration Tests (11)        ~200ms each
+└─ Total: ~2-3 seconds
+
+LAYER 4 (Manual, Real APIs)
+├─ E2E Tests                     (run on demand only)
+└─ See: tests/test_e2e.md
+
+TOTAL EXECUTION TIME: ~4-5 seconds
+
+
+EXISTING TEST INVENTORY (34 tests)
+==================================
+
+CONTRACT TESTS (test_contract.py - 14 tests)
+├─ API Response Contracts (2)
+│  ├─ test_api_response_contract_success
+│  └─ test_api_response_contract_failure
+├─ Zephyr API (3)
+│  ├─ test_zephyr_api_contract
+│  ├─ test_zephyr_api_contract_empty
+│  └─ test_zephyr_api_contract_error
+├─ qTest API (3)
+│  ├─ test_qtest_api_contract
+│  ├─ test_qtest_api_contract_project_not_found
+│  └─ test_qtest_api_contract_no_token
+├─ Jira API (3)
+│  ├─ test_jira_api_contract
+│  ├─ test_jira_api_contract_empty
+│  └─ test_jira_api_contract_error
+├─ Retry Mechanism (2)
+│  ├─ test_retry_contract
+│  └─ test_retry_contract_exhausted
+└─ HTTP Configuration (1)
+   └─ test_http_timeout_contract
+
+PROPERTY TESTS (test_unit.py - 6+ tests)
+├─ Metrics Calculation (4)
+│  ├─ test_calculate_metrics_normal_case
+│  ├─ test_calculate_metrics_empty_data
+│  ├─ test_calculate_metrics_complete_migration
+│  └─ test_calculate_metrics_no_migration_started
+├─ Project Lookup (4)
+│  ├─ test_find_project_id_success
+│  ├─ test_find_project_id_not_found
+│  ├─ test_find_project_id_invalid_input
+│  └─ test_find_project_id_malformed_projects
+└─ Data Models (2)
+   ├─ test_api_response_success
+   └─ test_api_response_failure
+
+STATE MACHINE TESTS (test_unit.py - 3+ tests)
+├─ Snapshot Lifecycle (2)
+│  ├─ test_store_snapshot
+│  └─ test_load_snapshots
+└─ Edge Cases (1)
+   └─ test_load_snapshots_no_directory
+
+INTEGRATION TESTS (test_integration.py - 11 tests)
+├─ Data Collection Pipeline (2)
+│  ├─ test_full_data_collection_pipeline
+│  └─ test_data_collection_without_qtest_token
+├─ Storage & Analysis (3)
+│  ├─ test_storage_and_retrieval_pipeline
+│  ├─ test_metrics_to_report_pipeline
+│  └─ test_trend_analysis_with_historical_data
+├─ Credential Management (3)
+│  ├─ test_credential_management
+│  ├─ test_credential_fallback
+│  └─ test_credential_missing_raises_error
+└─ Error Handling & Edge Cases (3)
+   ├─ test_error_handling_pipeline
+   ├─ test_snapshot_with_empty_data
+   └─ test_multiple_projects_isolation
+
+ROUND-TRIP TESTS (test_zephyr_qtest_converter.py - 0 active, future)
+├─ Bidirectional Conversion (future)
+├─ Status Mapping (future)
+└─ Unicode Preservation (future)
+
+
+KEY METRICS
+===========
+
+Total Tests: 34+
+├─ Contract:     14 (41%)
+├─ Property:     6+ (18%)
+├─ State:        3+ (9%)
+├─ Integration:  11 (32%)
+└─ Round-Trip:   0 (0% - future)
+
+Coverage Goals:
+├─ API Boundaries:    100%
+├─ Calculations:      100%
+├─ I/O Operations:    100%
+├─ Workflows:         80%+
+└─ Converters:        100% (when implemented)
+
+Execution Time: ~4-5 seconds
+└─ Unit tests:        ~1s
+└─ Contract tests:    ~1s
+└─ Integration tests: ~2-3s
+
+================================================================================
