@@ -6,10 +6,12 @@ from .zephyr_qtest import (
     Attachment,
     TestCase,
 )
+from .contracts import ContractValidator
 
 __all__ = [
     "ZephyrToQtestConverter",
     "QtestToZephyrConverter",
     "Attachment",
     "TestCase",
+    "ContractValidator",
 ]

@@ -463,3 +463,319 @@ class TestAdversarialScenarios:
         case = {"created_on": "not-a-date"}
         result = ZephyrToQtestConverter.convert(case)
         assert result["last_modified_date"] == "not-a-date"
+
+
+class TestRoundTripConversion:
+    """Test round-trip conversion fidelity (10 tests).
+
+    Purpose: Verify byte-perfect fidelity through A→B→A conversions.
+
+    Test scenarios:
+    1-5: Zephyr → qTest → Zephyr conversions
+    6-10: qTest → Zephyr → qTest conversions
+    """
+
+    def test_rt_z_to_q_to_z_basic(self):
+        """Test Z→Q→Z basic case preserves all fields."""
+        original = {
+            "key": "ZEP-RT1",
+            "name": "Round Trip Test 1",
+            "status": "Approved",
+            "owner": "alice@example.com",
+        }
+        q_format = ZephyrToQtestConverter.convert(original)
+        restored = QtestToZephyrConverter.convert(q_format)
+
+        assert restored["key"] == original["key"]
+        assert restored["name"] == original["name"]
+        assert restored["status"] == original["status"]
+        assert restored["owner"] == original["owner"]
+
+    def test_rt_z_to_q_to_z_with_metadata(self):
+        """Test Z→Q→Z with custom fields and attachments."""
+        original = {
+            "key": "ZEP-RT2",
+            "name": "Metadata Test",
+            "status": "Draft",
+            "custom_fields": {"priority": "high", "component": "auth"},
+            "attachments": [{"name": "test.png", "size": 2048}],
+            "description": "Test with metadata",
+        }
+        q_format = ZephyrToQtestConverter.convert(original)
+        restored = QtestToZephyrConverter.convert(q_format)
+
+        assert restored["custom_fields"] == original["custom_fields"]
+        assert restored["attachments"] == original["attachments"]
+        assert restored["description"] == original["description"]
+
+    def test_rt_z_to_q_to_z_with_unicode(self):
+        """Test Z→Q→Z with unicode characters (emoji, accents)."""
+        original = {
+            "key": "ZEP-RT3",
+            "name": "Test 🎯 Café",
+            "description": "Über test with emoji 🚀 and accents",
+        }
+        q_format = ZephyrToQtestConverter.convert(original)
+        restored = QtestToZephyrConverter.convert(q_format)
+
+        assert restored["name"] == original["name"]
+        assert restored["description"] == original["description"]
+
+    def test_rt_z_to_q_to_z_with_null_fields(self):
+        """Test Z→Q→Z with missing fields stays missing."""
+        original = {
+            "key": "ZEP-RT4",
+            "name": "Sparse Test",
+        }
+        q_format = ZephyrToQtestConverter.convert(original)
+        restored = QtestToZephyrConverter.convert(q_format)
+
+        assert "owner" not in restored
+        assert "status" not in restored
+        assert restored["key"] == original["key"]
+
+    def test_rt_z_to_q_to_z_large_payload(self):
+        """Test Z→Q→Z with 10KB+ attachments."""
+        original = {
+            "key": "ZEP-RT5",
+            "name": "Large Payload",
+            "attachments": [{"name": "large.bin", "size": 12288}],
+            "description": "X" * 5000,
+        }
+        q_format = ZephyrToQtestConverter.convert(original)
+        restored = QtestToZephyrConverter.convert(q_format)
+
+        assert restored["attachments"][0]["size"] == 12288
+        assert len(restored["description"]) == 5000
+
+    def test_rt_q_to_z_to_q_basic(self):
+        """Test Q→Z→Q basic case preserves all fields."""
+        original = {
+            "test_id": "QT-RT1",
+            "name": "Round Trip qTest 1",
+            "status": "Active",
+            "owner_id": "bob@example.com",
+        }
+        z_format = QtestToZephyrConverter.convert(original)
+        restored = ZephyrToQtestConverter.convert(z_format)
+
+        assert restored["test_id"] == original["test_id"]
+        assert restored["name"] == original["name"]
+        assert restored["status"] == original["status"]
+        assert restored["owner_id"] == original["owner_id"]
+
+    def test_rt_q_to_z_to_q_with_metadata(self):
+        """Test Q→Z→Q with custom fields and attachments."""
+        original = {
+            "test_id": "QT-RT2",
+            "name": "qTest Metadata",
+            "status": "Inactive",
+            "custom_fields": {"severity": "critical"},
+            "attachments": [{"name": "response.json", "size": 4096}],
+            "description": "qTest with data",
+        }
+        z_format = QtestToZephyrConverter.convert(original)
+        restored = ZephyrToQtestConverter.convert(z_format)
+
+        assert restored["custom_fields"] == original["custom_fields"]
+        assert restored["attachments"] == original["attachments"]
+        assert restored["description"] == original["description"]
+
+    def test_rt_q_to_z_to_q_with_unicode(self):
+        """Test Q→Z→Q with unicode preservation."""
+        original = {
+            "test_id": "QT-RT3",
+            "name": "qTest 🔥 Résumé",
+            "description": "Response with emoji 📊 and accents",
+        }
+        z_format = QtestToZephyrConverter.convert(original)
+        restored = ZephyrToQtestConverter.convert(z_format)
+
+        assert restored["name"] == original["name"]
+        assert restored["description"] == original["description"]
+
+    def test_rt_q_to_z_to_q_with_null_fields(self):
+        """Test Q→Z→Q with missing fields stays missing."""
+        original = {
+            "test_id": "QT-RT4",
+            "name": "Sparse qTest",
+        }
+        z_format = QtestToZephyrConverter.convert(original)
+        restored = ZephyrToQtestConverter.convert(z_format)
+
+        assert "owner_id" not in restored
+        assert "status" not in restored
+        assert restored["test_id"] == original["test_id"]
+
+    def test_rt_q_to_z_to_q_large_payload(self):
+        """Test Q→Z→Q with 10KB+ attachments."""
+        original = {
+            "test_id": "QT-RT5",
+            "name": "Large qTest",
+            "attachments": [{"name": "huge.bin", "size": 15000}],
+            "description": "Y" * 8000,
+        }
+        z_format = QtestToZephyrConverter.convert(original)
+        restored = ZephyrToQtestConverter.convert(z_format)
+
+        assert restored["attachments"][0]["size"] == 15000
+        assert len(restored["description"]) == 8000
+
+
+class TestContractValidation:
+    """Test contract validation (12 tests).
+
+    Purpose: Validate schema contracts for test case conversions.
+
+    Implementation location: ledzephyr/converters/contracts.py (to be created)
+    """
+
+    def test_cv_zephyr_valid_schema(self):
+        """Test valid Zephyr schema passes validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        case = {
+            "key": "ZEP-1",
+            "name": "Test Case",
+            "status": "Approved",
+        }
+        validator = ContractValidator()
+        assert validator.validate_zephyr_case(case) is True
+
+    def test_cv_qtest_valid_schema(self):
+        """Test valid qTest schema passes validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        case = {
+            "test_id": "QT-1",
+            "name": "Test Case",
+            "status": "Active",
+        }
+        validator = ContractValidator()
+        assert validator.validate_qtest_case(case) is True
+
+    def test_cv_zephyr_invalid_status(self):
+        """Test Zephyr case with invalid status fails validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        case = {
+            "key": "ZEP-1",
+            "name": "Test",
+            "status": "InvalidStatus",
+        }
+        validator = ContractValidator()
+        assert validator.validate_zephyr_case(case) is False
+
+    def test_cv_qtest_invalid_status(self):
+        """Test qTest case with invalid status fails validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        case = {
+            "test_id": "QT-1",
+            "name": "Test",
+            "status": "InvalidStatus",
+        }
+        validator = ContractValidator()
+        assert validator.validate_qtest_case(case) is False
+
+    def test_cv_zephyr_valid_statuses(self):
+        """Test all valid Zephyr status values pass validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        validator = ContractValidator()
+        for status in ["Approved", "Draft", "Deprecated"]:
+            case = {"key": "ZEP-1", "name": "Test", "status": status}
+            assert validator.validate_zephyr_case(case) is True
+
+    def test_cv_qtest_valid_statuses(self):
+        """Test all valid qTest status values pass validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        validator = ContractValidator()
+        for status in ["Active", "Inactive", "Deprecated"]:
+            case = {"test_id": "QT-1", "name": "Test", "status": status}
+            assert validator.validate_qtest_case(case) is True
+
+    def test_cv_date_format_validation(self):
+        """Test ISO 8601 date format validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        validator = ContractValidator()
+
+        # Valid ISO 8601
+        valid_case = {"created_on": "2025-02-09T10:00:00Z"}
+        assert validator.validate_dates(valid_case) is True
+
+        # Invalid format
+        invalid_case = {"created_on": "02/09/2025"}
+        assert validator.validate_dates(invalid_case) is False
+
+    def test_cv_field_types_validation(self):
+        """Test field type validation."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        validator = ContractValidator()
+
+        valid_case = {
+            "key": "ZEP-1",
+            "name": "Test",
+            "custom_fields": {"priority": "high"},
+        }
+        schema = {
+            "key": str,
+            "name": str,
+            "custom_fields": dict,
+        }
+        assert validator.validate_field_types(valid_case, schema) is True
+
+    def test_cv_attachment_metadata_validation(self):
+        """Test attachment metadata requires name and size."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        validator = ContractValidator()
+
+        valid_attachment = {"name": "file.txt", "size": 1024}
+        assert validator.validate_attachment(valid_attachment) is True
+
+        invalid_attachment = {"name": "file.txt"}
+        assert validator.validate_attachment(invalid_attachment) is False
+
+    def test_cv_reject_missing_required_fields(self):
+        """Test rejection of schema missing required fields."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        case = {
+            "status": "Approved",
+            # Missing "key" and "name" which are typically required
+        }
+        validator = ContractValidator()
+        assert validator.validate_zephyr_case(case) is False
+
+    def test_cv_accept_edge_cases(self):
+        """Test valid edge cases (empty custom_fields, null attachments)."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        case = {
+            "key": "ZEP-1",
+            "name": "Test",
+            "custom_fields": {},
+            "attachments": None,
+        }
+        validator = ContractValidator()
+        assert validator.validate_zephyr_case(case) is True
+
+    def test_cv_enum_values_comprehensive(self):
+        """Test comprehensive enum value checking."""
+        from ledzephyr.converters.contracts import ContractValidator
+
+        validator = ContractValidator()
+
+        # Valid combinations
+        assert validator.validate_enum_values(
+            {"status": "Approved"}, {"status": ["Approved", "Draft", "Deprecated"]}
+        ) is True
+
+        # Invalid combinations
+        assert validator.validate_enum_values(
+            {"status": "Unknown"}, {"status": ["Approved", "Draft", "Deprecated"]}
+        ) is False
